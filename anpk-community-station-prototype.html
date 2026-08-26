@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安派科 · 社区合作站 Web 端交互原型</title>
+  <style>
+    :root {
+      --brand: #0a7069;
+      --brand-dark: #064e49;
+      --brand-deep: #123b39;
+      --brand-soft: #e7f5f2;
+      --mint: #bce6dd;
+      --canvas: #f2f6f5;
+      --surface: #ffffff;
+      --ink: #173735;
+      --muted: #6e8381;
+      --line: #e2ebe9;
+      --line-strong: #cedbd8;
+      --orange: #e9863d;
+      --orange-soft: #fff2e8;
+      --danger: #d95555;
+      --danger-soft: #fff0f0;
+      --warning: #c98618;
+      --warning-soft: #fff7e7;
+      --success: #1d8c68;
+      --blue: #3978c7;
+      --blue-soft: #edf4ff;
+      --shadow-sm: 0 6px 20px rgba(20, 65, 61, .06);
+      --shadow: 0 18px 50px rgba(20, 65, 61, .10);
+      --radius: 16px;
+      --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 1180px; min-height: 100%; }
+    body { font-family: var(--font); color: var(--ink); background: var(--canvas); font-size: 14px; }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(10, 112, 105, .16); outline-offset: 2px; }
+
+    .app { min-height: 100vh; display: flex; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 252px; background: #123b39; color: #fff; display: flex; flex-direction: column; z-index: 30; box-shadow: 8px 0 30px rgba(9, 42, 40, .08); }
+    .brand { height: 82px; padding: 20px 22px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .brand-mark { width: 38px; height: 38px; border-radius: 13px; background: linear-gradient(145deg, #66c8b7, #1a887e); display: grid; place-items: center; font-weight: 900; font-size: 17px; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(3,28,27,.28); }
+    .brand strong { display: block; font-size: 16px; letter-spacing: .04em; }
+    .brand small { display: block; margin-top: 3px; color: rgba(255,255,255,.52); font-size: 10px; letter-spacing: .12em; }
+    .nav-scroll { flex: 1; overflow-y: auto; padding: 14px 12px 24px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+    .nav-section { margin: 5px 0 16px; }
+    .nav-label { padding: 0 12px 7px; color: rgba(255,255,255,.38); font-size: 10px; font-weight: 700; letter-spacing: .14em; }
+    .nav-item { width: 100%; border: 0; background: transparent; color: rgba(255,255,255,.72); min-height: 40px; padding: 9px 10px; border-radius: 11px; display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; transition: .18s ease; margin-bottom: 3px; }
+    .nav-item:hover { background: rgba(255,255,255,.07); color: #fff; transform: translateX(1px); }
+    .nav-item.active { background: linear-gradient(90deg, rgba(84,195,177,.25), rgba(84,195,177,.12)); color: #fff; box-shadow: inset 3px 0 #67c8b8; }
+    .nav-icon { flex: 0 0 25px; width: 25px; height: 25px; border-radius: 8px; display: grid; place-items: center; background: rgba(255,255,255,.08); font-size: 10px; font-weight: 800; }
+    .nav-item.active .nav-icon { color: #0f4f4a; background: #a6dfd4; }
+    .nav-text { flex: 1; font-size: 13px; }
+    .nav-count { min-width: 19px; height: 19px; padding: 0 6px; display: grid; place-items: center; border-radius: 10px; background: var(--orange); color: #fff; font-size: 10px; font-weight: 800; }
+    .sidebar-foot { padding: 14px 16px 17px; border-top: 1px solid rgba(255,255,255,.08); }
+    .account-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; background: rgba(255,255,255,.055); }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 12px; display: grid; place-items: center; color: #0a514b; background: #bce6dd; font-size: 12px; font-weight: 900; }
+    .account-card strong { display: block; font-size: 12px; }
+    .account-card small { color: rgba(255,255,255,.46); font-size: 10px; }
+
+    .main { min-height: 100vh; margin-left: 252px; width: calc(100% - 252px); }
+    .content { width: min(1440px, 100%); margin: 0 auto; padding: 34px 38px 54px; }
+    .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 28px; margin-bottom: 24px; }
+    .page-kicker { color: var(--brand); font-size: 10px; font-weight: 900; letter-spacing: .16em; margin-bottom: 7px; }
+    .page-head h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -.03em; }
+    .page-head p { margin: 9px 0 0; color: var(--muted); max-width: 680px; line-height: 1.7; }
+    .page-actions { display: flex; align-items: center; gap: 10px; padding-top: 5px; }
+
+    .btn { border: 1px solid transparent; border-radius: 10px; min-height: 38px; padding: 9px 15px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; font-weight: 700; font-size: 13px; transition: .16s ease; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:disabled { cursor: not-allowed; opacity: .45; transform: none; box-shadow: none; }
+    .btn.primary { color: #fff; background: var(--brand); border-color: var(--brand); }
+    .btn.primary:hover { background: var(--brand-dark); }
+    .btn.secondary { color: var(--brand); background: var(--brand-soft); border-color: #cfe8e3; }
+    .btn.ghost { color: var(--ink); background: #fff; border-color: var(--line-strong); }
+    .btn.danger { color: var(--danger); background: var(--danger-soft); border-color: #f3cccc; }
+    .btn.small { min-height: 30px; border-radius: 8px; padding: 6px 10px; font-size: 11px; }
+    .btn.link { padding: 3px; min-height: auto; color: var(--brand); background: transparent; border: 0; }
+    .btn.full { width: 100%; }
+    .btn-icon { font-size: 15px; line-height: 1; }
+
+    .card { background: var(--surface); border: 1px solid rgba(214,227,224,.9); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+    .grid { display: grid; gap: 18px; }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric { padding: 20px; min-height: 126px; position: relative; overflow: hidden; }
+    .metric::after { content: ""; position: absolute; width: 85px; height: 85px; right: -30px; top: -28px; border-radius: 50%; background: var(--brand-soft); }
+    .metric.orange::after { background: var(--orange-soft); }
+    .metric.red::after { background: var(--danger-soft); }
+    .metric.blue::after { background: var(--blue-soft); }
+    .metric-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; }
+    .metric-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-weight: 900; }
+    .metric.orange .metric-icon { color: var(--orange); background: var(--orange-soft); }
+    .metric.red .metric-icon { color: var(--danger); background: var(--danger-soft); }
+    .metric.blue .metric-icon { color: var(--blue); background: var(--blue-soft); }
+    .metric strong { display: block; margin-top: 17px; font-size: 27px; line-height: 1; letter-spacing: -.03em; }
+    .metric small { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; }
+
+    .section { margin-top: 20px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .section-head h2 { margin: 0; font-size: 17px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+    .quick-action { min-height: 102px; border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 17px; cursor: pointer; text-align: left; transition: .16s ease; }
+    .quick-action:hover { border-color: #a9d4cc; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .quick-action .q-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-weight: 900; margin-bottom: 11px; }
+    .quick-action strong { display: block; font-size: 13px; }
+    .quick-action small { color: var(--muted); font-size: 10px; display: block; margin-top: 4px; }
+
+    .split { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, .75fr); gap: 18px; }
+    .panel { padding: 20px; }
+    .panel-title { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 17px; }
+    .panel-title h3 { margin: 0; font-size: 15px; }
+    .panel-title span { color: var(--muted); font-size: 11px; }
+    .status-list { display: grid; gap: 10px; }
+    .status-row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfc; }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; background: var(--success); box-shadow: 0 0 0 5px rgba(29,140,104,.09); }
+    .status-dot.orange { background: var(--orange); box-shadow: 0 0 0 5px rgba(233,134,61,.09); }
+    .status-dot.red { background: var(--danger); box-shadow: 0 0 0 5px rgba(217,85,85,.09); }
+    .status-row div { flex: 1; }
+    .status-row strong { display: block; font-size: 12px; }
+    .status-row small { color: var(--muted); font-size: 10px; }
+    .status-value { font-weight: 800; font-size: 12px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .filters { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .filter { border: 0; border-radius: 9px; background: transparent; padding: 7px 11px; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 700; }
+    .filter.active { color: var(--brand); background: var(--brand-soft); }
+    .search { width: 290px; height: 38px; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; display: flex; align-items: center; gap: 8px; padding: 0 11px; }
+    .search span { color: #8ca09e; }
+    .search input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 12px; }
+    .search input::placeholder { color: #9aabaa; }
+
+    .table-card { overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 15px; text-align: left; color: var(--muted); background: #f7faf9; font-size: 10px; font-weight: 800; letter-spacing: .03em; border-bottom: 1px solid var(--line); }
+    td { padding: 15px; border-bottom: 1px solid #edf2f1; font-size: 12px; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fbfdfd; }
+    .cell-main { font-weight: 800; color: var(--ink); }
+    .cell-sub { color: var(--muted); font-size: 10px; margin-top: 4px; }
+    .table-actions { display: flex; gap: 7px; align-items: center; }
+    .badge { display: inline-flex; align-items: center; min-height: 24px; padding: 4px 9px; border-radius: 12px; font-size: 10px; font-weight: 800; color: var(--muted); background: #edf2f1; }
+    .badge.green { color: var(--success); background: #e8f6f1; }
+    .badge.orange { color: #be6b2b; background: var(--orange-soft); }
+    .badge.red { color: var(--danger); background: var(--danger-soft); }
+    .badge.blue { color: var(--blue); background: var(--blue-soft); }
+    .badge.gray { color: #6d7f7d; background: #edf2f1; }
+    .badge.outline { color: var(--brand); background: #fff; border: 1px solid #bcded8; }
+    .empty { padding: 64px 20px; text-align: center; color: var(--muted); }
+    .empty-icon { width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-weight: 900; }
+    .empty h3 { color: var(--ink); margin: 0 0 7px; font-size: 15px; }
+    .empty p { margin: 0; font-size: 11px; }
+
+    .hero { padding: 24px; position: relative; overflow: hidden; background: linear-gradient(120deg, #0b6e67, #185f5b); color: #fff; border: 0; box-shadow: 0 18px 45px rgba(12,88,81,.19); }
+    .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.12); }
+    .hero::before { width: 250px; height: 250px; right: -65px; top: -122px; }
+    .hero::after { width: 150px; height: 150px; right: 60px; bottom: -115px; }
+    .hero-content { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 30px; }
+    .hero-label { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 12px; background: rgba(255,255,255,.12); font-size: 10px; font-weight: 800; }
+    .hero h2 { margin: 13px 0 6px; font-size: 23px; }
+    .hero p { margin: 0; color: rgba(255,255,255,.65); font-size: 12px; }
+    .hero-meta { display: flex; gap: 28px; }
+    .hero-meta div { min-width: 85px; }
+    .hero-meta strong { display: block; font-size: 23px; }
+    .hero-meta small { color: rgba(255,255,255,.58); font-size: 10px; }
+
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px; }
+    .switch-copy { display: flex; align-items: center; gap: 13px; }
+    .switch-copy .state-icon { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; color: var(--success); background: #e8f6f1; font-weight: 900; }
+    .switch-copy .state-icon.off { color: var(--danger); background: var(--danger-soft); }
+    .switch-copy strong { display: block; font-size: 14px; }
+    .switch-copy small { display: block; color: var(--muted); margin-top: 4px; font-size: 11px; }
+    .switch { width: 48px; height: 27px; border: 0; border-radius: 14px; padding: 3px; background: #c7d2d0; cursor: pointer; transition: .2s ease; }
+    .switch::after { content: ""; display: block; width: 21px; height: 21px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); transition: .2s ease; }
+    .switch.on { background: var(--success); }
+    .switch.on::after { transform: translateX(21px); }
+
+    .notice { padding: 14px 16px; border: 1px solid #f1dcb4; border-radius: 12px; background: var(--warning-soft); color: #76521b; line-height: 1.65; font-size: 11px; }
+    .notice strong { display: block; color: #6d4b15; margin-bottom: 2px; font-size: 12px; }
+    .notice.green { border-color: #cae7df; background: #edf8f5; color: #3e6f65; }
+    .notice.green strong { color: var(--brand); }
+    .notice.red { border-color: #f0cccc; background: var(--danger-soft); color: #925252; }
+    .notice.red strong { color: var(--danger); }
+    .notice.blue { border-color: #cedef4; background: var(--blue-soft); color: #4a6d99; }
+    .notice.blue strong { color: var(--blue); }
+
+    .detail-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 18px; align-items: start; }
+    .detail-card { padding: 20px; margin-bottom: 16px; }
+    .detail-title { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 5px; }
+    .detail-title h3 { margin: 0; font-size: 15px; }
+    .info-row { min-height: 45px; display: flex; justify-content: space-between; align-items: center; gap: 20px; border-bottom: 1px solid #edf2f1; font-size: 12px; }
+    .info-row:last-child { border-bottom: 0; }
+    .info-row span { color: var(--muted); }
+    .info-row strong { text-align: right; }
+    .sticky-card { position: sticky; top: 24px; }
+    .code-box { padding: 24px; text-align: center; background: linear-gradient(145deg, #f5fbf9, #fff); }
+    .code-box .code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--brand); font-size: 31px; font-weight: 900; letter-spacing: .18em; margin: 15px 0; }
+    .code-box p { color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+    .query-card { max-width: 760px; padding: 26px; }
+    .query-card h3 { margin: 0 0 6px; font-size: 17px; }
+    .query-card > p { margin: 0 0 20px; color: var(--muted); line-height: 1.6; font-size: 12px; }
+    .query-line { display: flex; gap: 10px; }
+    .query-line .field { flex: 1; margin: 0; }
+    .demo-link { margin-top: 11px; color: var(--muted); font-size: 10px; }
+    .demo-link button { border: 0; background: transparent; padding: 0; color: var(--brand); cursor: pointer; font-weight: 800; }
+    .result-card { max-width: 760px; margin-top: 16px; padding: 20px; }
+    .result-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .result-head h3 { margin: 0; font-size: 15px; }
+
+    .field { display: block; margin-bottom: 15px; }
+    .field > span { display: block; color: var(--muted); font-size: 11px; font-weight: 700; margin-bottom: 7px; }
+    .field input, .field select, .field textarea { width: 100%; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; color: var(--ink); padding: 10px 12px; outline: 0; transition: .15s ease; }
+    .field input, .field select { height: 40px; }
+    .field textarea { min-height: 82px; resize: vertical; line-height: 1.6; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #75bdb2; box-shadow: 0 0 0 3px rgba(10,112,105,.08); }
+    .field-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 14px; }
+
+    .timeline { position: relative; display: grid; gap: 0; padding: 4px 0; }
+    .timeline-item { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: 9px; min-height: 62px; }
+    .timeline-item::after { content: ""; position: absolute; left: 13px; top: 27px; bottom: -3px; width: 2px; background: var(--line); }
+    .timeline-item:last-child::after { display: none; }
+    .timeline-dot { width: 27px; height: 27px; border-radius: 50%; display: grid; place-items: center; color: #829491; background: #edf2f1; border: 4px solid #fff; box-shadow: 0 0 0 1px var(--line); font-size: 9px; font-weight: 900; z-index: 1; }
+    .timeline-item.done .timeline-dot { color: #fff; background: var(--success); box-shadow: 0 0 0 1px var(--success); }
+    .timeline-item.current .timeline-dot { color: #fff; background: var(--orange); box-shadow: 0 0 0 4px rgba(233,134,61,.13); }
+    .timeline-copy { padding: 3px 0 15px; }
+    .timeline-copy strong { display: block; font-size: 12px; }
+    .timeline-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .profile-card { padding: 21px; }
+    .profile-card h3 { margin: 0 0 16px; font-size: 15px; }
+    .service-card { padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .service-icon { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 15px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-weight: 900; }
+    .service-icon.blue { color: var(--blue); background: var(--blue-soft); }
+    .service-card div { flex: 1; }
+    .service-card strong { display: block; font-size: 14px; }
+    .service-card p { color: var(--muted); margin: 5px 0 0; font-size: 10px; }
+
+    .progress-bar { height: 7px; border-radius: 4px; background: #e8efed; overflow: hidden; }
+    .progress-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--brand), #59b9aa); }
+    .inventory-summary { padding: 20px; }
+    .inventory-line { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
+    .inventory-line strong { font-size: 28px; }
+    .inventory-line span { color: var(--muted); font-size: 11px; }
+
+    .pagination { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 10px; padding: 13px 15px; border-top: 1px solid var(--line); background: #fbfdfc; }
+    .pages { display: flex; gap: 5px; }
+    .page-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+    .page-btn.active { color: #fff; background: var(--brand); border-color: var(--brand); }
+
+    .modal-layer { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(10, 37, 35, .48); backdrop-filter: blur(4px); }
+    .modal-layer.open { display: flex; }
+    .modal { width: min(520px, 94vw); max-height: 88vh; overflow-y: auto; border-radius: 18px; background: #fff; box-shadow: 0 30px 90px rgba(6,41,38,.28); animation: pop .18s ease; }
+    @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 16px; }
+    .modal-close { width: 30px; height: 30px; border: 0; border-radius: 9px; background: #f0f4f3; color: var(--muted); cursor: pointer; }
+    .modal-body { padding: 20px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 9px; padding: 14px 20px 20px; }
+    .confirm-icon { width: 52px; height: 52px; border-radius: 17px; display: grid; place-items: center; color: var(--orange); background: var(--orange-soft); font-size: 19px; font-weight: 900; margin-bottom: 14px; }
+    .modal-copy { color: var(--muted); line-height: 1.7; font-size: 12px; }
+
+    .toast { position: fixed; left: calc(50% + 126px); bottom: 28px; z-index: 130; transform: translate(-50%, 15px); opacity: 0; pointer-events: none; color: #fff; background: #173735; border-radius: 11px; padding: 11px 16px; box-shadow: 0 14px 40px rgba(8,45,42,.25); font-size: 12px; transition: .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1260px) {
+      .sidebar { width: 224px; }
+      .main { margin-left: 224px; width: calc(100% - 224px); }
+      .content { padding-left: 28px; padding-right: 28px; }
+      .toast { left: calc(50% + 112px); }
+      .grid.cols-4 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .quick-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">安</div>
+        <div><strong>社区合作站</strong><small>STATION CONSOLE</small></div>
+      </div>
+      <nav class="nav-scroll" aria-label="主菜单">
+        <div class="nav-section">
+          <div class="nav-label">总览</div>
+          <button class="nav-item active" data-page="dashboard"><span class="nav-icon">台</span><span class="nav-text">工作台</span></button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">健康服务</div>
+          <button class="nav-item" data-page="health-overview"><span class="nav-icon">健</span><span class="nav-text">服务概览</span></button>
+          <button class="nav-item" data-page="health-orders"><span class="nav-icon">单</span><span class="nav-text">自提订单</span><span class="nav-count" id="orderNavCount">2</span></button>
+          <button class="nav-item" data-page="verify"><span class="nav-icon">核</span><span class="nav-text">数字码核销</span></button>
+          <button class="nav-item" data-page="inventory"><span class="nav-icon">库</span><span class="nav-text">采集盒库存</span></button>
+          <button class="nav-item" data-page="health-workers"><span class="nav-icon">人</span><span class="nav-text">工作人员</span></button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">采血服务</div>
+          <button class="nav-item" data-page="blood-overview"><span class="nav-icon">采</span><span class="nav-text">服务概览</span></button>
+          <button class="nav-item" data-page="blood-forms"><span class="nav-icon">血</span><span class="nav-text">采血单管理</span><span class="nav-count" id="bloodNavCount">3</span></button>
+          <button class="nav-item" data-page="blood-receive"><span class="nav-icon">接</span><span class="nav-text">试管编码接收</span></button>
+          <button class="nav-item" data-page="blood-ship"><span class="nav-icon">寄</span><span class="nav-text">样本寄出</span></button>
+          <button class="nav-item" data-page="blood-workers"><span class="nav-icon">人</span><span class="nav-text">工作人员</span></button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">站点管理</div>
+          <button class="nav-item" data-page="station-profile"><span class="nav-icon">站</span><span class="nav-text">站点资料</span></button>
+          <button class="nav-item" data-page="logs"><span class="nav-icon">录</span><span class="nav-text">操作记录</span></button>
+          <button class="nav-item" data-page="security"><span class="nav-icon">安</span><span class="nav-text">账号与安全</span></button>
+        </div>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="account-card">
+          <div class="avatar">管</div>
+          <div><strong>站点管理员</strong><small>共享管理员账号</small></div>
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="content" id="pageRoot"></div>
+    </main>
+  </div>
+
+  <div class="modal-layer" id="modalLayer" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-head"><h3 id="modalTitle">操作确认</h3><button class="modal-close" data-action="close-modal" aria-label="关闭">×</button></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const initialOrders = [
+        { id:'ZT202608260021', user:'陈雨桐', phone:'138****6208', products:'基础健康风险检测套餐', qty:2, amount:1398, status:'待核销', code:'583926', created:'2026-08-26 09:42', paid:'2026-08-26 09:44' },
+        { id:'ZT202608260018', user:'林子恒', phone:'139****1682', products:'女性健康专项检测套餐', qty:1, amount:899, status:'待付款', code:'', created:'2026-08-26 09:16', paid:'—' },
+        { id:'ZT202608250067', user:'赵思敏', phone:'136****8077', products:'深度健康风险检测套餐', qty:1, amount:1099, status:'退款处理中', code:'906421', created:'2026-08-25 16:08', paid:'2026-08-25 16:10' },
+        { id:'ZT202608250042', user:'周雨辰', phone:'137****4519', products:'基础健康风险检测套餐', qty:1, amount:699, status:'已核销', code:'341982', created:'2026-08-25 11:21', paid:'2026-08-25 11:23', verified:'2026-08-25 18:36' },
+        { id:'ZT202608240088', user:'吴佳琪', phone:'135****2291', products:'肠道健康专项检测套餐', qty:1, amount:999, status:'已退款', code:'738015', created:'2026-08-24 14:56', paid:'2026-08-24 14:57' },
+        { id:'ZT202608230031', user:'彭子轩', phone:'158****9672', products:'基础健康风险检测套餐', qty:1, amount:699, status:'已核销', code:'271604', created:'2026-08-23 10:04', paid:'2026-08-23 10:06', verified:'2026-08-23 11:18' }
+      ];
+
+      const initialBloodForms = [
+        { id:'CX202608260031', tube:'T202608260079', person:'陈雨桐', phone:'138****6208', package:'深度健康风险检测套餐', status:'待采血', created:'2026-08-26 08:58', received:'—', shipped:'—', logistics:'—' },
+        { id:'CX202608250064', tube:'T202608250093', person:'陈建国', phone:'136****0812', package:'肠道健康专项检测套餐', status:'待采血', created:'2026-08-25 15:24', received:'—', shipped:'—', logistics:'—' },
+        { id:'CX202608250047', tube:'T202608250166', person:'林晓雯', phone:'139****6789', package:'女性健康专项检测套餐', status:'已接收', created:'2026-08-25 11:18', received:'2026-08-26 09:12', shipped:'—', logistics:'—' },
+        { id:'CX202608240026', tube:'T202608240055', person:'周雨辰', phone:'137****4519', package:'基础健康风险检测套餐', status:'已寄出', created:'2026-08-24 09:33', received:'2026-08-24 14:15', shipped:'2026-08-24 17:20', logistics:'顺丰速运 SF1468129034' },
+        { id:'CX202608210088', tube:'T202608210144', person:'吴佳琪', phone:'135****2291', package:'深度健康风险检测套餐', status:'待出报告', created:'2026-08-21 10:12', received:'2026-08-21 13:26', shipped:'2026-08-21 17:48', logistics:'京东物流 JDV0291841' },
+        { id:'CX202608180019', tube:'T202608180039', person:'彭子轩', phone:'158****9672', package:'基础健康风险检测套餐', status:'样本异常', created:'2026-08-18 09:40', received:'2026-08-18 15:08', shipped:'2026-08-18 17:31', logistics:'顺丰速运 SF1462390081', abnormal:'样本出现溶血，无法继续完成检测。' },
+        { id:'CX202607300077', tube:'T202607300118', person:'韩心怡', phone:'188****0826', package:'女性健康专项检测套餐', status:'报告完成', created:'2026-07-30 10:06', received:'2026-07-30 14:38', shipped:'2026-07-30 17:11', logistics:'顺丰速运 SF1400391257' }
+      ];
+
+      const state = {
+        page: 'dashboard',
+        healthOpen: true,
+        healthHours: '09:00–20:00',
+        bloodHours: '09:00–18:00',
+        orderFilter: 'all', orderQuery: '', selectedOrderId: null, verifyOrderId: null,
+        bloodFilter: 'all', bloodQuery: '', selectedBloodId: null, receiveBloodId: null,
+        inventory: { total: 86, locked: 13, warning: 20 },
+        orders: JSON.parse(JSON.stringify(initialOrders)),
+        bloodForms: JSON.parse(JSON.stringify(initialBloodForms)),
+        inventoryLogs: [
+          { id:'KC20260826008', type:'订单锁定', qty:-2, before:75, after:73, ref:'ZT202608260021', time:'2026-08-26 09:42' },
+          { id:'KC20260826004', type:'人工入库', qty:30, before:45, after:75, ref:'站点管理员登记', time:'2026-08-26 08:36' },
+          { id:'KC20260825031', type:'核销出库', qty:-1, before:46, after:45, ref:'ZT202608250042', time:'2026-08-25 18:36' },
+          { id:'KC20260825018', type:'订单释放', qty:1, before:45, after:46, ref:'ZT202608240088', time:'2026-08-25 10:14' },
+          { id:'KC20260824011', type:'订单锁定', qty:-1, before:46, after:45, ref:'ZT202608240088', time:'2026-08-24 14:56' }
+        ],
+        workers: [
+          { id:'W01', name:'梁欣怡', phone:'138****9031', health:true, blood:false, joined:'2026-07-18', records:36 },
+          { id:'W02', name:'徐文浩', phone:'186****3817', health:true, blood:true, joined:'2026-07-22', records:48 },
+          { id:'W03', name:'林晓雯', phone:'139****6789', health:false, blood:true, joined:'2026-08-02', records:21 }
+        ],
+        logs: [
+          { type:'采血服务', action:'接收采血单', detail:'试管编码 T202608250166', time:'2026-08-26 09:12', operator:'站点管理员' },
+          { type:'库存管理', action:'登记采集盒入库', detail:'入库 30 盒，可用库存变为 75 盒', time:'2026-08-26 08:36', operator:'站点管理员' },
+          { type:'健康服务', action:'核销自提订单', detail:'订单 ZT202608250042，出库 1 盒', time:'2026-08-25 18:36', operator:'站点管理员' },
+          { type:'采血服务', action:'登记样本寄出', detail:'采血单 CX202608240026', time:'2026-08-24 17:20', operator:'站点管理员' },
+          { type:'工作人员', action:'添加采血服务工作人员', detail:'林晓雯 139****6789', time:'2026-08-02 10:18', operator:'站点管理员' }
+        ]
+      };
+
+      const $ = selector => document.querySelector(selector);
+      const pageRoot = $('#pageRoot');
+      const modalLayer = $('#modalLayer');
+      let toastTimer = null;
+
+      const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      const availableStock = () => state.inventory.total - state.inventory.locked;
+      const money = value => '¥' + Number(value).toLocaleString('zh-CN');
+      const orderClass = status => ({'待付款':'orange','待核销':'blue','退款处理中':'red','已核销':'green','已退款':'gray'}[status] || 'gray');
+      const bloodClass = status => ({'待采血':'orange','已接收':'blue','已寄出':'green','待出报告':'blue','样本异常':'red','报告完成':'green'}[status] || 'gray');
+      const inventoryClass = type => ({'人工入库':'green','订单释放':'blue','订单锁定':'orange','核销出库':'gray'}[type] || 'gray');
+      const activeNavPage = page => page === 'order-detail' ? 'health-orders' : page === 'blood-detail' ? 'blood-forms' : page;
+
+      function head(kicker, title, desc, actions = '') {
+        return `<div class="page-head"><div><div class="page-kicker">${kicker}</div><h1>${title}</h1><p>${desc}</p></div>${actions ? `<div class="page-actions">${actions}</div>` : ''}</div>`;
+      }
+
+      function metric(label, value, sub, icon, tone='') {
+        return `<div class="card metric ${tone}"><div class="metric-top"><span>${label}</span><span class="metric-icon">${icon}</span></div><strong>${value}</strong><small>${sub}</small></div>`;
+      }
+
+      function emptyState(title='暂无数据', copy='当前筛选条件下没有可展示的记录。') {
+        return `<div class="empty"><div class="empty-icon">空</div><h3>${title}</h3><p>${copy}</p></div>`;
+      }
+
+      function pager(count) {
+        return `<div class="pagination"><span>共 ${count} 条记录</span><div class="pages"><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">›</button></div></div>`;
+      }
+
+      function dashboardPage() {
+        const pendingVerify = state.orders.filter(o => o.status === '待核销').length;
+        const pendingBlood = state.bloodForms.filter(b => b.status === '待采血').length;
+        const pendingShip = state.bloodForms.filter(b => b.status === '已接收').length;
+        return `${head('STATION WORKBENCH','工作台','聚合展示本站健康服务和采血服务的待办事项，快速进入高频业务操作。')}
+          <div class="card hero"><div class="hero-content"><div><span class="hero-label">双服务站点 · 正常服务</span><h2>天河悦康社区合作站</h2><p>广州市天河区体育西路 128 号 · 今日 ${state.healthOpen ? '接收自提订单' : '暂停接收自提订单'}</p></div><div class="hero-meta"><div><strong>${availableStock()}</strong><small>可用采集盒</small></div><div><strong>${pendingVerify}</strong><small>待核销订单</small></div><div><strong>${pendingBlood + pendingShip}</strong><small>采血待办</small></div></div></div></div>
+          <div class="grid cols-4 section">
+            ${metric('今日自提订单','12','较昨日增加 3 笔','单')}
+            ${metric('待核销订单',pendingVerify,'退款处理中 1 笔','核','orange')}
+            ${metric('采集盒可用库存',availableStock() + ' 盒','已锁定 ' + state.inventory.locked + ' 盒','库','blue')}
+            ${metric('采血服务待办',pendingBlood + pendingShip,'待采血 ' + pendingBlood + ' · 待寄出 ' + pendingShip,'采','red')}
+          </div>
+          <div class="section"><div class="section-head"><div><h2>快捷操作</h2><p>直接进入站点每日使用频率最高的业务流程</p></div></div><div class="quick-grid">
+            <button class="quick-action" data-page="verify"><span class="q-icon">核</span><strong>输入数字码核销</strong><small>调出自提订单并整单核销</small></button>
+            <button class="quick-action" data-action="open-inbound"><span class="q-icon">入</span><strong>登记采集盒入库</strong><small>人工入库后立即增加可用库存</small></button>
+            <button class="quick-action" data-page="blood-receive"><span class="q-icon">接</span><strong>试管编码接收</strong><small>查询采血单并确认到站</small></button>
+            <button class="quick-action" data-page="blood-ship"><span class="q-icon">寄</span><strong>登记样本寄出</strong><small>完成线下采血后的寄样登记</small></button>
+          </div></div>
+          <div class="section">
+            <div class="card panel"><div class="panel-title"><h3>待办提醒</h3><span>自动更新</span></div><div class="status-list">
+              <div class="status-row"><span class="status-dot orange"></span><div><strong>${pendingVerify} 笔订单待核销</strong><small>请核对用户数字码后操作</small></div><button class="btn small secondary" data-page="health-orders">处理</button></div>
+              <div class="status-row"><span class="status-dot red"></span><div><strong>${pendingShip} 份样本待寄出</strong><small>快递信息可选填</small></div><button class="btn small secondary" data-page="blood-ship">处理</button></div>
+            </div></div>
+          </div>`;
+      }
+
+      function healthOverviewPage() {
+        return `${head('HEALTH SERVICE','健康服务概览','管理本站日常营业状态并查看自提订单、库存和核销概况。',`<button class="btn ghost" data-action="edit-hours" data-type="health">编辑营业时间</button><button class="btn primary" data-page="verify">数字码核销</button>`)}
+          <div class="card switch-row"><div class="switch-copy"><span class="state-icon ${state.healthOpen ? '' : 'off'}">${state.healthOpen ? '营' : '停'}</span><div><strong>${state.healthOpen ? '正在接收新的自提订单' : '已暂停接收新的自提订单'}</strong><small>${state.healthOpen ? '营业开关已开启；营业时间之外仍允许用户下单。' : '已有待核销订单不受影响，仍可继续完成核销。'}</small></div></div><button class="switch ${state.healthOpen ? 'on' : ''}" data-action="toggle-health" aria-label="切换营业状态"></button></div>
+          <div class="grid cols-4 section">
+            ${metric('今日订单','12 笔','已支付 10 笔','单')}
+            ${metric('待核销','2 笔','最早等待 1 小时','核','orange')}
+            ${metric('今日已核销','8 笔','出库 9 个采集盒','出','blue')}
+            ${metric('可用库存',availableStock() + ' 盒','已锁定 ' + state.inventory.locked + ' 盒','库')}
+          </div>
+          <div class="split section">
+            <div class="card panel"><div class="panel-title"><h3>服务规则</h3><span>当前生效</span></div><div class="status-list">
+              <div class="status-row"><span class="status-dot"></span><div><strong>营业时间 ${state.healthHours}</strong><small>营业时间用于提示用户合理安排到站领取时间</small></div><button class="btn small ghost" data-action="edit-hours" data-type="health">修改</button></div>
+              <div class="status-row"><span class="status-dot orange"></span><div><strong>平台服务状态：已启用</strong><small>平台停用后停止新增，已有订单仍允许处理完成</small></div><span class="status-value">只读</span></div>
+            </div></div>
+            <div class="card panel"><div class="panel-title"><h3>重要说明</h3></div><div class="notice green"><strong>站点不管理商品</strong>套餐商品、价格和展示内容均由平台维护；本站只管理通用采集盒数量和是否接收新的自提订单。</div><div class="notice red" style="margin-top:12px"><strong>核销后不可售后</strong>执行核销前必须确认用户已领取全部采集盒，一笔订单只能一次性整单核销。</div></div>
+          </div>`;
+      }
+
+      const orderFilters = [['all','全部'],['pay','待付款'],['verify','待核销'],['refund','退款处理中'],['done','已核销'],['closed','已退款']];
+      function filteredOrders() {
+        const map = { pay:'待付款', verify:'待核销', refund:'退款处理中', done:'已核销', closed:'已退款' };
+        const q = state.orderQuery.trim().toLowerCase();
+        return state.orders.filter(o => (state.orderFilter === 'all' || o.status === map[state.orderFilter]) && (!q || [o.id,o.user,o.phone,o.code,o.products].some(v => String(v).toLowerCase().includes(q))));
+      }
+      function ordersTable() {
+        const list = filteredOrders();
+        if (!list.length) return emptyState('未找到相关订单','可以尝试更换状态或搜索其他订单号、手机号、数字核销码。');
+        return `<table><thead><tr><th>订单信息</th><th>用户</th><th>商品与数量</th><th>实付金额</th><th>状态</th><th>下单时间</th><th>操作</th></tr></thead><tbody>${list.map(o => `<tr><td><div class="cell-main">${o.id}</div><div class="cell-sub">${o.code ? '核销码 ' + o.code : '支付后生成核销码'}</div></td><td><div class="cell-main">${o.user}</div><div class="cell-sub">${o.phone}</div></td><td><div class="cell-main">${o.products}</div><div class="cell-sub">共 ${o.qty} 份 · 锁定 ${o.qty} 盒</div></td><td><div class="cell-main">${money(o.amount)}</div></td><td><span class="badge ${orderClass(o.status)}">${o.status}</span></td><td><div class="cell-main">${o.created.split(' ')[0]}</div><div class="cell-sub">${o.created.split(' ')[1]}</div></td><td><div class="table-actions"><button class="btn small ghost" data-action="view-order" data-id="${o.id}">详情</button>${o.status === '待核销' ? `<button class="btn small primary" data-action="verify-order" data-id="${o.id}">核销</button>` : ''}</div></td></tr>`).join('')}</tbody></table>`;
+      }
+      function healthOrdersPage() {
+        return `${head('PICKUP ORDERS','自提订单','查看归属于本站的到站自提订单。退款由平台处理，站点仅查看状态并执行核销。',`<button class="btn primary" data-page="verify">输入数字码核销</button>`)}
+          <div class="card toolbar"><div class="filters">${orderFilters.map(f => `<button class="filter ${state.orderFilter===f[0]?'active':''}" data-action="filter-order" data-value="${f[0]}">${f[1]}</button>`).join('')}</div><label class="search"><span>⌕</span><input id="orderSearch" value="${esc(state.orderQuery)}" placeholder="订单号 / 手机号 / 核销码"></label></div>
+          <div class="card table-card"><div id="ordersTableHost">${ordersTable()}</div>${pager(filteredOrders().length)}</div>`;
+      }
+
+      function orderDetailPage() {
+        const o = state.orders.find(x => x.id === state.selectedOrderId);
+        if (!o) return healthOrdersPage();
+        const locked = ['待付款','待核销','退款处理中'].includes(o.status);
+        return `${head('ORDER DETAIL','订单详情','查看自提履约、支付、库存锁定及核销处理情况。',`<button class="btn ghost" data-page="health-orders">返回订单列表</button>${o.status==='待核销'?`<button class="btn primary" data-action="verify-order" data-id="${o.id}">核销订单</button>`:''}`)}
+          <div class="detail-layout"><div>
+            <div class="card detail-card"><div class="detail-title"><h3>订单信息</h3><span class="badge ${orderClass(o.status)}">${o.status}</span></div><div class="info-row"><span>订单编号</span><strong>${o.id}</strong></div><div class="info-row"><span>下单用户</span><strong>${o.user} · ${o.phone}</strong></div><div class="info-row"><span>商品套餐</span><strong>${o.products}</strong></div><div class="info-row"><span>购买数量</span><strong>${o.qty} 份 / ${o.qty} 个采集盒</strong></div><div class="info-row"><span>实付金额</span><strong>${money(o.amount)}</strong></div><div class="info-row"><span>下单时间</span><strong>${o.created}</strong></div><div class="info-row"><span>支付时间</span><strong>${o.paid}</strong></div>${o.verified?`<div class="info-row"><span>核销时间</span><strong>${o.verified}</strong></div>`:''}</div>
+            <div class="card detail-card"><div class="detail-title"><h3>履约与库存</h3></div><div class="info-row"><span>履约方式</span><strong>到站自提</strong></div><div class="info-row"><span>自提站点</span><strong>天河悦康社区合作站</strong></div><div class="info-row"><span>库存状态</span><strong>${locked ? '已锁定 ' + o.qty + ' 盒' : o.status === '已核销' ? '已出库 ' + o.qty + ' 盒' : '库存已释放'}</strong></div><div class="info-row"><span>售后权限</span><strong>${o.status==='已核销'?'核销后不可售后':o.status==='退款处理中'?'平台处理中，暂停核销':'核销前可由用户申请退款'}</strong></div></div>
+            ${o.status==='退款处理中'?`<div class="notice red"><strong>退款处理中，当前禁止核销</strong>该订单已提交退款申请，平台处理完成前核销二维码和数字码均不可使用。站点没有退款审核权限。</div>`:''}
+            ${o.status==='已核销'?`<div class="notice green"><strong>订单已完成出库</strong>该订单已经整单核销，核销凭证已失效，用户不能再发起售后。</div>`:''}
+          </div><aside>
+            <div class="card code-box sticky-card"><span class="badge ${o.code?'outline':'gray'}">数字核销码</span><div class="code">${o.code || '------'}</div><p>${o.status==='待核销'?'核对用户订单与领取数量后执行整单核销。':o.status==='退款处理中'?'退款处理中，凭证已暂停使用。':'当前订单不可执行核销。'}</p>${o.status==='待核销'?`<button class="btn primary full" data-action="verify-order" data-id="${o.id}">确认整单核销</button>`:`<button class="btn ghost full" disabled>${o.status}</button>`}</div>
+          </aside></div>`;
+      }
+
+      function verifyResult() {
+        if (!state.verifyOrderId) return '';
+        const o = state.orders.find(x => x.id === state.verifyOrderId);
+        if (!o) return `<div class="card result-card"><div class="notice red"><strong>未找到订单</strong>请检查数字核销码是否输入正确。</div></div>`;
+        const can = o.status === '待核销';
+        return `<div class="card result-card"><div class="result-head"><h3>订单查询结果</h3><span class="badge ${orderClass(o.status)}">${o.status}</span></div><div class="info-row"><span>订单编号</span><strong>${o.id}</strong></div><div class="info-row"><span>领取用户</span><strong>${o.user} · ${o.phone}</strong></div><div class="info-row"><span>商品与数量</span><strong>${o.products} × ${o.qty}</strong></div><div class="info-row"><span>本次出库</span><strong>${o.qty} 个通用采集盒</strong></div>${can?`<div class="notice red" style="margin-top:14px"><strong>核销后不可售后</strong>请确认用户已经领取订单中的全部采集盒。一笔订单只能一次性整单核销。</div><button class="btn primary full" style="margin-top:14px" data-action="confirm-verify-open" data-id="${o.id}">确认整单核销</button>`:`<div class="notice red" style="margin-top:14px"><strong>当前订单不可核销</strong>${o.status==='退款处理中'?'平台正在处理退款申请，核销已暂停。':'该数字核销码已经失效或订单尚未支付。'}</div>`}</div>`;
+      }
+      function verifyPage() {
+        return `${head('DIGITAL VERIFICATION','数字码核销','输入用户订单详情中的六位数字核销码，核对订单后完成一次性整单出库。')}
+          <div class="card query-card"><h3>输入数字核销码</h3><p>仅支付成功、归属于本站且未进入退款流程的自提订单可以核销。</p><div class="query-line"><label class="field"><input id="verifyCode" maxlength="6" inputmode="numeric" placeholder="请输入 6 位数字核销码"></label><button class="btn primary" data-action="query-order-code">查询订单</button></div><div class="demo-link">演示可用核销码：<button data-action="fill-code" data-code="583926">583926</button>　退款中示例：<button data-action="fill-code" data-code="906421">906421</button></div></div>${verifyResult()}`;
+      }
+
+      function inventoryPage() {
+        const available = availableStock();
+        const percent = Math.min(100, Math.round(available / 100 * 100));
+        return `${head('COLLECTION BOX INVENTORY','采集盒库存','本站只维护通用采集盒数量，不按检测套餐拆分库存。',`<button class="btn primary" data-action="open-inbound">登记入库</button>`)}
+          <div class="grid cols-3"><div class="card inventory-summary"><div class="inventory-line"><div><span>实际库存</span><strong>${state.inventory.total}</strong></div><span>盒</span></div><div class="progress-bar"><span style="width:${Math.min(100,state.inventory.total)}%"></span></div></div><div class="card inventory-summary"><div class="inventory-line"><div><span>订单锁定</span><strong>${state.inventory.locked}</strong></div><span>盒</span></div><div class="progress-bar"><span style="width:${Math.min(100,state.inventory.locked*4)}%;background:var(--orange)"></span></div></div><div class="card inventory-summary"><div class="inventory-line"><div><span>可用库存</span><strong>${available}</strong></div><span>盒</span></div><div class="progress-bar"><span style="width:${percent}%"></span></div></div></div>
+          <div class="section"><div class="section-head"><div><h2>库存流水</h2><p>所有人工和订单自动变动均保留记录</p></div><button class="btn ghost" data-action="export-demo">导出记录</button></div><div class="card table-card"><table><thead><tr><th>流水号</th><th>变动类型</th><th>变动数量</th><th>变动前可用</th><th>变动后可用</th><th>关联业务</th><th>时间</th></tr></thead><tbody>${state.inventoryLogs.map(l=>`<tr><td><div class="cell-main">${l.id}</div></td><td><span class="badge ${inventoryClass(l.type)}">${l.type}</span></td><td><div class="cell-main" style="color:${l.qty>0?'var(--success)':'var(--ink)'}">${l.qty>0?'+':''}${l.qty}</div></td><td>${l.before} 盒</td><td><strong>${l.after} 盒</strong></td><td>${l.ref}</td><td>${l.time}</td></tr>`).join('')}</tbody></table>${pager(state.inventoryLogs.length)}</div></div>`;
+      }
+
+      function workersPage(type) {
+        const isHealth = type === 'health';
+        const list = state.workers.filter(w => w[type]);
+        return `${head(isHealth?'HEALTH STAFF':'BLOOD COLLECTION STAFF',isHealth?'健康服务工作人员':'采血服务工作人员',isHealth?'被授权后，工作人员可在小程序扫描核销二维码并处理本站自提订单。':'被授权后，工作人员可在小程序接收采血单并登记样本寄出。',`<button class="btn primary" data-action="open-add-worker" data-type="${type}">添加工作人员</button>`)}
+          <div class="notice blue"><strong>工作人员与管理员账号相互独立</strong>管理员通过已注册小程序的手机号添加人员。一个用户暂不允许归属于多个社区合作站，但可以同时获得本站两项服务权限。</div>
+          <div class="section card table-card"><table><thead><tr><th>工作人员</th><th>手机号码</th><th>本站权限</th><th>加入时间</th><th>累计业务操作</th><th>操作</th></tr></thead><tbody>${list.map(w=>`<tr><td><div class="cell-main">${w.name}</div><div class="cell-sub">人员编号 ${w.id}</div></td><td>${w.phone}</td><td>${w.health?'<span class="badge green">健康服务</span>':''} ${w.blood?'<span class="badge blue">采血服务</span>':''}</td><td>${w.joined}</td><td>${w.records} 次</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-worker" data-id="${w.id}">查看记录</button><button class="btn small danger" data-action="unbind-worker" data-id="${w.id}" data-type="${type}">解绑</button></div></td></tr>`).join('')}</tbody></table>${pager(list.length)}</div>`;
+      }
+
+      function bloodOverviewPage() {
+        const waiting = state.bloodForms.filter(b=>b.status==='待采血').length;
+        const received = state.bloodForms.filter(b=>b.status==='已接收').length;
+        const shipped = state.bloodForms.filter(b=>b.status==='已寄出').length;
+        return `${head('BLOOD COLLECTION SERVICE','采血服务概览','查看本站采血服务的开放状态、业务待办和样本流转情况。',`<button class="btn ghost" data-action="edit-hours" data-type="blood">查看营业时间</button><button class="btn primary" data-page="blood-receive">试管编码接收</button>`)}
+          <div class="card service-card"><span class="service-icon blue">采</span><div><strong>采血服务已由平台启用</strong><p>营业时间 ${state.bloodHours} · 用户绑定本站后可在营业时间内直接到站，无需预约</p></div><span class="badge green">正常开放</span></div>
+          <div class="grid cols-4 section">
+            ${metric('今日新增采血单','5 份','均已绑定本站','新')}
+            ${metric('待采血',waiting + ' 份','等待用户到站','采','orange')}
+            ${metric('已接收待寄出',received + ' 份','请完成线下采血和寄样','寄','red')}
+            ${metric('今日已寄出',shipped + ' 份','物流信息选填','出','blue')}
+          </div>
+          <div class="section"><div class="card panel"><div class="panel-title"><h3>业务提醒</h3></div><div class="notice red"><strong>${received} 份样本待寄出</strong>采血单接收后信息即冻结，请完成线下采血并及时登记寄出状态。</div></div></div>`;
+      }
+
+      const bloodFilters = [['all','全部'],['waiting','待采血'],['received','已接收'],['shipped','已寄出'],['report','待出报告'],['abnormal','样本异常'],['done','报告完成']];
+      function filteredBloodForms() {
+        const map = {waiting:'待采血',received:'已接收',shipped:'已寄出',report:'待出报告',abnormal:'样本异常',done:'报告完成'};
+        const q = state.bloodQuery.trim().toLowerCase();
+        return state.bloodForms.filter(b => (state.bloodFilter==='all'||b.status===map[state.bloodFilter]) && (!q || [b.id,b.tube,b.person,b.phone,b.package].some(v=>String(v).toLowerCase().includes(q))));
+      }
+      function bloodTable() {
+        const list = filteredBloodForms();
+        if (!list.length) return emptyState('未找到相关采血单','可以尝试更换状态或搜索其他采血单号、试管编码、受检人。');
+        return `<table><thead><tr><th>采血单</th><th>试管编码</th><th>受检人</th><th>检测套餐</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody>${list.map(b=>`<tr><td><div class="cell-main">${b.id}</div></td><td><div class="cell-main">${b.tube}</div></td><td><div class="cell-main">${b.person}</div><div class="cell-sub">${b.phone}</div></td><td>${b.package}</td><td><span class="badge ${bloodClass(b.status)}">${b.status}</span></td><td>${b.created}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-blood" data-id="${b.id}">详情</button>${b.status==='待采血'?`<button class="btn small primary" data-action="receive-blood" data-id="${b.id}">接收</button>`:''}${b.status==='已接收'?`<button class="btn small primary" data-action="ship-blood" data-id="${b.id}">寄出</button>`:''}</div></td></tr>`).join('')}</tbody></table>`;
+      }
+      function bloodFormsPage() {
+        return `${head('BLOOD FORMS','采血单管理','处理已绑定本站的采血单，并查看样本寄出后的检测与报告状态。',`<button class="btn ghost" data-page="blood-ship">样本寄出</button><button class="btn primary" data-page="blood-receive">试管编码接收</button>`)}
+          <div class="card toolbar"><div class="filters">${bloodFilters.map(f=>`<button class="filter ${state.bloodFilter===f[0]?'active':''}" data-action="filter-blood" data-value="${f[0]}">${f[1]}</button>`).join('')}</div><label class="search"><span>⌕</span><input id="bloodSearch" value="${esc(state.bloodQuery)}" placeholder="采血单 / 试管编码 / 受检人"></label></div>
+          <div class="card table-card"><div id="bloodTableHost">${bloodTable()}</div>${pager(filteredBloodForms().length)}</div>`;
+      }
+
+      function bloodTimeline(b) {
+        const steps = ['待采血','已接收','已寄出','待出报告','报告完成'];
+        let current = steps.indexOf(b.status);
+        if (b.status === '样本异常') current = 3;
+        return `<div class="timeline">${steps.map((s,i)=>`<div class="timeline-item ${i<current?'done':i===current?'current':''}"><span class="timeline-dot">${i<current?'✓':i+1}</span><div class="timeline-copy"><strong>${s}${b.status==='样本异常'&&i===3?' · 样本异常':''}</strong><small>${i===0?'等待用户携带采集盒到站':i===1?'本站核对采血单并接收':i===2?'本站完成线下采血并登记寄出':i===3?'实验室处理样本并录入检测数据':'数据中心上传最终 PDF 报告'}</small></div></div>`).join('')}</div>`;
+      }
+      function bloodDetailPage() {
+        const b = state.bloodForms.find(x=>x.id===state.selectedBloodId);
+        if (!b) return bloodFormsPage();
+        return `${head('BLOOD FORM DETAIL','采血单详情','查看受检人、套餐信息和样本流转记录。',`<button class="btn ghost" data-page="blood-forms">返回采血单列表</button>${b.status==='待采血'?`<button class="btn primary" data-action="receive-blood" data-id="${b.id}">确认接收</button>`:''}${b.status==='已接收'?`<button class="btn primary" data-action="ship-blood" data-id="${b.id}">登记寄出</button>`:''}`)}
+          <div class="detail-layout"><div><div class="card detail-card"><div class="detail-title"><h3>基础信息</h3><span class="badge ${bloodClass(b.status)}">${b.status}</span></div><div class="info-row"><span>采血单编号</span><strong>${b.id}</strong></div><div class="info-row"><span>试管编码</span><strong>${b.tube}</strong></div><div class="info-row"><span>受检人</span><strong>${b.person} · ${b.phone}</strong></div><div class="info-row"><span>检测套餐</span><strong>${b.package}</strong></div><div class="info-row"><span>采血方式</span><strong>合作站点采血</strong></div></div><div class="card detail-card"><div class="detail-title"><h3>站点处理记录</h3></div><div class="info-row"><span>创建时间</span><strong>${b.created}</strong></div><div class="info-row"><span>接收时间</span><strong>${b.received}</strong></div><div class="info-row"><span>寄出时间</span><strong>${b.shipped}</strong></div><div class="info-row"><span>寄样物流</span><strong>${b.logistics}</strong></div></div>${b.abnormal?`<div class="notice red"><strong>样本异常说明</strong>${b.abnormal} 原采血单流程到此结束，后续由平台客服线下联系用户处理。</div>`:''}</div><aside><div class="card detail-card sticky-card"><div class="detail-title"><h3>样本进度</h3></div>${bloodTimeline(b)}</div></aside></div>`;
+      }
+
+      function receiveResult() {
+        if (!state.receiveBloodId) return '';
+        const b = state.bloodForms.find(x=>x.id===state.receiveBloodId);
+        if (!b) return `<div class="card result-card"><div class="notice red"><strong>未找到采血单</strong>请检查试管编码。只有已绑定本站的采血单可以调出。</div></div>`;
+        const can = b.status === '待采血';
+        return `<div class="card result-card"><div class="result-head"><h3>采血单查询结果</h3><span class="badge ${bloodClass(b.status)}">${b.status}</span></div><div class="info-row"><span>采血单编号</span><strong>${b.id}</strong></div><div class="info-row"><span>试管编码</span><strong>${b.tube}</strong></div><div class="info-row"><span>受检人</span><strong>${b.person} · ${b.phone}</strong></div><div class="info-row"><span>检测套餐</span><strong>${b.package}</strong></div>${can?`<div class="notice blue" style="margin-top:14px"><strong>接收后信息冻结</strong>请核对受检人、试管编码和套餐信息。点击接收后，用户不能再修改该采血单。</div><button class="btn primary full" style="margin-top:14px" data-action="receive-blood" data-id="${b.id}">确认接收采血单</button>`:`<div class="notice red" style="margin-top:14px"><strong>当前状态不可接收</strong>该采血单已经接收或进入后续流程。</div>`}</div>`;
+      }
+      function bloodReceivePage() {
+        return `${head('TUBE CODE RECEIVE','试管编码接收','用户到站后，输入采集盒上的试管编码调出采血单并确认接收。')}
+          <div class="card query-card"><h3>输入试管编码</h3><p>系统只按已有采血单记录查询，不校验编码来源或是否重复。</p><div class="query-line"><label class="field"><input id="tubeCode" placeholder="请输入或扫描试管编码"></label><button class="btn primary" data-action="query-tube">查询采血单</button></div><div class="demo-link">演示可用编码：<button data-action="fill-tube" data-code="T202608260079">T202608260079</button>　已接收示例：<button data-action="fill-tube" data-code="T202608250166">T202608250166</button></div></div>${receiveResult()}`;
+      }
+
+      function bloodShipPage() {
+        const list = state.bloodForms.filter(b=>b.status==='已接收');
+        return `${head('SAMPLE SHIPPING','样本寄出','线下完成采血和寄样后，将采血单更新为已寄出；快递公司和单号均为选填。')}
+          <div class="notice green"><strong>物流信息可以不填写</strong>确认线下样本已经寄出后即可变更状态。提交后采血单进入实验室处理范围，本站不能再修改受检人或试管编码。</div>
+          <div class="section card table-card">${list.length?`<table><thead><tr><th>采血单</th><th>试管编码</th><th>受检人</th><th>检测套餐</th><th>接收时间</th><th>操作</th></tr></thead><tbody>${list.map(b=>`<tr><td><div class="cell-main">${b.id}</div></td><td>${b.tube}</td><td><div class="cell-main">${b.person}</div><div class="cell-sub">${b.phone}</div></td><td>${b.package}</td><td>${b.received}</td><td><button class="btn small primary" data-action="ship-blood" data-id="${b.id}">登记寄出</button></td></tr>`).join('')}</tbody></table>${pager(list.length)}`:emptyState('暂无待寄出样本','当前没有已接收且尚未登记寄出的采血单。')}</div>`;
+      }
+
+      function stationProfilePage() {
+        return `${head('STATION PROFILE','站点资料','查看社区合作站主体信息、服务开通状态、服务地址和营业时间。')}
+          <div class="grid cols-2"><div class="card service-card"><span class="service-icon">健</span><div><strong>健康服务</strong><p>承接用户到站自提订单，管理通用采集盒库存</p></div><span class="badge green">平台已启用</span></div><div class="card service-card"><span class="service-icon blue">采</span><div><strong>采血服务</strong><p>接收用户采血单，线下采血并寄送样本</p></div><span class="badge green">平台已启用</span></div></div>
+          <div class="profile-grid section"><div class="card profile-card"><h3>主体资料</h3><div class="info-row"><span>站点名称</span><strong>天河悦康社区合作站</strong></div><div class="info-row"><span>所属地区</span><strong>广东省 · 广州市 · 天河区</strong></div><div class="info-row"><span>城市合伙人</span><strong>广州城市运营中心</strong></div><div class="info-row"><span>联系人</span><strong>陈女士 · 138****6208</strong></div><div class="info-row"><span>创建时间</span><strong>2026-07-15</strong></div><div class="notice blue" style="margin-top:14px"><strong>主体资料由平台维护</strong>如需修改站点主体、所属城市或服务开通状态，请联系平台管理员。</div></div>
+          <div class="card profile-card"><h3>地址与服务时间</h3><div class="info-row"><span>服务地址</span><strong>广州市天河区体育西路 128 号</strong></div><div class="info-row"><span>经纬度</span><strong>113.3236, 23.1321</strong></div><div class="info-row"><span>联系电话</span><strong>020-8898 2271</strong></div><div class="info-row"><span>健康服务时间</span><strong>${state.healthHours}</strong></div><div class="info-row"><span>采血服务时间</span><strong>${state.bloodHours}</strong></div><div style="display:flex;gap:9px;margin-top:16px"><button class="btn secondary" data-action="edit-hours" data-type="health">编辑健康服务时间</button><button class="btn ghost" data-action="edit-hours" data-type="blood">查看采血服务时间</button></div></div></div>`;
+      }
+
+      function logsPage() {
+        return `${head('OPERATION LOGS','操作记录','记录共享管理员账号在订单、库存、采血单和工作人员模块中的业务操作。',`<button class="btn ghost" data-action="export-demo">导出记录</button>`)}
+          <div class="notice blue"><strong>当前为共享管理员账号</strong>操作日志只能记录到“站点管理员”，暂时无法区分实际操作人员；工作人员在小程序执行的操作仍记录其个人身份。</div>
+          <div class="section card table-card"><table><thead><tr><th>业务模块</th><th>操作类型</th><th>操作内容</th><th>操作账号</th><th>操作时间</th></tr></thead><tbody>${state.logs.map(l=>`<tr><td><span class="badge ${l.type==='采血服务'?'blue':l.type==='库存管理'?'orange':'green'}">${l.type}</span></td><td><div class="cell-main">${l.action}</div></td><td>${l.detail}</td><td>${l.operator}</td><td>${l.time}</td></tr>`).join('')}</tbody></table>${pager(state.logs.length)}</div>`;
+      }
+
+      function securityPage() {
+        return `${head('ACCOUNT & SECURITY','账号与安全','管理社区合作站共享管理员账号的登录密码和安全设置。')}
+          <div class="profile-grid"><div class="card profile-card"><h3>账号信息</h3><div class="info-row"><span>登录账号</span><strong>THYK20260715</strong></div><div class="info-row"><span>账号状态</span><strong><span class="badge green">正常</span></strong></div><div class="info-row"><span>最近登录</span><strong>2026-08-26 08:22</strong></div><div class="info-row"><span>登录地址</span><strong>广东省广州市</strong></div></div>
+          <div class="card profile-card"><h3>修改登录密码</h3><label class="field"><span>当前密码</span><input id="oldPassword" type="password" placeholder="请输入当前密码"></label><label class="field"><span>新密码</span><input id="newPassword" type="password" placeholder="8–20 位，建议包含字母和数字"></label><label class="field"><span>确认新密码</span><input id="confirmPassword" type="password" placeholder="请再次输入新密码"></label><button class="btn primary" data-action="save-password">确认修改</button></div></div>`;
+      }
+
+      const renderers = {
+        dashboard: dashboardPage,
+        'health-overview': healthOverviewPage,
+        'health-orders': healthOrdersPage,
+        'order-detail': orderDetailPage,
+        verify: verifyPage,
+        inventory: inventoryPage,
+        'health-workers': () => workersPage('health'),
+        'blood-overview': bloodOverviewPage,
+        'blood-forms': bloodFormsPage,
+        'blood-detail': bloodDetailPage,
+        'blood-receive': bloodReceivePage,
+        'blood-ship': bloodShipPage,
+        'blood-workers': () => workersPage('blood'),
+        'station-profile': stationProfilePage,
+        logs: logsPage,
+        security: securityPage
+      };
+
+      function updateNav() {
+        const active = activeNavPage(state.page);
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === active));
+        const orderCount = state.orders.filter(o=>o.status==='待核销'||o.status==='退款处理中').length;
+        const bloodCount = state.bloodForms.filter(b=>b.status==='待采血'||b.status==='已接收').length;
+        $('#orderNavCount').textContent = orderCount;
+        $('#bloodNavCount').textContent = bloodCount;
+      }
+
+      function render(scroll = true) {
+        pageRoot.innerHTML = (renderers[state.page] || dashboardPage)();
+        updateNav();
+        if (scroll) window.scrollTo({top:0,behavior:'smooth'});
+      }
+
+      function go(page) {
+        state.page = page;
+        render();
+      }
+
+      function toast(message) {
+        const el = $('#toast');
+        el.textContent = message;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(()=>el.classList.remove('show'), 2400);
+      }
+
+      function showModal(title, body, foot='') {
+        $('#modalTitle').textContent = title;
+        $('#modalBody').innerHTML = body;
+        $('#modalFoot').innerHTML = foot || `<button class="btn ghost" data-action="close-modal">关闭</button>`;
+        modalLayer.classList.add('open');
+        modalLayer.setAttribute('aria-hidden','false');
+      }
+      function closeModal() {
+        modalLayer.classList.remove('open');
+        modalLayer.setAttribute('aria-hidden','true');
+      }
+
+      function now() {
+        const d = new Date();
+        const pad = n => String(n).padStart(2,'0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+      function addLog(type, action, detail) {
+        state.logs.unshift({type,action,detail,time:now(),operator:'站点管理员'});
+      }
+
+      function openVerifyConfirm(id) {
+        const o = state.orders.find(x=>x.id===id);
+        if (!o || o.status!=='待核销') return toast('当前订单不可核销');
+        showModal('确认整单核销',`<div class="confirm-icon">核</div><div class="modal-copy"><strong style="display:block;color:var(--ink);font-size:14px;margin-bottom:7px">订单 ${o.id}</strong>本次将一次性核销 ${o.qty} 份套餐并出库 ${o.qty} 个通用采集盒。核销成功后订单不可再申请取消、退款或其他售后。</div><div class="notice red" style="margin-top:14px"><strong>请确认用户已经领取全部商品</strong>该操作不能撤销。</div>`,`<button class="btn ghost" data-action="close-modal">返回核对</button><button class="btn primary" data-action="confirm-verify" data-id="${o.id}">确认核销并出库</button>`);
+      }
+
+      function completeVerify(id) {
+        const o = state.orders.find(x=>x.id===id);
+        if (!o || o.status!=='待核销') return;
+        const before = availableStock();
+        o.status = '已核销';
+        o.verified = now();
+        state.inventory.total -= o.qty;
+        state.inventory.locked = Math.max(0,state.inventory.locked-o.qty);
+        state.inventoryLogs.unshift({id:'KC'+Date.now().toString().slice(-8),type:'核销出库',qty:-o.qty,before,after:availableStock(),ref:o.id,time:now()});
+        addLog('健康服务','核销自提订单',`订单 ${o.id}，出库 ${o.qty} 盒`);
+        state.verifyOrderId = id;
+        closeModal();
+        render(false);
+        toast('核销成功，订单已完成出库');
+      }
+
+      function openInbound() {
+        showModal('登记采集盒入库',`<div class="notice green" style="margin-bottom:16px"><strong>登记后立即生效</strong>入库不需要平台审核，仅增加通用采集盒可用库存。</div><label class="field"><span>入库数量 *</span><input id="inboundQty" type="number" min="1" value="20" placeholder="请输入正整数"></label><label class="field"><span>入库备注</span><textarea id="inboundNote" placeholder="可填写到货批次或说明">总部配送到货，现场清点无误</textarea></label>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-inbound">确认入库</button>`);
+      }
+
+      function confirmInbound() {
+        const qty = Number($('#inboundQty')?.value);
+        if (!Number.isInteger(qty) || qty <= 0) return toast('请输入正确的入库数量');
+        const note = $('#inboundNote')?.value.trim() || '站点管理员登记';
+        const before = availableStock();
+        state.inventory.total += qty;
+        state.inventoryLogs.unshift({id:'KC'+Date.now().toString().slice(-8),type:'人工入库',qty,before,after:availableStock(),ref:note,time:now()});
+        addLog('库存管理','登记采集盒入库',`入库 ${qty} 盒，可用库存变为 ${availableStock()} 盒`);
+        closeModal();
+        render(false);
+        toast(`已成功入库 ${qty} 个采集盒`);
+      }
+
+      function openHours(type) {
+        const isHealth = type==='health';
+        const current = isHealth?state.healthHours:state.bloodHours;
+        showModal(isHealth?'编辑健康服务营业时间':'采血服务营业时间',`${!isHealth?'<div class="notice blue" style="margin-bottom:16px"><strong>采血服务配置说明</strong>当前原型中采血服务状态由平台配置，站点仅查看时间；如需变更请联系平台。</div>':''}<div class="field-grid"><label class="field"><span>开始时间</span><input id="startHour" type="time" value="${current.slice(0,5)}" ${!isHealth?'disabled':''}></label><label class="field"><span>结束时间</span><input id="endHour" type="time" value="${current.slice(-5)}" ${!isHealth?'disabled':''}></label></div><div class="notice green"><strong>营业时间用于到站指引</strong>${isHealth?'即使当前不在营业时间，只要营业开关开启且库存充足，用户仍可下自提订单。':'用户在采血服务营业时间内直接到站，无需预约时段。'}</div>`,isHealth?`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="save-hours" data-type="health">保存时间</button>`:`<button class="btn primary" data-action="close-modal">我知道了</button>`);
+      }
+
+      function toggleHealth() {
+        if (state.healthOpen) {
+          showModal('暂停健康服务营业',`<div class="confirm-icon">停</div><div class="modal-copy">暂停后，本站不再接收新的自提订单；已经产生的待付款、待核销订单仍允许继续处理完成。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-toggle-health">确认暂停营业</button>`);
+        } else {
+          state.healthOpen = true;
+          addLog('健康服务','开启营业状态','站点开始接收新的自提订单');
+          render(false);
+          toast('营业状态已开启');
+        }
+      }
+
+      function openWorkerModal(type) {
+        showModal('添加' + (type==='health'?'健康服务':'采血服务') + '工作人员',`<div class="notice blue" style="margin-bottom:16px"><strong>通过注册手机号搜索</strong>申请人不会自动成为工作人员，必须使用其小程序注册手机号另行添加。</div><div class="query-line"><label class="field"><input id="workerPhone" maxlength="11" value="13922156789" placeholder="输入 11 位手机号码"></label><button class="btn primary" data-action="search-worker" data-type="${type}">搜索</button></div><div id="workerSearchResult"></div>`,`<button class="btn ghost" data-action="close-modal">关闭</button>`);
+      }
+
+      function searchWorker(type) {
+        const phone = $('#workerPhone')?.value.trim();
+        const host = $('#workerSearchResult');
+        if (!/^1\d{10}$/.test(phone)) { host.innerHTML = `<div class="notice red"><strong>手机号格式不正确</strong>请输入已注册小程序的 11 位手机号码。</div>`; return; }
+        host.innerHTML = `<div class="status-row" style="margin-top:14px"><div class="avatar" style="flex:0 0 38px">林</div><div><strong>林晓雯</strong><small>${phone.slice(0,3)}****${phone.slice(-4)} · 已注册小程序</small></div><button class="btn small primary" data-action="add-worker" data-type="${type}" data-phone="${phone}">添加</button></div>`;
+      }
+
+      function addWorker(type, phone) {
+        let worker = state.workers.find(w=>w.name==='林晓雯');
+        if (!worker) {
+          worker = {id:'W'+String(state.workers.length+1).padStart(2,'0'),name:'林晓雯',phone:phone.slice(0,3)+'****'+phone.slice(-4),health:false,blood:false,joined:now().slice(0,10),records:0};
+          state.workers.push(worker);
+        }
+        if (worker[type]) return toast('该用户已拥有此项工作人员权限');
+        worker[type] = true;
+        addLog('工作人员','添加'+(type==='health'?'健康服务':'采血服务')+'工作人员',`${worker.name} ${worker.phone}`);
+        closeModal(); render(false); toast('工作人员添加成功');
+      }
+
+      function receiveBlood(id) {
+        const b = state.bloodForms.find(x=>x.id===id);
+        if (!b || b.status!=='待采血') return toast('当前采血单不可接收');
+        showModal('确认接收采血单',`<div class="confirm-icon" style="color:var(--blue);background:var(--blue-soft)">接</div><div class="modal-copy"><strong style="display:block;color:var(--ink);font-size:14px;margin-bottom:7px">${b.tube} · ${b.person}</strong>请核对受检人、检测套餐和试管编码。接收后采血单信息冻结，用户不能再修改或更换采血方式。</div>`,`<button class="btn ghost" data-action="close-modal">返回核对</button><button class="btn primary" data-action="confirm-receive-blood" data-id="${b.id}">确认接收</button>`);
+      }
+
+      function completeReceive(id) {
+        const b = state.bloodForms.find(x=>x.id===id);
+        if (!b || b.status!=='待采血') return;
+        b.status='已接收'; b.received=now();
+        addLog('采血服务','接收采血单',`试管编码 ${b.tube}`);
+        state.receiveBloodId=id;
+        closeModal(); render(false); toast('采血单已接收');
+      }
+
+      function shipBlood(id) {
+        const b = state.bloodForms.find(x=>x.id===id);
+        if (!b || b.status!=='已接收') return toast('当前采血单不可登记寄出');
+        showModal('登记样本寄出',`<div class="notice green" style="margin-bottom:16px"><strong>快递信息为选填</strong>不填写快递公司和单号也可以将采血单变更为已寄出。</div><div class="info-row"><span>试管编码</span><strong>${b.tube}</strong></div><div class="info-row" style="margin-bottom:15px"><span>受检人</span><strong>${b.person}</strong></div><label class="field"><span>快递公司（选填）</span><select id="shipCompany"><option value="">不填写</option><option>顺丰速运</option><option>京东物流</option><option>其他快递</option></select></label><label class="field"><span>快递单号（选填）</span><input id="shipNo" placeholder="请输入快递单号"></label>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-ship-blood" data-id="${b.id}">确认已寄出</button>`);
+      }
+
+      function completeShip(id) {
+        const b = state.bloodForms.find(x=>x.id===id);
+        if (!b || b.status!=='已接收') return;
+        const company = $('#shipCompany')?.value;
+        const no = $('#shipNo')?.value.trim();
+        b.status='已寄出'; b.shipped=now(); b.logistics=company ? company + (no?' '+no:'') : '未填写物流信息';
+        addLog('采血服务','登记样本寄出',`采血单 ${b.id}`);
+        closeModal(); render(false); toast('样本已登记为已寄出');
+      }
+
+      document.addEventListener('click', event => {
+        const el = event.target.closest('[data-page],[data-action]');
+        if (!el) return;
+        if (el.dataset.page) return go(el.dataset.page);
+        const action = el.dataset.action;
+        if (action==='close-modal') return closeModal();
+        if (action==='filter-order') { state.orderFilter=el.dataset.value; return render(false); }
+        if (action==='filter-blood') { state.bloodFilter=el.dataset.value; return render(false); }
+        if (action==='view-order') { state.selectedOrderId=el.dataset.id; return go('order-detail'); }
+        if (action==='verify-order') { state.verifyOrderId=el.dataset.id; go('verify'); return setTimeout(()=>openVerifyConfirm(el.dataset.id),120); }
+        if (action==='fill-code') { const input=$('#verifyCode'); if(input){input.value=el.dataset.code;input.focus();} return; }
+        if (action==='query-order-code') { const code=$('#verifyCode')?.value.trim(); const order=state.orders.find(o=>o.code===code); state.verifyOrderId=order?order.id:'__missing__'; return render(false); }
+        if (action==='confirm-verify-open') return openVerifyConfirm(el.dataset.id);
+        if (action==='confirm-verify') return completeVerify(el.dataset.id);
+        if (action==='open-inbound') return openInbound();
+        if (action==='confirm-inbound') return confirmInbound();
+        if (action==='edit-hours') return openHours(el.dataset.type);
+        if (action==='save-hours') { const start=$('#startHour')?.value,end=$('#endHour')?.value; if(!start||!end||start>=end)return toast('请设置正确的营业时间'); state.healthHours=start+'–'+end; addLog('健康服务','修改营业时间',state.healthHours); closeModal();render(false);return toast('营业时间已更新'); }
+        if (action==='toggle-health') return toggleHealth();
+        if (action==='confirm-toggle-health') { state.healthOpen=false; addLog('健康服务','暂停营业状态','停止接收新的自提订单'); closeModal();render(false);return toast('已暂停接收新的自提订单'); }
+        if (action==='open-add-worker') return openWorkerModal(el.dataset.type);
+        if (action==='search-worker') return searchWorker(el.dataset.type);
+        if (action==='add-worker') return addWorker(el.dataset.type,el.dataset.phone);
+        if (action==='unbind-worker') { const w=state.workers.find(x=>x.id===el.dataset.id); if(!w)return; return showModal('确认解绑工作人员',`<div class="confirm-icon">解</div><div class="modal-copy">解绑后，${w.name} 将立即失去${el.dataset.type==='health'?'健康服务核销':'采血服务处理'}权限，既有操作记录仍会保留。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-unbind" data-id="${w.id}" data-type="${el.dataset.type}">确认解绑</button>`); }
+        if (action==='confirm-unbind') { const w=state.workers.find(x=>x.id===el.dataset.id); if(w){w[el.dataset.type]=false;addLog('工作人员','解绑工作人员',`${w.name} · ${el.dataset.type==='health'?'健康服务':'采血服务'}`);} closeModal();render(false);return toast('工作人员已解绑'); }
+        if (action==='view-worker') return showModal('工作人员操作记录',`<div class="info-row"><span>工作人员</span><strong>${state.workers.find(w=>w.id===el.dataset.id)?.name||'—'}</strong></div><div class="info-row"><span>最近操作</span><strong>2026-08-26 09:12</strong></div><div class="info-row"><span>累计业务操作</span><strong>${state.workers.find(w=>w.id===el.dataset.id)?.records||0} 次</strong></div><div class="notice blue" style="margin-top:14px"><strong>历史记录永久保留</strong>即使工作人员解绑，既有核销、接收和寄样记录仍保留原操作人。</div>`);
+        if (action==='view-blood') { state.selectedBloodId=el.dataset.id; return go('blood-detail'); }
+        if (action==='fill-tube') { const input=$('#tubeCode'); if(input){input.value=el.dataset.code;input.focus();} return; }
+        if (action==='query-tube') { const tube=$('#tubeCode')?.value.trim(); const b=state.bloodForms.find(x=>x.tube.toLowerCase()===String(tube).toLowerCase()); state.receiveBloodId=b?b.id:'__missing__'; return render(false); }
+        if (action==='receive-blood') return receiveBlood(el.dataset.id);
+        if (action==='confirm-receive-blood') return completeReceive(el.dataset.id);
+        if (action==='ship-blood') return shipBlood(el.dataset.id);
+        if (action==='confirm-ship-blood') return completeShip(el.dataset.id);
+        if (action==='export-demo') return toast('已生成演示导出任务');
+        if (action==='save-password') { const old=$('#oldPassword')?.value,nw=$('#newPassword')?.value,confirm=$('#confirmPassword')?.value; if(!old||!nw||!confirm)return toast('请完整填写密码信息'); if(nw.length<8)return toast('新密码至少需要 8 位'); if(nw!==confirm)return toast('两次输入的新密码不一致'); $('#oldPassword').value=$('#newPassword').value=$('#confirmPassword').value=''; addLog('账号安全','修改登录密码','共享管理员账号密码已更新'); return toast('登录密码修改成功'); }
+      });
+
+      document.addEventListener('input', event => {
+        if (event.target.id==='orderSearch') {
+          state.orderQuery=event.target.value;
+          const host=$('#ordersTableHost'); if(host) host.innerHTML=ordersTable();
+        }
+        if (event.target.id==='bloodSearch') {
+          state.bloodQuery=event.target.value;
+          const host=$('#bloodTableHost'); if(host) host.innerHTML=bloodTable();
+        }
+        if (event.target.id==='verifyCode') event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);
+      });
+
+      modalLayer.addEventListener('click', event => { if (event.target===modalLayer) closeModal(); });
+      document.addEventListener('keydown', event => { if(event.key==='Escape') closeModal(); });
+
+      render(false);
+    })();
+  </script>
+</body>
+</html>

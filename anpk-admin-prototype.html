@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安派科 · 运营管理后台原型</title>
+  <style>
+    :root {
+      --brand: #0a746c;
+      --brand-2: #159588;
+      --brand-dark: #073f3c;
+      --brand-deep: #102f2e;
+      --brand-soft: #e7f6f2;
+      --accent: #d5ee72;
+      --canvas: #f3f6f5;
+      --surface: #ffffff;
+      --surface-2: #f8fbfa;
+      --ink: #183331;
+      --muted: #718481;
+      --line: #e0e9e7;
+      --line-strong: #cbd9d6;
+      --orange: #e8873e;
+      --orange-soft: #fff2e8;
+      --red: #d95757;
+      --red-soft: #fff0f0;
+      --blue: #407dc6;
+      --blue-soft: #edf4ff;
+      --purple: #795bb7;
+      --purple-soft: #f3effc;
+      --shadow-sm: 0 7px 24px rgba(19, 62, 58, .06);
+      --shadow: 0 22px 55px rgba(15, 56, 53, .14);
+      --radius: 16px;
+      --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 1180px; min-height: 100%; }
+    body { font-family: var(--font); color: var(--ink); background: var(--canvas); font-size: 14px; }
+    button, input, select, textarea { font: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(10,116,108,.16); outline-offset: 2px; }
+    .app { min-height: 100vh; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 50; display: flex; flex-direction: column; color: #fff; background: linear-gradient(180deg, #102f2e 0%, #0a2827 100%); box-shadow: 10px 0 32px rgba(8,35,33,.09); }
+    .brand { min-height: 82px; display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .brand-mark { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 14px; color: #113d39; background: linear-gradient(145deg, #d9f281, #73d3bd); font-weight: 950; font-size: 18px; box-shadow: 0 10px 22px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.55); }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .04em; }
+    .brand small { display: block; margin-top: 4px; color: rgba(255,255,255,.48); font-size: 9px; letter-spacing: .14em; }
+    .nav { flex: 1; overflow-y: auto; padding: 14px 12px 24px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+    .nav-group { margin-bottom: 16px; }
+    .nav-label { padding: 0 12px 7px; color: rgba(255,255,255,.35); font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+    .nav-item { width: 100%; min-height: 39px; display: flex; align-items: center; gap: 10px; margin: 2px 0; padding: 8px 10px; border: 0; border-radius: 11px; color: rgba(255,255,255,.7); background: transparent; cursor: pointer; text-align: left; transition: .17s ease; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.07); transform: translateX(1px); }
+    .nav-item.active { color: #fff; background: linear-gradient(90deg, rgba(106,206,186,.25), rgba(106,206,186,.08)); box-shadow: inset 3px 0 #d5ee72; }
+    .nav-icon { width: 26px; height: 26px; flex: 0 0 26px; display: grid; place-items: center; border-radius: 8px; background: rgba(255,255,255,.07); font-size: 10px; font-weight: 900; }
+    .nav-item.active .nav-icon { color: #0a4944; background: #bfe8a2; }
+    .nav-text { flex: 1; font-size: 12px; }
+    .nav-count { min-width: 19px; height: 19px; display: grid; place-items: center; padding: 0 5px; border-radius: 10px; color: #fff; background: var(--orange); font-size: 9px; font-weight: 900; }
+    .sidebar-foot { padding: 13px 14px 16px; border-top: 1px solid rgba(255,255,255,.08); }
+    .account { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; background: rgba(255,255,255,.055); }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 11px; color: #0b4a45; background: #bfe3d9; font-size: 11px; font-weight: 900; }
+    .account-copy { flex: 1; min-width: 0; }
+    .account strong { display: block; font-size: 11px; }
+    .account small { color: rgba(255,255,255,.43); font-size: 9px; }
+    .logout { border: 0; color: rgba(255,255,255,.5); background: transparent; cursor: pointer; font-size: 16px; }
+    .main { min-height: 100vh; margin-left: 260px; width: calc(100% - 260px); }
+    .content { width: min(1500px, 100%); margin: 0 auto; padding: 32px 38px 60px; }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; margin-bottom: 23px; }
+    .page-kicker { margin-bottom: 7px; color: var(--brand); font-size: 10px; font-weight: 900; letter-spacing: .16em; }
+    .page-head h1 { margin: 0; font-size: 28px; line-height: 1.18; letter-spacing: -.035em; }
+    .page-head p { max-width: 760px; margin: 9px 0 0; color: var(--muted); line-height: 1.7; font-size: 12px; }
+    .page-actions { display: flex; align-items: center; gap: 9px; padding-top: 5px; }
+    .scope { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; color: var(--muted); font-size: 11px; }
+    .scope select { border: 0; outline: 0; color: var(--ink); background: transparent; font-weight: 700; }
+    .btn { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 14px; border: 1px solid transparent; border-radius: 10px; color: inherit; background: #fff; cursor: pointer; font-size: 12px; font-weight: 800; white-space: nowrap; transition: .16s ease; }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn.primary { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .btn.primary:hover { background: var(--brand-dark); }
+    .btn.secondary { color: var(--brand); border-color: #c7e6df; background: var(--brand-soft); }
+    .btn.ghost { color: var(--ink); border-color: var(--line-strong); background: #fff; }
+    .btn.danger { color: var(--red); border-color: #efcaca; background: var(--red-soft); }
+    .btn.small { min-height: 30px; padding: 5px 9px; border-radius: 8px; font-size: 10px; }
+    .btn.link { min-height: auto; padding: 2px; border: 0; color: var(--brand); background: transparent; }
+    .card { border: 1px solid rgba(215,227,224,.92); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .grid { display: grid; gap: 17px; }
+    .cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .metric { position: relative; min-height: 124px; overflow: hidden; padding: 19px; }
+    .metric::after { content: ""; position: absolute; top: -34px; right: -25px; width: 95px; height: 95px; border-radius: 50%; background: var(--brand-soft); }
+    .metric.orange::after { background: var(--orange-soft); }
+    .metric.blue::after { background: var(--blue-soft); }
+    .metric.purple::after { background: var(--purple-soft); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 11px; }
+    .metric-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 10px; color: var(--brand); background: var(--brand-soft); font-size: 10px; font-weight: 900; }
+    .metric.orange .metric-icon { color: var(--orange); background: var(--orange-soft); }
+    .metric.blue .metric-icon { color: var(--blue); background: var(--blue-soft); }
+    .metric.purple .metric-icon { color: var(--purple); background: var(--purple-soft); }
+    .metric strong { display: block; margin-top: 17px; font-size: 28px; line-height: 1; letter-spacing: -.035em; }
+    .metric small { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; }
+    .section { margin-top: 19px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 11px; }
+    .section-head h2 { margin: 0; font-size: 16px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .split { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,.78fr); gap: 17px; }
+    .panel { padding: 20px; }
+    .panel-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+    .panel-title h3 { margin: 0; font-size: 14px; }
+    .panel-title span { color: var(--muted); font-size: 10px; }
+    .hero { position: relative; overflow: hidden; padding: 25px; color: #fff; border: 0; background: linear-gradient(120deg, #0a6f68, #154e4b); box-shadow: 0 19px 45px rgba(13,83,78,.17); }
+    .hero::before, .hero::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; }
+    .hero::before { width: 280px; height: 280px; top: -165px; right: -45px; }
+    .hero::after { width: 140px; height: 140px; right: 110px; bottom: -105px; }
+    .hero-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+    .hero-tag { display: inline-flex; padding: 5px 9px; border-radius: 12px; color: #efffd0; background: rgba(213,238,114,.14); font-size: 9px; font-weight: 900; }
+    .hero h2 { margin: 12px 0 7px; font-size: 23px; }
+    .hero p { margin: 0; color: rgba(255,255,255,.64); font-size: 11px; }
+    .hero-stats { display: flex; gap: 30px; }
+    .hero-stats strong { display: block; font-size: 23px; }
+    .hero-stats small { color: rgba(255,255,255,.52); font-size: 9px; }
+    .chart { height: 205px; display: flex; align-items: flex-end; gap: 10px; padding-top: 24px; border-bottom: 1px solid var(--line); }
+    .bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 7px; color: var(--muted); font-size: 9px; }
+    .bar { width: min(28px,70%); min-height: 12px; border-radius: 7px 7px 2px 2px; background: linear-gradient(180deg, #61c8b4, #0b7b72); transition: .2s ease; }
+    .bar-col:hover .bar { filter: brightness(.92); transform: translateY(-2px); }
+    .task-list { display: grid; gap: 9px; }
+    .task { display: flex; align-items: center; gap: 11px; min-height: 55px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfc; }
+    .task-dot { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 5px rgba(232,135,62,.1); }
+    .task-dot.red { background: var(--red); box-shadow: 0 0 0 5px rgba(217,87,87,.09); }
+    .task-dot.blue { background: var(--blue); box-shadow: 0 0 0 5px rgba(64,125,198,.09); }
+    .task-copy { flex: 1; }
+    .task strong { display: block; font-size: 11px; }
+    .task small { color: var(--muted); font-size: 9px; }
+    .task b { font-size: 12px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 15px; margin-bottom: 13px; }
+    .filters { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+    .filter { padding: 7px 10px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; font-size: 10px; font-weight: 800; }
+    .filter.active { color: var(--brand); background: var(--brand-soft); }
+    .search { width: 285px; height: 37px; display: flex; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; }
+    .search span { color: #8ea19e; }
+    .search input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 11px; }
+    .table-card { overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); background: #f7faf9; text-align: left; font-size: 9px; font-weight: 900; letter-spacing: .03em; }
+    td { padding: 14px; border-bottom: 1px solid #edf2f1; vertical-align: middle; font-size: 11px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fbfdfc; }
+    .cell-main { color: var(--ink); font-weight: 850; }
+    .cell-sub { margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .table-actions { display: flex; align-items: center; gap: 6px; }
+    .badge { min-height: 23px; display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 11px; color: var(--muted); background: #edf2f1; font-size: 9px; font-weight: 900; }
+    .badge.green { color: #167b5e; background: #e7f6f0; }
+    .badge.orange { color: #bd6828; background: var(--orange-soft); }
+    .badge.red { color: var(--red); background: var(--red-soft); }
+    .badge.blue { color: var(--blue); background: var(--blue-soft); }
+    .badge.purple { color: var(--purple); background: var(--purple-soft); }
+    .badge.outline { color: var(--brand); border: 1px solid #c0dfd9; background: #fff; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .detail-layout { display: grid; grid-template-columns: minmax(0,1fr) 350px; gap: 17px; align-items: start; }
+    .detail-card { padding: 20px; margin-bottom: 15px; }
+    .detail-title { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 5px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+    .detail-title h3 { margin: 0; font-size: 14px; }
+    .info-row { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #edf2f1; font-size: 11px; }
+    .info-row:last-child { border-bottom: 0; }
+    .info-row > span { color: var(--muted); }
+    .info-row > strong { max-width: 65%; text-align: right; }
+    .sticky { position: sticky; top: 22px; }
+    .service-card { display: flex; align-items: center; gap: 13px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-2); }
+    .service-card + .service-card { margin-top: 10px; }
+    .service-icon { width: 41px; height: 41px; flex: 0 0 41px; display: grid; place-items: center; border-radius: 13px; color: var(--brand); background: var(--brand-soft); font-size: 10px; font-weight: 900; }
+    .service-icon.blue { color: var(--blue); background: var(--blue-soft); }
+    .service-copy { flex: 1; }
+    .service-copy strong { display: block; font-size: 12px; }
+    .service-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .timeline { padding: 4px 0; }
+    .timeline-item { position: relative; min-height: 60px; display: grid; grid-template-columns: 27px 1fr; gap: 10px; }
+    .timeline-item::after { content: ""; position: absolute; left: 13px; top: 26px; bottom: -2px; width: 2px; background: var(--line); }
+    .timeline-item:last-child::after { display: none; }
+    .timeline-dot { z-index: 1; width: 27px; height: 27px; display: grid; place-items: center; border: 4px solid #fff; border-radius: 50%; color: #879995; background: #edf2f1; box-shadow: 0 0 0 1px var(--line); font-size: 8px; font-weight: 900; }
+    .timeline-item.done .timeline-dot { color: #fff; background: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+    .timeline-item.current .timeline-dot { color: #fff; background: var(--orange); box-shadow: 0 0 0 4px rgba(232,135,62,.12); }
+    .timeline-copy { padding: 3px 0 13px; }
+    .timeline-copy strong { display: block; font-size: 11px; }
+    .timeline-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .notice { padding: 13px 15px; border: 1px solid #f0dbb2; border-radius: 12px; color: #77531b; background: #fff7e8; line-height: 1.65; font-size: 10px; }
+    .notice strong { display: block; margin-bottom: 2px; color: #694814; font-size: 11px; }
+    .notice.green { border-color: #c9e5dd; color: #3f7067; background: #edf8f5; }
+    .notice.green strong { color: var(--brand); }
+    .notice.red { border-color: #efcccc; color: #925353; background: var(--red-soft); }
+    .notice.red strong { color: var(--red); }
+    .notice.blue { border-color: #ccdcf1; color: #4c6e98; background: var(--blue-soft); }
+    .notice.blue strong { color: var(--blue); }
+    .field { display: block; margin-bottom: 14px; }
+    .field > span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 11px; border: 1px solid var(--line-strong); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; font-size: 11px; transition: .15s ease; }
+    .field input, .field select { height: 39px; }
+    .field textarea { min-height: 76px; resize: vertical; line-height: 1.55; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #6abcae; box-shadow: 0 0 0 3px rgba(10,116,108,.08); }
+    .field-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 13px; }
+    .check-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-bottom: 15px; }
+    .check-card { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-2); }
+    .check-card input { margin-top: 2px; accent-color: var(--brand); }
+    .check-card strong { display: block; font-size: 11px; }
+    .check-card small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+    .product-cell { display: flex; align-items: center; gap: 11px; min-width: 230px; }
+    .product-thumb { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; overflow: hidden; border: 1px solid #cfe2de; border-radius: 12px; color: var(--brand); background: linear-gradient(145deg,#edf8f5,#dcefea); font-size: 10px; font-weight: 900; }
+    .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .price-stack strong { display: block; font-size: 12px; }
+    .price-stack small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .upload-grid { display: grid; grid-template-columns: minmax(0,.75fr) minmax(0,1.25fr); gap: 14px; margin-bottom: 15px; }
+    .upload-group > span { display: block; margin-bottom: 7px; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .upload-box { min-height: 142px; display: grid; place-items: center; overflow: hidden; padding: 12px; border: 1px dashed #a9ccc5; border-radius: 12px; color: var(--muted); background: #f7fbfa; cursor: pointer; text-align: center; transition: .16s ease; }
+    .upload-box:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .upload-box strong { display: block; margin-top: 7px; color: var(--ink); font-size: 11px; }
+    .upload-box small { display: block; margin-top: 4px; font-size: 9px; line-height: 1.45; }
+    .upload-mark { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto; border-radius: 14px; color: var(--brand); background: #e2f2ee; font-size: 18px; font-weight: 900; }
+    .upload-box img { width: 100%; height: 118px; border-radius: 9px; object-fit: cover; }
+    .upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+    .detail-preview { min-height: 142px; display: flex; align-items: center; flex-wrap: wrap; gap: 9px; padding: 12px; border: 1px dashed #a9ccc5; border-radius: 12px; background: #f7fbfa; }
+    .detail-thumb { width: 72px; height: 82px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; color: var(--brand); background: #eaf5f2; font-size: 9px; font-weight: 900; }
+    .detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .upload-add { width: 72px; height: 82px; display: grid; place-items: center; border: 1px dashed #a9ccc5; border-radius: 10px; color: var(--brand); background: #fff; cursor: pointer; font-size: 20px; font-weight: 900; }
+    .settings-wide { grid-column: 1 / -1; }
+    .agreement-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+    .editor-box { padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-2); }
+    .editor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .editor-head strong { font-size: 12px; }
+    .editor-head small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .editor-box textarea { width: 100%; min-height: 190px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; resize: vertical; line-height: 1.7; font: inherit; font-size: 10px; }
+    .editor-box textarea:focus { border-color: #6abcae; box-shadow: 0 0 0 3px rgba(10,116,108,.08); }
+    .copy-list { display: grid; gap: 11px; }
+    .copy-item { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 15px; align-items: start; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+    .copy-item strong { display: block; font-size: 11px; }
+    .copy-item small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .copy-item textarea { width: 100%; min-height: 68px; padding: 10px 11px; border: 1px solid var(--line-strong); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; resize: vertical; line-height: 1.6; font: inherit; font-size: 10px; }
+    .switch { width: 46px; height: 26px; flex: 0 0 46px; padding: 3px; border: 0; border-radius: 14px; background: #c9d4d2; cursor: pointer; transition: .18s ease; }
+    .switch::after { content: ""; display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.18); transition: .18s ease; }
+    .switch.on { background: var(--brand); }
+    .switch.on::after { transform: translateX(20px); }
+    .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 13px 15px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+    .page-dot { min-width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .page-dot.active { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .empty { padding: 58px 20px; color: var(--muted); text-align: center; }
+    .empty-icon { width: 49px; height: 49px; display: grid; place-items: center; margin: 0 auto 12px; border-radius: 16px; color: var(--brand); background: var(--brand-soft); font-weight: 900; }
+    .empty h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; }
+    .empty p { margin: 0; font-size: 10px; }
+    .modal-layer { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 28px; background: rgba(8,31,29,.48); backdrop-filter: blur(3px); }
+    .modal-layer.open { display: flex; }
+    .modal { width: min(620px,95vw); max-height: 88vh; overflow: hidden; border: 1px solid rgba(255,255,255,.6); border-radius: 19px; background: #fff; box-shadow: var(--shadow); }
+    .modal.wide { width: min(820px,95vw); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 15px; }
+    .modal-close { width: 30px; height: 30px; border: 0; border-radius: 9px; color: var(--muted); background: #f0f4f3; cursor: pointer; }
+    .modal-body { max-height: calc(88vh - 132px); overflow-y: auto; padding: 20px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--line); background: #fbfdfc; }
+    .confirm-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 13px; border-radius: 17px; color: var(--orange); background: var(--orange-soft); font-size: 20px; font-weight: 900; }
+    .modal-copy { color: var(--muted); text-align: center; line-height: 1.7; font-size: 11px; }
+    .toast { position: fixed; right: 28px; bottom: 28px; z-index: 300; max-width: 360px; padding: 12px 16px; border-radius: 11px; color: #fff; background: #173e3b; box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); pointer-events: none; transition: .2s ease; font-size: 11px; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .login-screen { position: fixed; inset: 0; z-index: 400; display: none; min-width: 1000px; background: #eef4f2; }
+    .login-screen.open { display: grid; grid-template-columns: 1.12fr .88fr; }
+    .login-brand { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; padding: 9vw; color: #fff; background: linear-gradient(145deg,#0d3735,#0b6e67); }
+    .login-brand::before { content: ""; position: absolute; width: 520px; height: 520px; right: -250px; top: -180px; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; box-shadow: 0 0 0 85px rgba(255,255,255,.025), 0 0 0 170px rgba(255,255,255,.02); }
+    .login-brand .brand-mark { position: relative; z-index: 1; }
+    .login-brand h1 { position: relative; z-index: 1; max-width: 560px; margin: 24px 0 12px; font-size: 42px; line-height: 1.2; letter-spacing: -.045em; }
+    .login-brand p { position: relative; z-index: 1; max-width: 560px; margin: 0; color: rgba(255,255,255,.61); line-height: 1.8; }
+    .login-panel { display: flex; align-items: center; justify-content: center; padding: 70px; background: #fff; }
+    .login-box { width: 380px; }
+    .login-box h2 { margin: 0 0 8px; font-size: 26px; }
+    .login-box > p { margin: 0 0 28px; color: var(--muted); font-size: 11px; }
+    .login-box .btn { width: 100%; min-height: 44px; }
+    @media (max-width: 1280px) {
+      .sidebar { width: 232px; }
+      .main { margin-left: 232px; width: calc(100% - 232px); }
+      .content { padding: 28px 28px 50px; }
+      .cols-4 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AP</div>
+        <div><strong>安派科运营中心</strong><small>ADMIN CONSOLE</small></div>
+      </div>
+      <nav class="nav" aria-label="管理后台主导航">
+        <div class="nav-group">
+          <div class="nav-label">运营总览</div>
+          <button class="nav-item active" data-page="dashboard"><span class="nav-icon">览</span><span class="nav-text">运营工作台</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">组织与站点</div>
+          <button class="nav-item" data-page="provinces"><span class="nav-icon">省</span><span class="nav-text">省级运营</span></button>
+          <button class="nav-item" data-page="cities"><span class="nav-icon">城</span><span class="nav-text">城市合伙人</span></button>
+          <button class="nav-item" data-page="applications"><span class="nav-icon">申</span><span class="nav-text">入驻申请</span><span class="nav-count" id="applicationCount">2</span></button>
+          <button class="nav-item" data-page="stations"><span class="nav-icon">站</span><span class="nav-text">社区合作站</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">交易业务</div>
+          <button class="nav-item" data-page="products"><span class="nav-icon">套</span><span class="nav-text">套餐商品</span></button>
+          <button class="nav-item" data-page="orders-all"><span class="nav-icon">单</span><span class="nav-text">全部订单</span></button>
+          <button class="nav-item" data-page="orders-delivery"><span class="nav-icon">寄</span><span class="nav-text">快递配送订单</span><span class="nav-count" id="shippingCount">2</span></button>
+          <button class="nav-item" data-page="orders-pickup"><span class="nav-icon">提</span><span class="nav-text">到站自提订单</span></button>
+          <button class="nav-item" data-page="refunds"><span class="nav-icon">退</span><span class="nav-text">退款处理</span><span class="nav-count" id="refundCount">1</span></button>
+          <button class="nav-item" data-page="card-batches"><span class="nav-icon">卡</span><span class="nav-text">套餐卡批次</span></button>
+          <button class="nav-item" data-page="cards"><span class="nav-icon">密</span><span class="nav-text">套餐卡明细</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">采血检测</div>
+          <button class="nav-item" data-page="blood"><span class="nav-icon">采</span><span class="nav-text">采血单管理</span></button>
+          <button class="nav-item" data-page="anomalies"><span class="nav-icon">异</span><span class="nav-text">样本异常</span><span class="nav-count" id="anomalyCount">1</span></button>
+          <button class="nav-item" data-page="reports"><span class="nav-icon">报</span><span class="nav-text">检测报告</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">用户与协作</div>
+          <button class="nav-item" data-page="users"><span class="nav-icon">用</span><span class="nav-text">C 端用户</span></button>
+          <button class="nav-item" data-page="collaboration"><span class="nav-icon">协</span><span class="nav-text">检测协作账号</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-label">系统管理</div>
+          <button class="nav-item" data-page="settings"><span class="nav-icon">参</span><span class="nav-text">业务参数</span></button>
+          <button class="nav-item" data-page="admins"><span class="nav-icon">权</span><span class="nav-text">后台账号与角色</span></button>
+        </div>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="account">
+          <div class="avatar">总</div>
+          <div class="account-copy"><strong>总部超级管理员</strong><small>全国数据权限</small></div>
+          <button class="logout" data-action="logout" aria-label="退出登录">↗</button>
+        </div>
+      </div>
+    </aside>
+    <main class="main"><div class="content" id="pageRoot"></div></main>
+  </div>
+
+  <div class="modal-layer" id="modalLayer" aria-hidden="true">
+    <section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" data-action="close-modal" aria-label="关闭">×</button></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <section class="login-screen" id="loginScreen">
+    <div class="login-brand">
+      <div class="brand-mark">AP</div>
+      <h1>连接每一个服务节点，看见业务全貌</h1>
+      <p>统一管理区域组织、社区合作站、交易履约、采血检测与报告协作，让每一份样本的进度清晰可追溯。</p>
+    </div>
+    <div class="login-panel">
+      <div class="login-box">
+        <h2>欢迎回来</h2><p>请输入运营管理后台账号信息</p>
+        <label class="field"><span>登录账号</span><input id="loginAccount" value="admin@anpuke.com" autocomplete="username"></label>
+        <label class="field"><span>登录密码</span><input id="loginPassword" type="password" value="12345678" autocomplete="current-password"></label>
+        <button class="btn primary" data-action="login">登录管理后台</button>
+        <div class="notice green" style="margin-top:16px"><strong>原型演示账号</strong>已预填演示账号和密码，点击登录即可继续浏览。</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const $ = (s, root = document) => root.querySelector(s);
+      const pageRoot = $('#pageRoot');
+      const modalLayer = $('#modalLayer');
+      let toastTimer;
+      const state = {
+        page: 'dashboard', scope: '全国', selectedStation: 'ST202608001', selectedOrder: 'DD20260826001', selectedBlood: 'CX20260818021',
+        orderQuery: '', stationQuery: '', bloodQuery: '',
+        provinces: [
+          {id:'OP-GD',name:'广东省运营中心',province:'广东省',leader:'周志远',phone:'138****4621',cities:21,stations:86,status:'启用'},
+          {id:'OP-ZJ',name:'浙江省运营中心',province:'浙江省',leader:'林海',phone:'137****2188',cities:11,stations:43,status:'启用'},
+          {id:'OP-SC',name:'四川省运营中心',province:'四川省',leader:'陈嘉',phone:'186****7702',cities:18,stations:31,status:'停用'}
+        ],
+        cities: [
+          {id:'CP-GZ',name:'广州城市合伙人',province:'广东省',city:'广州市',leader:'梁敏',phone:'139****7135',stations:28,status:'启用'},
+          {id:'CP-SZ',name:'深圳城市合伙人',province:'广东省',city:'深圳市',leader:'赵凯',phone:'136****9012',stations:21,status:'启用'},
+          {id:'CP-HZ',name:'杭州城市合伙人',province:'浙江省',city:'杭州市',leader:'王蕾',phone:'158****4430',stations:17,status:'启用'}
+        ],
+        applications: [
+          {id:'SQ20260826001',name:'天河长兴社区服务中心',applicant:'林晓燕',phone:'139****6789',city:'广东省 / 广州市',service:'健康服务 + 采血服务',time:'2026-08-26 09:12',status:'待联系'},
+          {id:'SQ20260825006',name:'悦康邻里服务中心',applicant:'高志平',phone:'135****2336',city:'浙江省 / 杭州市',service:'健康服务',time:'2026-08-25 15:36',status:'待联系'},
+          {id:'SQ20260824012',name:'锦江康养服务站',applicant:'吴倩',phone:'188****0911',city:'四川省 / 成都市',service:'采血服务',time:'2026-08-24 11:08',status:'已建站'}
+        ],
+        stations: [
+          {id:'ST202608001',name:'天河悦康社区合作站',city:'广东省 / 广州市',address:'天河区长兴街道乐意居花苑 12 号',contact:'黄店长 138****2048',health:true,blood:true,status:'启用',admin:'THYK20260715',workers:6,created:'2026-07-15'},
+          {id:'ST202607019',name:'南山海岸社区合作站',city:'广东省 / 深圳市',address:'南山区海德三道 88 号',contact:'周店长 137****6619',health:true,blood:false,status:'启用',admin:'NSHA20260702',workers:3,created:'2026-07-02'},
+          {id:'ST202606008',name:'西湖文新社区合作站',city:'浙江省 / 杭州市',address:'西湖区文新街道紫荆花路 29 号',contact:'徐店长 186****7302',health:false,blood:true,status:'启用',admin:'XHWX20260618',workers:4,created:'2026-06-18'}
+        ],
+        products: [
+          {id:'SP1001',name:'基础健康检测套餐',displayPrice:499,price:399,sort:10,sales:1286,status:'上架',desc:'基础健康相关检测维度',mainImage:true,detailImages:3},
+          {id:'SP1002',name:'心脑血管深度检测套餐',displayPrice:799,price:699,sort:20,sales:936,status:'上架',desc:'心脑血管相关综合检测',mainImage:true,detailImages:4},
+          {id:'SP1003',name:'女性健康关爱套餐',displayPrice:999,price:899,sort:30,sales:568,status:'上架',desc:'女性健康专项检测维度',mainImage:true,detailImages:3},
+          {id:'SP1004',name:'全维健康评估套餐',displayPrice:1499,price:1299,sort:40,sales:307,status:'停用',desc:'多维度综合健康评估',mainImage:true,detailImages:5}
+        ],
+        orders: [
+          {id:'DD20260826001',type:'快递配送',user:'张晨',phone:'138****7812',product:'基础健康检测套餐',qty:2,amount:798,status:'待发货',time:'2026-08-26 09:32',station:'—',logistics:'—'},
+          {id:'DD20260826002',type:'到站自提',user:'梁芳',phone:'136****1149',product:'心脑血管深度检测套餐',qty:1,amount:699,status:'待核销',time:'2026-08-26 09:18',station:'天河悦康社区合作站',logistics:'核销码 661928'},
+          {id:'DD20260825033',type:'快递配送',user:'陈耀',phone:'189****0453',product:'女性健康关爱套餐',qty:1,amount:899,status:'待发货',time:'2026-08-25 17:46',station:'—',logistics:'—'},
+          {id:'DD20260825028',type:'到站自提',user:'高静',phone:'135****2018',product:'基础健康检测套餐',qty:1,amount:399,status:'退款申请',time:'2026-08-25 15:21',station:'南山海岸社区合作站',logistics:'核销已暂停'},
+          {id:'DD20260824019',type:'快递配送',user:'刘瑜',phone:'159****8226',product:'全维健康评估套餐',qty:1,amount:1299,status:'已发货',time:'2026-08-24 13:09',station:'—',logistics:'顺丰 SF1492850762'},
+          {id:'DD20260823011',type:'到站自提',user:'彭岳',phone:'137****5388',product:'基础健康检测套餐',qty:2,amount:798,status:'已核销',time:'2026-08-23 10:02',station:'天河悦康社区合作站',logistics:'2026-08-23 15:18 核销'}
+        ],
+        batches: [
+          {id:'PC2026082001',product:'基础健康检测套餐',qty:200,unused:163,creator:'总部管理员',time:'2026-08-20 14:20'},
+          {id:'PC2026081002',product:'心脑血管深度检测套餐',qty:100,unused:42,creator:'总部管理员',time:'2026-08-10 09:45'},
+          {id:'PC2026072601',product:'女性健康关爱套餐',qty:80,unused:9,creator:'运营主管',time:'2026-07-26 11:30'}
+        ],
+        cards: [
+          {id:'APKC-260820-0001',password:'8K5P2A',product:'基础健康检测套餐',batch:'PC2026082001',status:'未使用',used:'—',blood:'—'},
+          {id:'APKC-260820-0002',password:'4M9Q7T',product:'基础健康检测套餐',batch:'PC2026082001',status:'已使用',used:'2026-08-25 18:06',blood:'CX20260825031'},
+          {id:'APKC-260810-0018',password:'3D7N6R',product:'心脑血管深度检测套餐',batch:'PC2026081002',status:'未使用',used:'—',blood:'—'},
+          {id:'APKC-260726-0042',password:'6X2H8C',product:'女性健康关爱套餐',batch:'PC2026072601',status:'已使用',used:'2026-08-21 10:17',blood:'CX20260821006'}
+        ],
+        bloodForms: [
+          {id:'CX20260818021',tube:'Tube-A89261',person:'林小禾',gender:'女',birth:'1988-05-16',idNo:'4401********2148',phone:'139****5008',product:'女性健康关爱套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260816018',status:'样本异常',time:'2026-08-18 10:02',note:'样本出现明显溶血，无法继续检测',image:'异常样本照片 2 张'},
+          {id:'CX20260825031',tube:'Tube-B17028',person:'周文涛',gender:'男',birth:'1979-11-02',idNo:'3301********4310',phone:'137****1678',product:'基础健康检测套餐',method:'自行采血',station:'—',source:'套餐卡 APKC-260820-0002',status:'待出报告',time:'2026-08-25 18:08',note:'检测数据已录入',image:'—'},
+          {id:'CX20260824016',tube:'Tube-C63820',person:'宋雅琴',gender:'女',birth:'1992-07-21',idNo:'4403********6826',phone:'135****7121',product:'心脑血管深度检测套餐',method:'合作站点采血',station:'西湖文新社区合作站',source:'订单 DD20260822013',status:'已寄出',time:'2026-08-24 14:35',note:'顺丰 SF1489217300',image:'—'},
+          {id:'CX20260823009',tube:'Tube-D44152',person:'罗振宇',gender:'男',birth:'1985-03-08',idNo:'5101********0032',phone:'188****3381',product:'基础健康检测套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260823011',status:'报告完成',time:'2026-08-23 15:24',note:'报告已上传',image:'—'},
+          {id:'CX20260826004',tube:'Tube-E30517',person:'许蔚',gender:'女',birth:'1990-09-19',idNo:'4401********1746',phone:'136****0925',product:'基础健康检测套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260825017',status:'待接收',time:'2026-08-26 08:52',note:'—',image:'—'}
+        ],
+        reports: [
+          {id:'BG20260823009',blood:'CX20260823009',person:'罗振宇',product:'基础健康检测套餐',status:'已完成',version:2,time:'2026-08-26 08:42'},
+          {id:'BG20260821006',blood:'CX20260821006',person:'李雯',product:'女性健康关爱套餐',status:'已完成',version:1,time:'2026-08-24 17:20'},
+          {id:'BG20260819003',blood:'CX20260819003',person:'郭航',product:'心脑血管深度检测套餐',status:'已完成',version:1,time:'2026-08-22 11:08'}
+        ],
+        users: [
+          {id:'U102861',name:'张晨',phone:'138****7812',city:'广东省 / 广州市',orders:4,blood:3,worker:'否',joined:'2026-05-18'},
+          {id:'U102714',name:'梁芳',phone:'136****1149',city:'广东省 / 广州市',orders:2,blood:1,worker:'天河悦康 · 健康服务',joined:'2026-05-02'},
+          {id:'U101982',name:'高静',phone:'135****2018',city:'广东省 / 深圳市',orders:3,blood:2,worker:'否',joined:'2026-03-19'},
+          {id:'U101568',name:'周文涛',phone:'137****1678',city:'浙江省 / 杭州市',orders:1,blood:2,worker:'西湖文新 · 采血服务',joined:'2026-02-11'}
+        ],
+        collaboration: [
+          {id:'AC-LAB-01',name:'实验室检测账号',role:'实验室',account:'lab_anpuke',scope:'全部已寄出采血单',status:'启用',last:'2026-08-26 09:06'},
+          {id:'AC-DATA-01',name:'数据中心报告账号',role:'数据中心',account:'data_anpuke',scope:'待出报告采血单',status:'启用',last:'2026-08-26 08:46'}
+        ],
+        admins: [
+          {id:'AD001',name:'总部超级管理员',role:'超级管理员',scope:'全国',account:'admin@anpuke.com',status:'启用',last:'2026-08-26 09:20'},
+          {id:'AD002',name:'订单运营',role:'订单与售后',scope:'全国',account:'order@anpuke.com',status:'启用',last:'2026-08-26 08:55'},
+          {id:'AD003',name:'广东省运营账号',role:'省级运营',scope:'广东省',account:'gd_operation',status:'启用',last:'2026-08-25 18:12'}
+        ],
+        logs: [
+          {time:'2026-08-26 09:22',operator:'总部超级管理员',module:'社区合作站',action:'查看站点资料',detail:'天河悦康社区合作站'},
+          {time:'2026-08-26 09:10',operator:'订单运营',module:'订单中心',action:'登记发货',detail:'DD20260825020 · 顺丰速运'},
+          {time:'2026-08-26 08:43',operator:'数据中心报告账号',module:'检测报告',action:'替换报告',detail:'BG20260823009 · v2'},
+          {time:'2026-08-25 17:38',operator:'总部超级管理员',module:'合作站账号',action:'重置密码',detail:'南山海岸社区合作站'}
+        ],
+        settings: {
+          payTimeout:30,
+          supportPhone:'400-810-6628',
+          smsEnabled:true,
+          smsSecretId:'AKIDEXAMPLE8T2R6N',
+          smsSecretKey:'ExampleSecretKey2026',
+          smsSdkAppId:'1400986628',
+          smsSign:'安派科健康',
+          smsVerifyTemplate:'2486102',
+          privacyAgreement:'安派科小程序隐私保护指引\n\n我们将按照合法、正当、必要的原则收集和使用用户信息。涉及受检人姓名、手机号、身份证号及检测报告等敏感信息时，将明确说明使用目的并获得授权。',
+          serviceAgreement:'安派科小程序用户服务协议\n\n用户使用商品购买、采血单创建、报告查询等服务前，应阅读并同意本协议。具体服务内容、订单履约及退款规则以小程序页面展示为准。',
+          productWarmTip:'采集盒为检测服务的实物载体，不同套餐对应不同检测内容。请在收到或核销采集盒后，按照指引创建采血单。',
+          coldChainTip:'自行采血完成后，请按照冷链要求妥善包装并尽快寄出样本，寄出后需填写物流单号。',
+          reportQueryTip:'检测报告按受检人身份查询，请准备受检人姓名、手机号、身份证号，并完成短信验证码校验。',
+          offHoursTip:'当前不在站点营业时间内，您仍可下单，请在站点营业时间内到店领取。'
+        }
+      };
+
+      const esc = value => String(value ?? '').replace(/[&<>'"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
+      const money = n => '¥' + Number(n).toLocaleString('zh-CN');
+      const now = () => new Date().toLocaleString('zh-CN', {hour12:false}).replaceAll('/','-');
+      const badgeClass = status => ({'启用':'green','上架':'green','已建站':'green','已完成':'green','报告完成':'green','已核销':'green','已使用':'purple','已发货':'blue','已寄出':'blue','待出报告':'purple','待核销':'orange','待发货':'orange','待联系':'orange','待接收':'orange','退款申请':'red','样本异常':'red','停用':'red','未使用':'outline'}[status] || '');
+      const badge = status => `<span class="badge ${badgeClass(status)}">${esc(status)}</span>`;
+      const pageHead = (kicker,title,desc,actions='') => `<div class="page-head"><div><div class="page-kicker">${kicker}</div><h1>${title}</h1><p>${desc}</p></div><div class="page-actions">${actions}</div></div>`;
+      const scopeControl = () => `<label class="scope">数据范围 <select data-action="change-scope"><option ${state.scope==='全国'?'selected':''}>全国</option><option ${state.scope==='广东省'?'selected':''}>广东省</option><option ${state.scope==='广州市'?'selected':''}>广州市</option></select></label>`;
+      const pagination = total => `<div class="pagination"><span>共 ${total} 条</span><span class="page-dot active">1</span><span class="page-dot">2</span><span class="page-dot">›</span></div>`;
+      const empty = (title,desc) => `<div class="empty"><div class="empty-icon">—</div><h3>${title}</h3><p>${desc}</p></div>`;
+      function addLog(module,action,detail){ state.logs.unshift({time:now(),operator:'总部超级管理员',module,action,detail}); }
+
+      function dashboardPage(){
+        return `${pageHead('OPERATION OVERVIEW','运营工作台','汇总全国业务进展与总部待办。省级运营和城市合伙人登录后，页面自动收敛到各自辖区数据。',scopeControl()+`<button class="btn ghost" data-action="refresh">刷新数据</button>`)}
+        <section class="card hero"><div class="hero-inner"><div><span class="hero-tag">全国业务运行正常</span><h2>上午好，今天有 6 项待办需要关注</h2><p>数据更新至 2026-08-26 09:30 · 所有金额均为演示数据</p></div><div class="hero-stats"><div><strong>163</strong><small>合作站</small></div><div><strong>8,692</strong><small>累计用户</small></div><div><strong>3,408</strong><small>完成采血单</small></div></div></div></section>
+        <section class="grid cols-4 section">
+          <div class="card metric"><div class="metric-top"><span>今日支付订单</span><span class="metric-icon">单</span></div><strong>128</strong><small>较昨日同期 +12.6%</small></div>
+          <div class="card metric orange"><div class="metric-top"><span>待发货订单</span><span class="metric-icon">寄</span></div><strong>${state.orders.filter(x=>x.status==='待发货').length}</strong><small>需要总部登记物流信息</small></div>
+          <div class="card metric blue"><div class="metric-top"><span>待出报告</span><span class="metric-icon">报</span></div><strong>19</strong><small>实验室已提交检测数据</small></div>
+          <div class="card metric purple"><div class="metric-top"><span>本月新增站点</span><span class="metric-icon">站</span></div><strong>14</strong><small>健康服务 11 · 采血服务 9</small></div>
+        </section>
+        <section class="split section">
+          <div class="card panel"><div class="panel-title"><h3>近 7 日订单趋势</h3><span>支付订单量</span></div><div class="chart">${[72,94,68,118,101,132,128].map((h,i)=>`<div class="bar-col"><div class="bar" style="height:${h}px"></div><span>${['08/20','08/21','08/22','08/23','08/24','08/25','今天'][i]}</span></div>`).join('')}</div></div>
+          <div class="card panel"><div class="panel-title"><h3>总部业务待办</h3><span>按紧急程度排序</span></div><div class="task-list">
+            <button class="task" data-page="orders-delivery"><span class="task-dot"></span><span class="task-copy"><strong>快递订单待发货</strong><small>完成物流登记后同步用户</small></span><b>${state.orders.filter(x=>x.status==='待发货').length}</b></button>
+            <button class="task" data-page="refunds"><span class="task-dot red"></span><span class="task-copy"><strong>退款申请待处理</strong><small>退款期间站点暂停核销</small></span><b>${state.orders.filter(x=>x.status==='退款申请').length}</b></button>
+            <button class="task" data-page="applications"><span class="task-dot blue"></span><span class="task-copy"><strong>合作站申请待联系</strong><small>线下核实后由总部建站</small></span><b>${state.applications.filter(x=>x.status==='待联系').length}</b></button>
+            <button class="task" data-page="anomalies"><span class="task-dot red"></span><span class="task-copy"><strong>样本异常待跟进</strong><small>客服线下联系用户处理</small></span><b>${state.bloodForms.filter(x=>x.status==='样本异常').length}</b></button>
+          </div></div>
+        </section>`;
+      }
+
+      function operatorsPage(type){
+        const isProvince = type==='province', data=isProvince?state.provinces:state.cities;
+        const rows=data.map(x=>`<tr><td><div class="cell-main">${esc(x.name)}</div><div class="cell-sub">${x.id}</div></td><td>${esc(isProvince?x.province:x.province+' / '+x.city)}</td><td><div class="cell-main">${esc(x.leader)}</div><div class="cell-sub">${esc(x.phone)}</div></td><td>${isProvince?x.cities+' 个地级市':''}${isProvince?' · ':''}${x.stations} 个站点</td><td>${badge(x.status)}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-operator" data-id="${x.id}" data-type="${type}">详情</button><button class="btn small link" data-action="toggle-operator" data-id="${x.id}" data-type="${type}">${x.status==='启用'?'停用':'启用'}</button></div></td></tr>`).join('');
+        return `${pageHead('REGIONAL ORGANIZATION',isProvince?'省级运营':'城市合伙人',isProvince?'一个省仅配置一个省级运营主体，账号由总部统一创建和管理。':'一个地级市仅配置一个城市合伙人，并自动归属对应省级运营。',scopeControl()+`<button class="btn primary" data-action="open-create-operator" data-type="${type}">＋ 新建${isProvince?'省级运营':'城市合伙人'}</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部</button><button class="filter">启用</button><button class="filter">停用</button></div><div class="search"><span>⌕</span><input placeholder="搜索主体名称、负责人"></div></div>
+        <div class="card table-card"><table><thead><tr><th>运营主体</th><th>区域归属</th><th>负责人</th><th>业务范围</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(data.length)}</div>`;
+      }
+
+      function applicationsPage(){
+        const rows=state.applications.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td><div class="cell-main">${esc(x.name)}</div><div class="cell-sub">申请人：${esc(x.applicant)} · ${esc(x.phone)}</div></td><td>${esc(x.city)}</td><td>${esc(x.service)}</td><td>${badge(x.status)}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-application" data-id="${x.id}">查看</button>${x.status==='待联系'?`<button class="btn small primary" data-action="convert-application" data-id="${x.id}">创建站点</button>`:''}</div></td></tr>`).join('');
+        return `${pageHead('STATION APPLICATIONS','入驻申请','小程序申请仅作为合作线索。总部完成线下联系与核实后，正式创建社区合作站和独立管理员账号。',`<button class="btn ghost" data-action="export">导出申请</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部申请</button><button class="filter">待联系</button><button class="filter">已建站</button></div><div class="search"><span>⌕</span><input placeholder="搜索站点、申请人、手机号"></div></div>
+        <div class="card table-card"><table><thead><tr><th>申请编号</th><th>拟合作站</th><th>归属地区</th><th>申请服务</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.applications.length)}</div>`;
+      }
+
+      function stationsPage(){
+        const q=state.stationQuery.toLowerCase(); const list=state.stations.filter(x=>(x.id+x.name+x.city).toLowerCase().includes(q));
+        const rows=list.map(x=>`<tr><td><div class="cell-main">${esc(x.name)}</div><div class="cell-sub">${x.id} · ${x.created} 创建</div></td><td>${esc(x.city)}</td><td><div class="service-tags">${x.health?'<span class="badge green">健康服务</span>':''}${x.blood?'<span class="badge blue">采血服务</span>':''}</div></td><td>${x.workers} 人</td><td>${badge(x.status)}</td><td><button class="btn small ghost" data-action="view-station" data-id="${x.id}">查看详情</button></td></tr>`).join('');
+        return `${pageHead('COMMUNITY STATIONS','社区合作站','总部创建并维护站点主体，可分别开通健康服务和采血服务。服务停用只停止新增业务，已有业务仍可继续完成。',scopeControl()+`<button class="btn primary" data-action="open-create-station">＋ 创建合作站</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部站点</button><button class="filter">双服务</button><button class="filter">仅健康服务</button><button class="filter">仅采血服务</button></div><div class="search"><span>⌕</span><input id="stationSearch" value="${esc(state.stationQuery)}" placeholder="搜索站点名称、编号、城市"></div></div>
+        <div class="card table-card" id="stationTable"><table><thead><tr><th>站点</th><th>区域归属</th><th>已开通服务</th><th>工作人员</th><th>站点状态</th><th>操作</th></tr></thead><tbody>${rows||`<tr><td colspan="6">${empty('没有匹配站点','请更换搜索关键词')}</td></tr>`}</tbody></table>${pagination(list.length)}</div>`;
+      }
+
+      function stationDetailPage(){
+        const x=state.stations.find(s=>s.id===state.selectedStation)||state.stations[0];
+        return `${pageHead('STATION DETAIL',esc(x.name),'查看站点主体、服务配置、社区合作端账号及工作人员关系。',`<button class="btn ghost" data-page="stations">← 返回列表</button><button class="btn primary" data-action="edit-station" data-id="${x.id}">编辑资料</button>`)}
+        <div class="detail-layout"><div>
+          <div class="card detail-card"><div class="detail-title"><h3>站点基础资料</h3>${badge(x.status)}</div><div class="info-row"><span>站点编号</span><strong>${x.id}</strong></div><div class="info-row"><span>区域归属</span><strong>${esc(x.city)}</strong></div><div class="info-row"><span>详细地址</span><strong>${esc(x.address)}</strong></div><div class="info-row"><span>联系人</span><strong>${esc(x.contact)}</strong></div><div class="info-row"><span>创建时间</span><strong>${x.created}</strong></div></div>
+          <div class="card detail-card"><div class="detail-title"><h3>服务配置</h3><span class="badge outline">总部控制</span></div>
+            <div class="service-card"><span class="service-icon">健</span><span class="service-copy"><strong>健康服务</strong><small>${x.health?'已开通，可承接新自提订单':'未开通，不展示为自提站点'}</small></span><button class="switch ${x.health?'on':''}" data-action="toggle-station-service" data-id="${x.id}" data-service="health" aria-label="切换健康服务"></button></div>
+            <div class="service-card"><span class="service-icon blue">采</span><span class="service-copy"><strong>采血服务</strong><small>${x.blood?'已开通，可被用户选择为采血服务点':'未开通，不展示为采血服务点'}</small></span><button class="switch ${x.blood?'on':''}" data-action="toggle-station-service" data-id="${x.id}" data-service="blood" aria-label="切换采血服务"></button></div>
+            <div class="notice" style="margin-top:12px"><strong>服务停用规则</strong>停用后不再接收新业务，但已产生的待核销订单、待接收或已接收采血单仍允许继续处理完成。</div>
+          </div>
+          <div class="card detail-card"><div class="detail-title"><h3>工作人员关系</h3><button class="btn small secondary" data-action="add-station-worker" data-id="${x.id}">＋ 添加工作人员</button></div><table><thead><tr><th>工作人员</th><th>手机号</th><th>服务权限</th><th>操作</th></tr></thead><tbody><tr><td class="cell-main">梁芳</td><td>136****1149</td><td><span class="badge green">健康服务</span></td><td><button class="btn small link" data-action="unbind-worker">解绑</button></td></tr><tr><td class="cell-main">何俊</td><td>139****3806</td><td><span class="badge blue">采血服务</span></td><td><button class="btn small link" data-action="unbind-worker">解绑</button></td></tr><tr><td class="cell-main">苏晴</td><td>158****2204</td><td><span class="badge green">健康服务</span> <span class="badge blue">采血服务</span></td><td><button class="btn small link" data-action="unbind-worker">解绑</button></td></tr></tbody></table></div>
+        </div><aside class="sticky">
+          <div class="card detail-card"><div class="detail-title"><h3>社区合作端账号</h3>${badge('启用')}</div><div class="info-row"><span>登录账号</span><strong>${x.admin}</strong></div><div class="info-row"><span>账号类型</span><strong>站点管理员</strong></div><div class="info-row"><span>最近登录</span><strong>2026-08-26 08:22</strong></div><button class="btn secondary" style="width:100%;margin-top:14px" data-action="reset-station-password" data-id="${x.id}">重置登录密码</button></div>
+          <div class="card detail-card"><div class="detail-title"><h3>业务关联</h3></div><div class="info-row"><span>累计自提订单</span><strong>726 笔</strong></div><div class="info-row"><span>累计采血单</span><strong>419 张</strong></div><div class="info-row"><span>当前工作人员</span><strong>${x.workers} 人</strong></div></div>
+        </aside></div>`;
+      }
+
+      function productsPage(){
+        const products=[...state.products].sort((a,b)=>a.sort-b.sort);
+        const rows=products.map(x=>`<tr><td><div class="product-cell"><span class="product-thumb">${x.mainImage?'主图':'待上传'}</span><span><span class="cell-main">${esc(x.name)}</span><span class="cell-sub">${x.id} · 详情图 ${x.detailImages||0} 张</span></span></div></td><td><div class="price-stack"><strong>${money(x.displayPrice)}</strong><small>游客未登录展示</small></div></td><td><div class="price-stack"><strong>${money(x.price)}</strong><small>登录后销售价</small></div></td><td><span class="badge outline">${x.sort}</span></td><td>${x.sales.toLocaleString('zh-CN')} 份</td><td>${badge(x.status)}</td><td><div class="table-actions"><button class="btn small ghost" data-action="edit-product" data-id="${x.id}">编辑</button><button class="btn small link" data-action="toggle-product" data-id="${x.id}">${x.status==='上架'?'停用':'重新上架'}</button><button class="btn small danger" data-action="delete-product" data-id="${x.id}">删除</button></div></td></tr>`).join('');
+        return `${pageHead('PACKAGE PRODUCTS','套餐商品','总部统一维护双价格、商品图片、检测内容与展示顺序；小程序根据登录状态展示不同价格。',`<button class="btn primary" data-action="open-create-product">＋ 创建套餐商品</button>`)}
+        <div class="notice green" style="margin-bottom:14px"><strong>价格与排序规则</strong>未登录用户查看“展示价格”，登录后查看“销售价格”；排序值越小越靠前，同时影响后台列表和小程序商品列表。</div>
+        <div class="card table-card"><table><thead><tr><th>套餐商品</th><th>展示价格</th><th>销售价格</th><th>排序</th><th>累计销量</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.products.length)}</div>`;
+      }
+
+      function ordersPage(kind){
+        const title=kind==='delivery'?'快递配送订单':kind==='pickup'?'到站自提订单':'全部订单';
+        const desc=kind==='delivery'?'使用总部采集盒履约，由总部完成发货和物流登记；用户确认收货后解锁采血单权益。':kind==='pickup'?'使用用户所选健康服务站履约，由站点完成整单核销；总部查看全过程并处理核销前退款。':'统一查看平台快递订单和站点自提订单，按履约方式进入不同处理流程。';
+        const q=state.orderQuery.toLowerCase(); let list=state.orders.filter(x=>(x.id+x.user+x.phone+x.product+x.station).toLowerCase().includes(q)); if(kind==='delivery')list=list.filter(x=>x.type==='快递配送'); if(kind==='pickup')list=list.filter(x=>x.type==='到站自提');
+        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td>${badge(x.type==='快递配送'?'快递配送':'到站自提')}</td><td><div class="cell-main">${esc(x.user)} · ${esc(x.phone)}</div><div class="cell-sub">${esc(x.product)} × ${x.qty}</div></td><td>${x.type==='到站自提'?esc(x.station):'总部平台'}</td><td class="cell-main">${money(x.amount)}</td><td>${badge(x.status)}</td><td><button class="btn small ghost" data-action="view-order" data-id="${x.id}">${x.status==='待发货'?'处理发货':'查看详情'}</button></td></tr>`).join('');
+        return `${pageHead('ORDER CENTER',title,desc,`<button class="btn ghost" data-action="export">导出订单</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部状态</button><button class="filter">待处理</button><button class="filter">进行中</button><button class="filter">已完成</button></div><div class="search"><span>⌕</span><input id="orderSearch" value="${esc(state.orderQuery)}" placeholder="订单号、用户、手机号、站点"></div></div>
+        <div class="card table-card" id="orderTable"><table><thead><tr><th>订单</th><th>履约方式</th><th>用户与商品</th><th>履约主体</th><th>实付金额</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows||`<tr><td colspan="7">${empty('没有匹配订单','请更换关键词')}</td></tr>`}</tbody></table>${pagination(list.length)}</div>`;
+      }
+
+      function orderDetailPage(){
+        const x=state.orders.find(o=>o.id===state.selectedOrder)||state.orders[0]; const delivery=x.type==='快递配送';
+        const steps=delivery?['提交订单','支付成功','总部发货','用户确认收货','生成采血权益']:['提交订单','支付成功','站点核销','生成采血权益'];
+        const current=delivery?(x.status==='待发货'?2:x.status==='已发货'?3:4):(x.status==='待核销'||x.status==='退款申请'?2:3);
+        return `${pageHead('ORDER DETAIL',x.id,`${x.type} · ${x.time}`,`<button class="btn ghost" data-page="${delivery?'orders-delivery':'orders-pickup'}">← 返回订单</button>${x.status==='待发货'?`<button class="btn primary" data-action="open-ship" data-id="${x.id}">登记发货</button>`:''}${x.status==='退款申请'?`<button class="btn danger" data-action="review-refund" data-id="${x.id}">处理退款</button>`:''}`)}
+        <div class="detail-layout"><div>
+          <div class="card detail-card"><div class="detail-title"><h3>订单商品</h3>${badge(x.status)}</div><div class="info-row"><span>套餐商品</span><strong>${esc(x.product)}</strong></div><div class="info-row"><span>购买数量</span><strong>${x.qty} 份</strong></div><div class="info-row"><span>订单金额</span><strong>${money(x.amount)}</strong></div><div class="info-row"><span>权益规则</span><strong>${delivery?'确认收货后生成':'站点核销后生成'} ${x.qty} 张采血单权益</strong></div></div>
+          <div class="card detail-card"><div class="detail-title"><h3>${delivery?'收货与物流':'自提站点'}</h3></div>${delivery?`<div class="info-row"><span>收货人</span><strong>${esc(x.user)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>收货地址</span><strong>广东省广州市天河区长兴路 28 号</strong></div><div class="info-row"><span>物流信息</span><strong>${esc(x.logistics)}</strong></div>`:`<div class="info-row"><span>合作站</span><strong>${esc(x.station)}</strong></div><div class="info-row"><span>核销凭证</span><strong>${esc(x.logistics)}</strong></div><div class="info-row"><span>核销规则</span><strong>一次性整单核销，核销后不可售后</strong></div>`}</div>
+        </div><aside class="card detail-card sticky"><div class="detail-title"><h3>履约进度</h3></div><div class="timeline">${steps.map((s,i)=>`<div class="timeline-item ${i<current?'done':i===current?'current':''}"><span class="timeline-dot">${i<current?'✓':i+1}</span><span class="timeline-copy"><strong>${s}</strong><small>${i<current?'已完成':i===current?'当前节点':'等待处理'}</small></span></div>`).join('')}</div>${x.status==='退款申请'?`<div class="notice red"><strong>退款处理中</strong>核销凭证已暂停，退款完成后将自动失效。</div>`:''}</aside></div>`;
+      }
+
+      function refundsPage(){
+        const list=state.orders.filter(x=>x.status==='退款申请');
+        const rows=list.map(x=>`<tr><td><div class="cell-main">RF${x.id.slice(2)}</div><div class="cell-sub">申请于 2026-08-26 08:36</div></td><td><div class="cell-main">${x.id}</div><div class="cell-sub">${esc(x.type)} · ${esc(x.station)}</div></td><td>${esc(x.user)} · ${esc(x.phone)}</td><td class="cell-main">${money(x.amount)}</td><td>计划变更，暂不提货</td><td>${badge('退款申请')}</td><td><button class="btn small danger" data-action="review-refund" data-id="${x.id}">审核处理</button></td></tr>`).join('');
+        return `${pageHead('AFTER-SALES','退款处理','仅处理已支付、未核销的退款申请。退款处理中暂停站点核销，核销完成后不再允许发起售后。',`<button class="btn ghost" data-action="export">导出记录</button>`)}
+        <div class="card table-card"><table><thead><tr><th>退款单</th><th>原订单</th><th>申请用户</th><th>退款金额</th><th>申请原因</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows||`<tr><td colspan="7">${empty('暂无待处理退款','新的退款申请会显示在这里')}</td></tr>`}</tbody></table>${pagination(list.length)}</div>`;
+      }
+
+      function batchesPage(){
+        const rows=state.batches.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td>${esc(x.product)}</td><td>${x.qty} 组</td><td>${x.unused} 组</td><td>${esc(x.creator)}</td><td><button class="btn small ghost" data-action="view-batch" data-id="${x.id}">查看卡密</button></td></tr>`).join('');
+        return `${pageHead('PACKAGE CARDS','套餐卡批次','总部按套餐批量生成一次性卡号和密码。系统不记录线下发放渠道，卡密使用后立即失效。',`<button class="btn primary" data-action="open-create-batch">＋ 生成套餐卡</button>`)}
+        <div class="card table-card"><table><thead><tr><th>生成批次</th><th>关联套餐</th><th>生成数量</th><th>未使用</th><th>创建人</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.batches.length)}</div>`;
+      }
+
+      function cardsPage(){
+        const rows=state.cards.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">密码 ${x.status==='未使用'?'••••••':x.password}</div></td><td>${esc(x.product)}</td><td>${x.batch}</td><td>${badge(x.status)}</td><td>${x.used}</td><td>${x.blood==='—'?'—':`<button class="btn small link" data-action="jump-blood" data-id="${x.blood}">${x.blood}</button>`}</td><td>${x.status==='未使用'?`<button class="btn small ghost" data-action="show-card" data-id="${x.id}">查看卡密</button>`:'—'}</td></tr>`).join('');
+        return `${pageHead('PACKAGE CARDS','套餐卡明细','查询每组卡密的套餐归属、使用状态、使用时间及生成的采血单。',`<button class="btn ghost" data-page="card-batches">查看生成批次</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部</button><button class="filter">未使用</button><button class="filter">已使用</button></div><div class="search"><span>⌕</span><input placeholder="输入卡号、批次或采血单"></div></div>
+        <div class="card table-card"><table><thead><tr><th>卡号</th><th>关联套餐</th><th>批次</th><th>状态</th><th>使用时间</th><th>关联采血单</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.cards.length)}</div>`;
+      }
+
+      function bloodPage(filter='all'){
+        const q=state.bloodQuery.toLowerCase(); let list=state.bloodForms.filter(x=>(x.id+x.tube+x.person+x.phone+x.product).toLowerCase().includes(q)); if(filter==='anomaly')list=list.filter(x=>x.status==='样本异常');
+        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td><div class="cell-main">${esc(x.tube)}</div><div class="cell-sub">${esc(x.source)}</div></td><td><div class="cell-main">${esc(x.person)} · ${esc(x.gender)}</div><div class="cell-sub">${esc(x.phone)}</div></td><td>${esc(x.product)}</td><td><div class="cell-main">${esc(x.method)}</div><div class="cell-sub">${esc(x.station)}</div></td><td>${badge(x.status)}</td><td><button class="btn small ghost" data-action="view-blood" data-id="${x.id}">${x.status==='样本异常'?'查看异常':'查看详情'}</button></td></tr>`).join('');
+        const title=filter==='anomaly'?'样本异常':'采血单管理', desc=filter==='anomaly'?'集中查看实验室标记的异常样本，通过采血单追溯订单和联系方式，后续由客服线下处理。':'采血单连接套餐权益、受检人、样本流转、检测数据与最终报告，是全链路追溯的核心对象。';
+        return `${pageHead('BLOOD TESTING',title,desc,`<button class="btn ghost" data-action="export">导出采血单</button>`)}
+        ${filter==='anomaly'?`<div class="notice red" style="margin-bottom:14px"><strong>异常流程边界</strong>后台只负责查看和追溯，不创建线上补采、补发或异常售后流程。</div>`:''}
+        <div class="card toolbar"><div class="filters"><button class="filter active">${filter==='anomaly'?'全部异常':'全部状态'}</button>${filter==='all'?'<button class="filter">待接收</button><button class="filter">已寄出</button><button class="filter">待出报告</button><button class="filter">报告完成</button>':''}</div><div class="search"><span>⌕</span><input id="bloodSearch" value="${esc(state.bloodQuery)}" placeholder="采血单、试管编码、受检人"></div></div>
+        <div class="card table-card" id="bloodTable"><table><thead><tr><th>采血单</th><th>试管与权益来源</th><th>受检人</th><th>套餐</th><th>采血方式</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows||`<tr><td colspan="7">${empty('暂无数据','没有符合条件的采血单')}</td></tr>`}</tbody></table>${pagination(list.length)}</div>`;
+      }
+
+      function bloodDetailPage(){
+        const x=state.bloodForms.find(b=>b.id===state.selectedBlood)||state.bloodForms[0]; const abnormal=x.status==='样本异常';
+        const steps=abnormal?['创建采血单','站点接收','样本寄出','实验室标记异常']:x.status==='报告完成'?['创建采血单','站点接收','样本寄出','检测数据提交','报告上传']:['创建采血单','站点接收','样本寄出','检测处理中','报告上传'];
+        const completed=abnormal?4:x.status==='报告完成'?5:x.status==='待出报告'?4:x.status==='已寄出'?3:1;
+        return `${pageHead('BLOOD FORM DETAIL',x.id,`${x.tube} · ${x.product}`,`<button class="btn ghost" data-page="${abnormal?'anomalies':'blood'}">← 返回列表</button>${abnormal?'<button class="btn primary" data-action="contact-user">登记已联系</button>':''}`)}
+        <div class="detail-layout"><div>
+          <div class="card detail-card"><div class="detail-title"><h3>受检人与采血信息</h3>${badge(x.status)}</div><div class="field-grid"><div><div class="info-row"><span>姓名</span><strong>${esc(x.person)}</strong></div><div class="info-row"><span>性别</span><strong>${esc(x.gender)}</strong></div><div class="info-row"><span>出生日期</span><strong>${x.birth}</strong></div><div class="info-row"><span>身份证号</span><strong>${x.idNo}</strong></div></div><div><div class="info-row"><span>联系电话</span><strong>${x.phone}</strong></div><div class="info-row"><span>采血方式</span><strong>${esc(x.method)}</strong></div><div class="info-row"><span>采血服务点</span><strong>${esc(x.station)}</strong></div><div class="info-row"><span>权益来源</span><strong>${esc(x.source)}</strong></div></div></div></div>
+          ${abnormal?`<div class="card detail-card"><div class="detail-title"><h3>样本异常记录</h3><span class="badge red">流程终止</span></div><div class="notice red"><strong>${esc(x.note)}</strong>实验室已上传 ${esc(x.image)}。原采血单保留为异常终态，后续退款、补发或重新采血由客服线下协商。</div><div class="info-row"><span>标记账号</span><strong>实验室检测账号</strong></div><div class="info-row"><span>标记时间</span><strong>2026-08-25 16:42</strong></div><div class="info-row"><span>关联订单</span><strong>${esc(x.source)}</strong></div></div>`:`<div class="card detail-card"><div class="detail-title"><h3>检测协作信息</h3></div><div class="info-row"><span>检测数据</span><strong>${x.status==='待出报告'||x.status==='报告完成'?'已由实验室填写':'等待实验室处理'}</strong></div><div class="info-row"><span>报告状态</span><strong>${x.status==='报告完成'?'PDF 已上传':'尚未上传'}</strong></div><div class="info-row"><span>数据冻结</span><strong>${x.status==='报告完成'?'已冻结':'报告上传前可修改'}</strong></div></div>`}
+        </div><aside class="card detail-card sticky"><div class="detail-title"><h3>全流程进度</h3></div><div class="timeline">${steps.map((s,i)=>`<div class="timeline-item ${i<completed?'done':i===completed?'current':''}"><span class="timeline-dot">${i<completed?'✓':i+1}</span><span class="timeline-copy"><strong>${s}</strong><small>${i<completed?'已完成':i===completed?'当前节点':'等待处理'}</small></span></div>`).join('')}</div></aside></div>`;
+      }
+
+      function reportsPage(){
+        const rows=state.reports.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td><button class="btn small link" data-action="jump-blood" data-id="${x.blood}">${x.blood}</button></td><td>${esc(x.person)}</td><td>${esc(x.product)}</td><td><span class="badge green">PDF 报告</span></td><td>v${x.version}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-report" data-id="${x.id}">查看报告</button><button class="btn small link" data-action="report-versions" data-id="${x.id}">版本记录</button></div></td></tr>`).join('');
+        return `${pageHead('DETECTION REPORTS','检测报告','数据中心在检测协作端上传一份 PDF 报告；报告可替换且无需审核，但全部版本和操作记录必须保留。',`<button class="btn ghost" data-action="export">导出报告清单</button>`)}
+        <div class="card table-card"><table><thead><tr><th>报告编号</th><th>采血单</th><th>受检人</th><th>套餐</th><th>文件类型</th><th>当前版本</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.reports.length)}</div>`;
+      }
+
+      function usersPage(){
+        const rows=state.users.map(x=>`<tr><td><div class="cell-main">${x.name}</div><div class="cell-sub">${x.id} · ${x.phone}</div></td><td>${x.city}</td><td>${x.orders} 笔</td><td>${x.blood} 张</td><td>${x.worker==='否'?'<span class="badge">普通用户</span>':`<span class="badge blue">${esc(x.worker)}</span>`}</td><td>${x.joined}</td><td><button class="btn small ghost" data-action="view-user" data-id="${x.id}">查看详情</button></td></tr>`).join('');
+        return `${pageHead('C-END USERS','C 端用户','查看用户的区域归属、订单、采血权益和站点工作人员身份。下单用户与实际受检人可能不是同一个人。',scopeControl()+`<button class="btn ghost" data-action="export">导出用户</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部用户</button><button class="filter">站点工作人员</button><button class="filter">普通用户</button></div><div class="search"><span>⌕</span><input placeholder="姓名、手机号、用户编号"></div></div>
+        <div class="card table-card"><table><thead><tr><th>用户</th><th>所属城市</th><th>订单</th><th>采血单</th><th>身份</th><th>注册时间</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.users.length)}</div>`;
+      }
+
+      function collaborationPage(){
+        const rows=state.collaboration.map(x=>`<tr><td><div class="cell-main">${x.name}</div><div class="cell-sub">${x.id}</div></td><td>${badge(x.role)}</td><td>${x.account}</td><td>${x.scope}</td><td>${badge(x.status)}</td><td>${x.last}</td><td><div class="table-actions"><button class="btn small ghost" data-action="reset-collab" data-id="${x.id}">重置密码</button><button class="btn small link" data-action="toggle-collab" data-id="${x.id}">${x.status==='启用'?'停用':'启用'}</button></div></td></tr>`).join('');
+        return `${pageHead('COLLABORATION ACCOUNTS','检测协作账号','实验室与数据中心共用独立检测协作端，通过角色菜单权限隔离；账号统一由总部创建和管理。',`<button class="btn primary" data-action="open-create-collab">＋ 创建协作账号</button>`)}
+        <div class="notice blue" style="margin-bottom:14px"><strong>端口边界</strong>实验室录入检测数据、标记样本异常；数据中心查看检测数据并上传 PDF。管理后台只管理账号和查看全链路状态。</div>
+        <div class="card table-card"><table><thead><tr><th>账号名称</th><th>角色</th><th>登录账号</th><th>数据范围</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.collaboration.length)}</div>`;
+      }
+
+      function settingsPage(){
+        return `${pageHead('BUSINESS SETTINGS','业务参数','统一维护订单规则、短信服务、小程序协议和业务文案；保存后小程序按最新发布内容展示。',`<button class="btn primary" data-action="save-settings">保存全部配置</button>`)}
+        <div class="grid cols-2">
+          <div class="card detail-card"><div class="detail-title"><h3>订单参数</h3><span class="badge outline">总部统一配置</span></div><label class="field"><span>未支付订单自动关闭时长（分钟）</span><input id="payTimeout" type="number" min="5" max="120" value="${state.settings.payTimeout}"></label><div class="notice green"><strong>订单关闭规则</strong>订单提交后开始倒计时，超时未支付则自动关闭并释放对应履约库存。</div></div>
+          <div class="card detail-card"><div class="detail-title"><h3>客服信息</h3></div><label class="field"><span>平台客服电话</span><input id="supportPhone" value="${state.settings.supportPhone}"></label><div class="notice"><strong>线下服务入口</strong>样本异常、补发、补采等当前未建设线上流程，由客服通过该信息线下协调。</div></div>
+          <div class="card detail-card settings-wide"><div class="detail-title"><h3>腾讯云短信配置</h3><div class="table-actions"><span class="badge ${state.settings.smsEnabled?'green':'red'}">${state.settings.smsEnabled?'服务已启用':'服务已停用'}</span><button class="switch ${state.settings.smsEnabled?'on':''}" data-action="toggle-sms-service" aria-label="切换短信服务"></button></div></div>
+            <div class="field-grid"><label class="field"><span>SecretId *</span><input id="smsSecretId" type="password" autocomplete="new-password" value="${esc(state.settings.smsSecretId)}"></label><label class="field"><span>SecretKey *</span><input id="smsSecretKey" type="password" autocomplete="new-password" value="${esc(state.settings.smsSecretKey)}"></label></div>
+            <div class="field-grid"><label class="field"><span>短信 SDK AppID *</span><input id="smsSdkAppId" value="${esc(state.settings.smsSdkAppId)}"></label><label class="field"><span>短信签名内容 *</span><input id="smsSign" value="${esc(state.settings.smsSign)}"></label></div>
+            <div class="field-grid"><label class="field"><span>验证码模板 ID *</span><input id="smsVerifyTemplate" value="${esc(state.settings.smsVerifyTemplate)}"></label><div><span style="display:block;margin-bottom:6px;color:var(--muted);font-size:10px;font-weight:800">配置验证</span><button class="btn secondary" data-action="open-sms-test">发送测试短信</button></div></div>
+            <div class="notice blue"><strong>腾讯云审核要求</strong>短信签名和正文模板需先在腾讯云短信控制台审核通过；SecretId 与 SecretKey 默认遮挡显示。</div>
+          </div>
+          <div class="card detail-card settings-wide"><div class="detail-title"><h3>小程序协议内容</h3><span class="badge outline">用户端展示</span></div><div class="agreement-grid">
+            <div class="editor-box"><div class="editor-head"><span><strong>隐私保护指引</strong><small>小程序登录、授权及个人信息收集场景展示</small></span><button class="btn small ghost" data-action="preview-agreement" data-type="privacy">预览</button></div><textarea id="privacyAgreement">${esc(state.settings.privacyAgreement)}</textarea></div>
+            <div class="editor-box"><div class="editor-head"><span><strong>用户服务协议</strong><small>用户注册、购买及使用服务前展示</small></span><button class="btn small ghost" data-action="preview-agreement" data-type="service">预览</button></div><textarea id="serviceAgreement">${esc(state.settings.serviceAgreement)}</textarea></div>
+          </div></div>
+          <div class="card detail-card settings-wide"><div class="detail-title"><h3>小程序文案配置</h3><span class="badge outline">保存后同步小程序</span></div><div class="copy-list">
+            <div class="copy-item"><span><strong>商品详情页 · 温馨提示</strong><small>展示在所有套餐商品详情页底部</small></span><textarea id="productWarmTip">${esc(state.settings.productWarmTip)}</textarea></div>
+            <div class="copy-item"><span><strong>自行采血 · 冷链提示</strong><small>选择自行采血和登记样本寄出时展示</small></span><textarea id="coldChainTip">${esc(state.settings.coldChainTip)}</textarea></div>
+            <div class="copy-item"><span><strong>报告查询 · 验证说明</strong><small>输入受检人信息和短信验证码前展示</small></span><textarea id="reportQueryTip">${esc(state.settings.reportQueryTip)}</textarea></div>
+            <div class="copy-item"><span><strong>自提站点 · 非营业时间提示</strong><small>站点营业开关开启但当前不在营业时间时展示</small></span><textarea id="offHoursTip">${esc(state.settings.offHoursTip)}</textarea></div>
+          </div></div>
+        </div>`;
+      }
+
+      function adminsPage(){
+        const rows=state.admins.map(x=>`<tr><td><div class="cell-main">${x.name}</div><div class="cell-sub">${x.id}</div></td><td>${badge(x.role)}</td><td>${x.account}</td><td>${x.scope}</td><td>${badge(x.status)}</td><td>${x.last}</td><td><div class="table-actions"><button class="btn small ghost" data-action="reset-admin" data-id="${x.id}">重置密码</button><button class="btn small link" data-action="toggle-admin" data-id="${x.id}">${x.status==='启用'?'停用':'启用'}</button></div></td></tr>`).join('');
+        return `${pageHead('ACCESS CONTROL','后台账号与角色','总部账号拥有明确菜单权限和数据范围；省级运营查看本省，城市合伙人查看本市。区域角色的业务操作权限暂以只读为主。',`<button class="btn primary" data-action="open-create-admin">＋ 创建后台账号</button>`)}
+        <div class="card table-card"><table><thead><tr><th>账号名称</th><th>角色</th><th>登录账号</th><th>数据范围</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.admins.length)}</div>`;
+      }
+
+      function logsPage(){
+        const rows=state.logs.map(x=>`<tr><td>${x.time}</td><td class="cell-main">${esc(x.operator)}</td><td>${badge(x.module)}</td><td>${esc(x.action)}</td><td>${esc(x.detail)}</td></tr>`).join('');
+        return `${pageHead('AUDIT LOG','操作日志','记录关键业务操作、账号和时间，确保站点、订单、卡密、检测数据与报告变更可追溯。',`<button class="btn ghost" data-action="export">导出日志</button>`)}
+        <div class="card toolbar"><div class="filters"><button class="filter active">全部模块</button><button class="filter">组织站点</button><button class="filter">订单售后</button><button class="filter">采血报告</button></div><div class="search"><span>⌕</span><input placeholder="操作人、动作或业务编号"></div></div>
+        <div class="card table-card"><table><thead><tr><th>操作时间</th><th>操作账号</th><th>业务模块</th><th>操作动作</th><th>操作内容</th></tr></thead><tbody>${rows}</tbody></table>${pagination(state.logs.length)}</div>`;
+      }
+
+      const renderers={
+        dashboard:dashboardPage, provinces:()=>operatorsPage('province'), cities:()=>operatorsPage('city'), applications:applicationsPage, stations:stationsPage, 'station-detail':stationDetailPage,
+        products:productsPage, 'orders-all':()=>ordersPage('all'), 'orders-delivery':()=>ordersPage('delivery'), 'orders-pickup':()=>ordersPage('pickup'), 'order-detail':orderDetailPage, refunds:refundsPage,
+        'card-batches':batchesPage, cards:cardsPage, blood:()=>bloodPage('all'), anomalies:()=>bloodPage('anomaly'), 'blood-detail':bloodDetailPage, reports:reportsPage,
+        users:usersPage, collaboration:collaborationPage, settings:settingsPage, admins:adminsPage, logs:logsPage
+      };
+
+      function activeNav(){ if(state.page==='station-detail')return 'stations'; if(state.page==='order-detail'){const x=state.orders.find(o=>o.id===state.selectedOrder);return x?.type==='快递配送'?'orders-delivery':'orders-pickup';} if(state.page==='blood-detail'){const x=state.bloodForms.find(b=>b.id===state.selectedBlood);return x?.status==='样本异常'?'anomalies':'blood';} return state.page; }
+      function updateNav(){ document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===activeNav())); $('#applicationCount').textContent=state.applications.filter(x=>x.status==='待联系').length; $('#shippingCount').textContent=state.orders.filter(x=>x.status==='待发货').length; $('#refundCount').textContent=state.orders.filter(x=>x.status==='退款申请').length; $('#anomalyCount').textContent=state.bloodForms.filter(x=>x.status==='样本异常').length; }
+      function render(scroll=true){ pageRoot.innerHTML=(renderers[state.page]||dashboardPage)(); updateNav(); if(scroll)window.scrollTo({top:0,behavior:'smooth'}); }
+      function go(page){ state.page=page; render(); }
+      function toast(message){ const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2300); }
+      function showModal(title,body,foot='',wide=false){ $('#modalTitle').textContent=title; $('#modalBody').innerHTML=body; $('#modalFoot').innerHTML=foot||`<button class="btn ghost" data-action="close-modal">关闭</button>`; $('#modal').classList.toggle('wide',wide); modalLayer.classList.add('open'); modalLayer.setAttribute('aria-hidden','false'); }
+      function closeModal(){ modalLayer.classList.remove('open'); modalLayer.setAttribute('aria-hidden','true'); }
+
+      function createOperatorModal(type){ const isP=type==='province'; showModal(`新建${isP?'省级运营':'城市合伙人'}`,`${isP?'':`<label class="field"><span>所属省级运营 *</span><select id="opProvince"><option>广东省运营中心</option><option>浙江省运营中心</option><option>四川省运营中心</option></select></label>`}<label class="field"><span>主体名称 *</span><input id="opName" value="${isP?'福建省运营中心':'佛山城市合伙人'}"></label><div class="field-grid"><label class="field"><span>${isP?'所属省份':'所属城市'} *</span><input id="opArea" value="${isP?'福建省':'佛山市'}"></label><label class="field"><span>负责人 *</span><input id="opLeader" value="陈嘉宁"></label></div><label class="field"><span>联系电话 *</span><input id="opPhone" value="13812345678"></label><div class="notice green"><strong>唯一地域归属</strong>同一${isP?'省份':'地级市'}只能存在一个启用中的运营主体。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-operator" data-type="${type}">创建并开通账号</button>`); }
+      function createStationModal(appId=''){ const app=state.applications.find(x=>x.id===appId); showModal('创建社区合作站',`<label class="field"><span>站点名称 *</span><input id="stationName" value="${esc(app?.name||'新社区合作站')}"></label><div class="field-grid"><label class="field"><span>所属省份 *</span><select id="stationProvince"><option>广东省</option><option>浙江省</option><option>四川省</option></select></label><label class="field"><span>所属地级市 *</span><select id="stationCity"><option>广州市</option><option>深圳市</option><option>杭州市</option></select></label></div><label class="field"><span>详细地址 *</span><input id="stationAddress" value="广州市天河区长兴街道 18 号"></label><div class="field-grid"><label class="field"><span>联系人 *</span><input id="stationContact" value="${esc(app?.applicant||'陈店长')}"></label><label class="field"><span>联系电话 *</span><input id="stationPhone" value="13812345678"></label></div><span style="display:block;margin:3px 0 8px;font-size:10px;font-weight:800;color:var(--muted)">开通服务 *</span><div class="check-grid"><label class="check-card"><input id="serviceHealth" type="checkbox" checked><span><strong>健康服务</strong><small>承接自提订单，由站点完成核销</small></span></label><label class="check-card"><input id="serviceBlood" type="checkbox" checked><span><strong>采血服务</strong><small>接收采血单并寄送样本</small></span></label></div><div class="notice"><strong>建站后自动生成管理员账号</strong>申请人不会自动成为小程序工作人员，工作人员需按手机号另行添加。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-station" data-app="${appId}">确认创建</button>`,true); }
+      function productModal(id=''){ const x=state.products.find(p=>p.id===id); showModal(x?'编辑套餐商品':'创建套餐商品',`<label class="field"><span>套餐名称 *</span><input id="productName" value="${esc(x?.name||'肠道健康检测套餐')}"></label><div class="field-grid"><label class="field"><span>展示价格 *</span><input id="productDisplayPrice" type="number" min="0.01" value="${x?.displayPrice||699}"></label><label class="field"><span>销售价格 *</span><input id="productPrice" type="number" min="0.01" value="${x?.price||599}"></label></div><div class="field-grid"><label class="field"><span>排序值 *</span><input id="productSort" type="number" min="0" step="1" value="${x?.sort??100}"></label><label class="field"><span>商品状态</span><select id="productStatus"><option ${x?.status!=='停用'?'selected':''}>上架</option><option ${x?.status==='停用'?'selected':''}>停用</option></select></label></div><div class="notice blue" style="margin-bottom:14px"><strong>前台展示规则</strong>未登录展示 ${money(x?.displayPrice||699)}，登录后展示 ${money(x?.price||599)}；排序值越小越靠前。</div><div class="upload-grid"><div class="upload-group"><span>商品主图 *</span><label class="upload-box" for="productMainImage"><input class="upload-input" id="productMainImage" type="file" accept="image/png,image/jpeg,image/webp"><span id="mainImagePreview">${x?.mainImage?'<span class="upload-mark">图</span><strong>主图已上传</strong><small>点击可重新选择，建议 1:1</small>':'<span class="upload-mark">＋</span><strong>上传商品主图</strong><small>支持 JPG、PNG、WebP</small>'}</span></label></div><div class="upload-group"><span>商品详情图 *</span><div class="detail-preview" id="detailImagePreview">${Array.from({length:x?.detailImages||0},(_,i)=>`<span class="detail-thumb">详情图 ${i+1}</span>`).join('')}<label class="upload-add" for="productDetailImages">＋<input class="upload-input" id="productDetailImages" type="file" accept="image/png,image/jpeg,image/webp" multiple></label></div></div></div><label class="field"><span>检测内容说明 *</span><textarea id="productDesc">${esc(x?.desc||'用于说明该套餐对应的检测范围和报告维度')}</textarea></label><div class="notice green"><strong>实物交付统一</strong>每购买一份套餐固定消耗一个通用采集盒，套餐差异体现在价格、展示素材和后续检测内容。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="save-product" data-id="${id}">保存商品</button>`,true); }
+      function shipModal(id){ const x=state.orders.find(o=>o.id===id); showModal('登记快递发货',`<div class="info-row"><span>订单编号</span><strong>${x.id}</strong></div><div class="info-row"><span>商品数量</span><strong>${esc(x.product)} × ${x.qty}</strong></div><div class="info-row" style="margin-bottom:14px"><span>收货用户</span><strong>${esc(x.user)} · ${esc(x.phone)}</strong></div><div class="field-grid"><label class="field"><span>快递公司 *</span><select id="shipCompany"><option>顺丰速运</option><option>京东物流</option><option>中通快递</option></select></label><label class="field"><span>物流单号 *</span><input id="shipNo" value="SF1492863108"></label></div><div class="notice blue"><strong>权益解锁节点</strong>发货后用户仍不能创建采血单，需在小程序确认收货后按套餐数量生成权益。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-ship" data-id="${id}">确认发货</button>`); }
+      function refundModal(id){ const x=state.orders.find(o=>o.id===id); showModal('审核退款申请',`<div class="notice red" style="margin-bottom:14px"><strong>核销已暂停</strong>退款审核期间，二维码和数字核销码均不可使用。</div><div class="info-row"><span>原订单</span><strong>${x.id}</strong></div><div class="info-row"><span>申请用户</span><strong>${esc(x.user)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>退款金额</span><strong>${money(x.amount)}</strong></div><div class="info-row"><span>退款原因</span><strong>计划变更，暂不提货</strong></div><label class="field" style="margin-top:14px"><span>处理备注</span><textarea id="refundNote">核实订单尚未核销，同意退款</textarea></label>`,`<button class="btn danger" data-action="reject-refund" data-id="${id}">拒绝退款</button><button class="btn primary" data-action="approve-refund" data-id="${id}">同意退款</button>`); }
+      function batchModal(){ showModal('生成套餐卡',`<label class="field"><span>关联套餐 *</span><select id="batchProduct">${state.products.filter(x=>x.status==='上架').map(x=>`<option>${esc(x.name)}</option>`).join('')}</select></label><label class="field"><span>生成数量 *</span><input id="batchQty" type="number" min="1" max="1000" value="100"></label><label class="field"><span>生成备注</span><textarea id="batchNote">线下业务套餐卡批次</textarea></label><div class="notice"><strong>一次性权益凭证</strong>卡号和密码只能使用一次，成功生成采血单后立即失效；不记录线下发放去向。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-batch">确认生成</button>`); }
+
+      document.addEventListener('click', event => {
+        const el=event.target.closest('[data-page],[data-action]'); if(!el)return;
+        if(el.dataset.page)return go(el.dataset.page);
+        const a=el.dataset.action;
+        if(a==='close-modal')return closeModal();
+        if(a==='logout'){ $('#loginScreen').classList.add('open'); return; }
+        if(a==='login'){ if(!$('#loginAccount').value||!$('#loginPassword').value)return toast('请输入账号和密码'); $('#loginScreen').classList.remove('open'); return toast('登录成功，欢迎回来'); }
+        if(a==='refresh')return toast('数据已更新至刚刚');
+        if(a==='export')return toast('已生成演示导出任务');
+        if(a==='open-create-operator')return createOperatorModal(el.dataset.type);
+        if(a==='confirm-create-operator'){ const type=el.dataset.type,name=$('#opName').value.trim(),area=$('#opArea').value.trim(),leader=$('#opLeader').value.trim(); if(!name||!area||!leader)return toast('请完整填写必填信息'); if(type==='province')state.provinces.push({id:'OP-'+Date.now().toString().slice(-4),name,province:area,leader,phone:'138****5678',cities:0,stations:0,status:'启用'}); else state.cities.push({id:'CP-'+Date.now().toString().slice(-4),name,province:'广东省',city:area,leader,phone:'138****5678',stations:0,status:'启用'}); addLog('区域组织','创建运营主体',name); closeModal(); render(false); return toast('运营主体和登录账号已创建'); }
+        if(a==='view-operator'){ const list=el.dataset.type==='province'?state.provinces:state.cities,x=list.find(v=>v.id===el.dataset.id); return showModal('运营主体详情',`<div class="info-row"><span>主体名称</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>区域归属</span><strong>${esc(x.province+(x.city?' / '+x.city:''))}</strong></div><div class="info-row"><span>负责人</span><strong>${esc(x.leader)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>数据权限</span><strong>${x.city?'仅本城市':'仅本省'}</strong></div><div class="notice blue" style="margin-top:14px"><strong>当前原型权限</strong>区域运营角色以辖区数据查看为主，具体业务操作权限等待后续确认。</div>`); }
+        if(a==='toggle-operator'){ const list=el.dataset.type==='province'?state.provinces:state.cities,x=list.find(v=>v.id===el.dataset.id); x.status=x.status==='启用'?'停用':'启用'; addLog('区域组织',x.status+'运营主体',x.name); render(false); return toast(`已${x.status}${x.name}`); }
+        if(a==='view-application'){ const x=state.applications.find(v=>v.id===el.dataset.id); return showModal('入驻申请详情',`<div class="info-row"><span>申请编号</span><strong>${x.id}</strong></div><div class="info-row"><span>拟合作站</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>申请人</span><strong>${esc(x.applicant)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>归属地区</span><strong>${esc(x.city)}</strong></div><div class="info-row"><span>申请服务</span><strong>${esc(x.service)}</strong></div><div class="info-row"><span>申请时间</span><strong>${x.time}</strong></div><div class="notice" style="margin-top:14px"><strong>线下核实后建站</strong>该页面仅记录申请线索，不做线上自动审核开通。</div>`,x.status==='待联系'?`<button class="btn ghost" data-action="close-modal">关闭</button><button class="btn primary" data-action="convert-application" data-id="${x.id}">创建合作站</button>`:''); }
+        if(a==='convert-application'){ closeModal(); return createStationModal(el.dataset.id); }
+        if(a==='open-create-station')return createStationModal();
+        if(a==='confirm-create-station'){ const name=$('#stationName').value.trim(),health=$('#serviceHealth').checked,blood=$('#serviceBlood').checked; if(!name)return toast('请填写站点名称'); if(!health&&!blood)return toast('至少开通一项服务'); const id='ST'+Date.now().toString().slice(-9); state.stations.unshift({id,name,city:$('#stationProvince').value+' / '+$('#stationCity').value,address:$('#stationAddress').value,contact:$('#stationContact').value+' '+$('#stationPhone').value.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2'),health,blood,status:'启用',admin:'ST'+Date.now().toString().slice(-8),workers:0,created:'2026-08-26'}); const app=state.applications.find(x=>x.id===el.dataset.app); if(app)app.status='已建站'; addLog('社区合作站','创建合作站',name); closeModal(); state.selectedStation=id; go('station-detail'); return toast('合作站与管理员账号已创建'); }
+        if(a==='view-station'){ state.selectedStation=el.dataset.id; return go('station-detail'); }
+        if(a==='toggle-station-service'){ const x=state.stations.find(v=>v.id===el.dataset.id),key=el.dataset.service,turnOff=x[key]; if(turnOff)return showModal(`停用${key==='health'?'健康服务':'采血服务'}`,`<div class="confirm-icon">!</div><div class="modal-copy">停用后不再接收新的${key==='health'?'自提订单':'采血单绑定'}，已经产生的业务仍允许继续处理完成。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-toggle-service" data-id="${x.id}" data-service="${key}">确认停用</button>`); x[key]=true; addLog('社区合作站','开通服务',x.name); render(false); return toast('服务已开通'); }
+        if(a==='confirm-toggle-service'){ const x=state.stations.find(v=>v.id===el.dataset.id); x[el.dataset.service]=false; addLog('社区合作站','停用服务',x.name); closeModal(); render(false); return toast('服务已停用，存量业务可继续处理'); }
+        if(a==='reset-station-password'||a==='reset-collab'||a==='reset-admin')return showModal('确认重置密码',`<div class="confirm-icon">钥</div><div class="modal-copy">重置后原密码立即失效，系统将生成新的临时密码，请通过安全方式提供给账号使用人。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-reset-password">确认重置</button>`);
+        if(a==='confirm-reset-password'){ closeModal(); addLog('账号安全','重置登录密码','已生成临时密码'); return toast('密码已重置：APk@260826'); }
+        if(a==='add-station-worker')return showModal('添加站点工作人员',`<div class="notice blue" style="margin-bottom:14px"><strong>通过小程序注册手机号搜索</strong>同一用户当前只能归属于一个社区合作站，两项服务权限可分别授予。</div><label class="field"><span>注册手机号 *</span><input id="workerPhone" value="13922156789"></label><div class="check-grid"><label class="check-card"><input id="workerHealth" type="checkbox" checked><span><strong>健康服务权限</strong><small>小程序显示订单核销工作台</small></span></label><label class="check-card"><input id="workerBlood" type="checkbox"><span><strong>采血服务权限</strong><small>小程序显示采血处理工作台</small></span></label></div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-add-worker">确认添加</button>`);
+        if(a==='confirm-add-worker'){ if(!/^1\d{10}$/.test($('#workerPhone').value))return toast('请输入正确手机号'); closeModal(); addLog('社区合作站','添加工作人员','林晓燕'); return toast('工作人员已添加'); }
+        if(a==='unbind-worker')return showModal('解绑工作人员',`<div class="confirm-icon">!</div><div class="modal-copy">解绑后立即失去对应服务操作权限，既有核销、采血和寄样记录仍保留原操作人。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-unbind">确认解绑</button>`);
+        if(a==='confirm-unbind'){ closeModal(); addLog('社区合作站','解绑工作人员','保留历史操作记录'); return toast('工作人员已解绑'); }
+        if(a==='edit-station')return toast('站点资料编辑表单已进入演示状态');
+        if(a==='open-create-product')return productModal();
+        if(a==='edit-product')return productModal(el.dataset.id);
+        if(a==='save-product'){ const x=state.products.find(p=>p.id===el.dataset.id),name=$('#productName').value.trim(),displayPrice=Number($('#productDisplayPrice').value),price=Number($('#productPrice').value),sort=Number($('#productSort').value),mainImage=Boolean($('#productMainImage').files.length||x?.mainImage),detailImages=$('#productDetailImages').files.length||x?.detailImages||0; if(!name||displayPrice<=0||price<=0||!Number.isInteger(sort)||sort<0)return toast('请填写正确的名称、价格和排序值'); if(!mainImage)return toast('请上传商品主图'); if(!detailImages)return toast('请至少上传一张商品详情图'); if(x){x.name=name;x.displayPrice=displayPrice;x.price=price;x.sort=sort;x.status=$('#productStatus').value;x.desc=$('#productDesc').value;x.mainImage=mainImage;x.detailImages=detailImages;}else state.products.push({id:'SP'+Date.now().toString().slice(-4),name,displayPrice,price,sort,sales:0,status:$('#productStatus').value,desc:$('#productDesc').value,mainImage,detailImages}); addLog('套餐商品',x?'编辑商品':'创建商品',`${name} · 排序 ${sort}`); closeModal(); render(false); return toast('套餐商品已保存并更新排序'); }
+        if(a==='toggle-product'){ const x=state.products.find(p=>p.id===el.dataset.id); x.status=x.status==='上架'?'停用':'上架'; addLog('套餐商品',x.status,x.name); render(false); return toast(`商品已${x.status}`); }
+        if(a==='delete-product'){ const x=state.products.find(p=>p.id===el.dataset.id); return showModal('删除套餐商品',`<div class="confirm-icon">!</div><div class="modal-copy"><strong style="display:block;margin-bottom:6px;color:var(--ink);font-size:13px">${esc(x.name)}</strong>删除后该商品将从后台商品列表和小程序商品列表中移除，此操作不能撤销。</div><div class="notice red" style="margin-top:14px"><strong>历史数据不会被删除</strong>既有订单、套餐卡、采血单和报告继续保留成交时的商品名称与价格快照。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-delete-product" data-id="${x.id}">确认删除</button>`); }
+        if(a==='confirm-delete-product'){ const index=state.products.findIndex(p=>p.id===el.dataset.id),name=state.products[index]?.name; if(index<0)return; state.products.splice(index,1); addLog('套餐商品','删除商品',name); closeModal(); render(false); return toast('套餐商品已删除'); }
+        if(a==='view-order'){ state.selectedOrder=el.dataset.id; return go('order-detail'); }
+        if(a==='open-ship')return shipModal(el.dataset.id);
+        if(a==='confirm-ship'){ const x=state.orders.find(o=>o.id===el.dataset.id),no=$('#shipNo').value.trim(); if(!no)return toast('请填写物流单号'); x.status='已发货';x.logistics=$('#shipCompany').value+' '+no; addLog('订单中心','登记发货',x.id+' · '+x.logistics); closeModal(); render(false); return toast('发货成功，物流信息已同步用户'); }
+        if(a==='review-refund')return refundModal(el.dataset.id);
+        if(a==='approve-refund'){ const x=state.orders.find(o=>o.id===el.dataset.id); x.status='已退款'; addLog('退款处理','同意退款',x.id); closeModal(); state.page='refunds'; render(false); return toast('退款已通过，核销码失效'); }
+        if(a==='reject-refund'){ const x=state.orders.find(o=>o.id===el.dataset.id); x.status='待核销'; addLog('退款处理','拒绝退款',x.id); closeModal(); state.page='refunds'; render(false); return toast('已拒绝退款，订单恢复待核销'); }
+        if(a==='open-create-batch')return batchModal();
+        if(a==='confirm-create-batch'){ const qty=Number($('#batchQty').value),product=$('#batchProduct').value; if(!Number.isInteger(qty)||qty<1||qty>1000)return toast('生成数量应为 1—1000'); const id='PC'+Date.now().toString().slice(-10); state.batches.unshift({id,product,qty,unused:qty,creator:'总部超级管理员',time:now()}); state.cards.unshift({id:'APKC-'+Date.now().toString().slice(-10),password:'7N2K9P',product,batch:id,status:'未使用',used:'—',blood:'—'}); addLog('套餐卡','生成卡密批次',id+' · '+qty+' 组'); closeModal(); render(false); return toast(`已生成 ${qty} 组一次性套餐卡`); }
+        if(a==='view-batch'){ state.page='cards'; render(); return toast('已按批次筛选套餐卡'); }
+        if(a==='show-card'){ const x=state.cards.find(c=>c.id===el.dataset.id); return showModal('查看套餐卡密',`<div class="notice green"><strong>请妥善保管</strong>系统不记录该卡密的线下发放去向。</div><div class="info-row" style="margin-top:12px"><span>卡号</span><strong>${x.id}</strong></div><div class="info-row"><span>密码</span><strong style="font-size:18px;letter-spacing:.15em;color:var(--brand)">${x.password}</strong></div><div class="info-row"><span>关联套餐</span><strong>${esc(x.product)}</strong></div>`); }
+        if(a==='jump-blood'){ const x=state.bloodForms.find(b=>b.id===el.dataset.id); if(x){state.selectedBlood=x.id;return go('blood-detail');} return toast('已定位关联采血单'); }
+        if(a==='view-blood'){ state.selectedBlood=el.dataset.id; return go('blood-detail'); }
+        if(a==='contact-user'){ addLog('样本异常','登记客服联系',state.selectedBlood); return toast('已登记：客服完成首次联系'); }
+        if(a==='view-report'){ return showModal('检测报告预览',`<div style="min-height:340px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;background:#f8fbfa"><div style="text-align:center"><div style="width:64px;height:76px;margin:0 auto 13px;display:grid;place-items:center;border-radius:10px;color:var(--red);background:#fff0f0;font-weight:900">PDF</div><strong style="display:block">安派科健康检测报告</strong><small style="display:block;margin-top:6px;color:var(--muted)">原型中仅模拟 PDF 文件预览</small></div></div>`,`<button class="btn ghost" data-action="close-modal">关闭</button><button class="btn primary" data-action="download-demo">下载 PDF</button>`,true); }
+        if(a==='download-demo')return toast('已开始下载演示报告');
+        if(a==='report-versions'){ const x=state.reports.find(r=>r.id===el.dataset.id); return showModal('报告版本记录',`<div class="timeline"><div class="timeline-item done"><span class="timeline-dot">✓</span><span class="timeline-copy"><strong>v${x.version} 当前有效版本</strong><small>${x.time} · 数据中心报告账号上传</small></span></div>${x.version>1?'<div class="timeline-item done"><span class="timeline-dot">✓</span><span class="timeline-copy"><strong>v1 历史版本</strong><small>2026-08-25 16:08 · 已被替换，文件永久保留</small></span></div>':''}</div><div class="notice green"><strong>版本审计规则</strong>用户仅查看当前有效报告，后台保留全部历史 PDF、操作账号与替换时间。</div>`); }
+        if(a==='view-user'){ const x=state.users.find(u=>u.id===el.dataset.id); return showModal('用户详情',`<div class="info-row"><span>用户</span><strong>${esc(x.name)} · ${x.phone}</strong></div><div class="info-row"><span>所属城市</span><strong>${x.city}</strong></div><div class="info-row"><span>累计订单</span><strong>${x.orders} 笔</strong></div><div class="info-row"><span>创建采血单</span><strong>${x.blood} 张</strong></div><div class="info-row"><span>工作人员身份</span><strong>${esc(x.worker)}</strong></div><div class="notice blue" style="margin-top:14px"><strong>用户与受检人相互独立</strong>该用户购买的套餐可以为家人或其他人创建采血单，报告归属实际受检人。</div>`); }
+        if(a==='open-create-collab')return showModal('创建检测协作账号',`<label class="field"><span>账号名称 *</span><input id="collabName" value="实验室备用账号"></label><div class="field-grid"><label class="field"><span>角色 *</span><select id="collabRole"><option>实验室</option><option>数据中心</option></select></label><label class="field"><span>登录账号 *</span><input id="collabAccount" value="lab_backup"></label></div><div class="notice blue"><strong>菜单权限自动隔离</strong>实验室可录入数据和标记异常；数据中心可查看数据并上传报告。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-collab">创建账号</button>`);
+        if(a==='confirm-create-collab'){ const name=$('#collabName').value.trim(),role=$('#collabRole').value,account=$('#collabAccount').value.trim(); if(!name||!account)return toast('请填写完整账号信息'); state.collaboration.push({id:'AC-'+Date.now().toString().slice(-6),name,role,account,scope:role==='实验室'?'全部已寄出采血单':'待出报告采血单',status:'启用',last:'尚未登录'}); addLog('检测协作账号','创建账号',name); closeModal(); render(false); return toast('检测协作账号已创建'); }
+        if(a==='toggle-collab'){ const x=state.collaboration.find(v=>v.id===el.dataset.id); x.status=x.status==='启用'?'停用':'启用'; render(false); return toast(`账号已${x.status}`); }
+        if(a==='toggle-sms-service'){ state.settings.smsEnabled=!state.settings.smsEnabled; render(false); return toast(state.settings.smsEnabled?'腾讯云短信服务已启用':'腾讯云短信服务已停用'); }
+        if(a==='open-sms-test'){ return showModal('发送测试短信',`<div class="notice blue" style="margin-bottom:14px"><strong>验证当前页面中的短信配置</strong>系统将使用验证码模板向下方手机号发送一条测试短信。</div><label class="field"><span>测试手机号 *</span><input id="smsTestPhone" maxlength="11" value="13812345678"></label>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-sms-test">发送测试</button>`); }
+        if(a==='confirm-sms-test'){ const phone=$('#smsTestPhone').value.trim(),configured=$('#smsSecretId')?.value.trim()&&$('#smsSecretKey')?.value.trim()&&$('#smsSdkAppId')?.value.trim()&&$('#smsSign')?.value.trim()&&$('#smsVerifyTemplate')?.value.trim(); if(!/^1\d{10}$/.test(phone))return toast('请输入正确的测试手机号'); if(!configured)return toast('请先完整填写腾讯云短信配置'); closeModal(); addLog('业务参数','发送测试短信',phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')); return toast('测试短信已发送，请注意查收'); }
+        if(a==='preview-agreement'){ const privacy=el.dataset.type==='privacy',content=$(privacy?'#privacyAgreement':'#serviceAgreement').value; return showModal(privacy?'隐私保护指引预览':'用户服务协议预览',`<div style="padding:4px 2px;white-space:pre-wrap;line-height:1.9;color:var(--ink);font-size:11px">${esc(content)}</div>`,`<button class="btn primary" data-action="close-modal">关闭预览</button>`,true); }
+        if(a==='save-settings'){ const timeout=Number($('#payTimeout').value),smsFields=[$('#smsSecretId').value.trim(),$('#smsSecretKey').value.trim(),$('#smsSdkAppId').value.trim(),$('#smsSign').value.trim(),$('#smsVerifyTemplate').value.trim()],agreements=[$('#privacyAgreement').value.trim(),$('#serviceAgreement').value.trim()],copyFields=[$('#productWarmTip').value.trim(),$('#coldChainTip').value.trim(),$('#reportQueryTip').value.trim(),$('#offHoursTip').value.trim()]; if(timeout<5||timeout>120)return toast('订单关闭时长应为 5—120 分钟'); if(state.settings.smsEnabled&&smsFields.some(v=>!v))return toast('请完整填写腾讯云短信配置'); if(agreements.some(v=>!v))return toast('隐私保护指引和用户服务协议不能为空'); if(copyFields.some(v=>!v))return toast('小程序文案配置不能为空'); state.settings.payTimeout=timeout;state.settings.supportPhone=$('#supportPhone').value.trim();[state.settings.smsSecretId,state.settings.smsSecretKey,state.settings.smsSdkAppId,state.settings.smsSign,state.settings.smsVerifyTemplate]=smsFields;[state.settings.privacyAgreement,state.settings.serviceAgreement]=agreements;[state.settings.productWarmTip,state.settings.coldChainTip,state.settings.reportQueryTip,state.settings.offHoursTip]=copyFields;addLog('业务参数','更新全局配置','短信、协议与小程序文案已更新');return toast('业务参数已保存并同步小程序配置'); }
+        if(a==='open-create-admin')return showModal('创建后台账号',`<label class="field"><span>账号名称 *</span><input id="adminName" value="客服运营"></label><div class="field-grid"><label class="field"><span>角色 *</span><select id="adminRole"><option>订单与售后</option><option>总部只读</option><option>省级运营</option><option>城市合伙人</option></select></label><label class="field"><span>数据范围 *</span><select id="adminScope"><option>全国</option><option>广东省</option><option>广州市</option></select></label></div><label class="field"><span>登录账号 *</span><input id="adminAccount" value="service@anpuke.com"></label>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-admin">创建账号</button>`);
+        if(a==='confirm-create-admin'){ const name=$('#adminName').value.trim(),account=$('#adminAccount').value.trim(); if(!name||!account)return toast('请填写完整账号信息'); state.admins.push({id:'AD'+Date.now().toString().slice(-4),name,role:$('#adminRole').value,scope:$('#adminScope').value,account,status:'启用',last:'尚未登录'}); addLog('后台账号','创建账号',name); closeModal(); render(false); return toast('后台账号已创建'); }
+        if(a==='toggle-admin'){ const x=state.admins.find(v=>v.id===el.dataset.id); x.status=x.status==='启用'?'停用':'启用'; render(false); return toast(`账号已${x.status}`); }
+      });
+
+      document.addEventListener('change', event => {
+        if(event.target.matches('[data-action="change-scope"]')){state.scope=event.target.value;toast(`数据范围已切换为${state.scope}`);render(false);}
+        if(event.target.id==='productMainImage'&&event.target.files[0]){const file=event.target.files[0],reader=new FileReader();reader.onload=()=>{$('#mainImagePreview').innerHTML=`<img src="${reader.result}" alt="商品主图预览"><strong>${esc(file.name)}</strong><small>已选择新的商品主图</small>`;};reader.readAsDataURL(file);}
+        if(event.target.id==='productDetailImages'&&event.target.files.length){const host=$('#detailImagePreview'),add=host.querySelector('.upload-add');host.querySelectorAll('.detail-thumb').forEach(node=>node.remove());[...event.target.files].slice(0,8).forEach((file,index)=>{const thumb=document.createElement('span'),reader=new FileReader();thumb.className='detail-thumb';thumb.textContent=`详情图 ${index+1}`;host.insertBefore(thumb,add);reader.onload=()=>{thumb.innerHTML=`<img src="${reader.result}" alt="详情图 ${index+1} 预览">`;};reader.readAsDataURL(file);});toast(`已选择 ${Math.min(event.target.files.length,8)} 张商品详情图`);}
+      });
+      document.addEventListener('input', event => {
+        if(event.target.id==='stationSearch'){state.stationQuery=event.target.value; const temp=document.createElement('div');temp.innerHTML=stationsPage();$('#stationTable').outerHTML=temp.querySelector('#stationTable').outerHTML;}
+        if(event.target.id==='orderSearch'){state.orderQuery=event.target.value; const kind=state.page==='orders-delivery'?'delivery':state.page==='orders-pickup'?'pickup':'all',temp=document.createElement('div');temp.innerHTML=ordersPage(kind);$('#orderTable').outerHTML=temp.querySelector('#orderTable').outerHTML;}
+        if(event.target.id==='bloodSearch'){state.bloodQuery=event.target.value; const temp=document.createElement('div');temp.innerHTML=bloodPage(state.page==='anomalies'?'anomaly':'all');$('#bloodTable').outerHTML=temp.querySelector('#bloodTable').outerHTML;}
+      });
+      modalLayer.addEventListener('click',e=>{if(e.target===modalLayer)closeModal();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+      render(false);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安派康 · 检测协作端 Web 原型</title>
+  <style>
+    :root {
+      --brand: #0a7069;
+      --brand-dark: #07544f;
+      --brand-deep: #123b39;
+      --brand-soft: #e7f5f2;
+      --canvas: #f2f6f5;
+      --surface: #ffffff;
+      --ink: #173735;
+      --muted: #6e8381;
+      --line: #e1ebe9;
+      --line-strong: #cddbd8;
+      --orange: #e9863d;
+      --orange-soft: #fff2e8;
+      --danger: #d95555;
+      --danger-soft: #fff0f0;
+      --success: #1d8c68;
+      --success-soft: #e9f7f2;
+      --blue: #3978c7;
+      --blue-soft: #edf4ff;
+      --violet: #7465c6;
+      --violet-soft: #f1effc;
+      --shadow-sm: 0 6px 20px rgba(20, 65, 61, .06);
+      --shadow: 0 20px 56px rgba(20, 65, 61, .13);
+      --radius: 16px;
+      --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 1120px; min-height: 100%; }
+    body { color: var(--ink); background: var(--canvas); font-family: var(--font); font-size: 14px; }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(10,112,105,.16); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+
+    .app { min-height: 100vh; display: flex; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 40; width: 252px; color: #fff; background: var(--brand-deep); display: flex; flex-direction: column; box-shadow: 8px 0 30px rgba(9,42,40,.08); }
+    .brand { min-height: 82px; padding: 19px 20px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .brand-mark { width: 39px; height: 39px; flex: 0 0 39px; border-radius: 13px; display: grid; place-items: center; color: #073d39; background: linear-gradient(145deg,#b9eadf,#5ec1b0); font-weight: 900; font-size: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,.65),0 8px 22px rgba(3,28,27,.28); }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .04em; }
+    .brand small { display: block; margin-top: 3px; color: rgba(255,255,255,.5); font-size: 9px; letter-spacing: .1em; }
+    .role-demo { margin: 14px 12px 2px; padding: 11px; border: 1px solid rgba(255,255,255,.08); border-radius: 13px; background: rgba(255,255,255,.045); }
+    .role-demo > span { display: block; margin-bottom: 8px; color: rgba(255,255,255,.42); font-size: 9px; letter-spacing: .12em; }
+    .role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .role-tab { border: 0; border-radius: 8px; padding: 7px 4px; color: rgba(255,255,255,.62); background: transparent; cursor: pointer; font-size: 10px; font-weight: 800; }
+    .role-tab.active { color: #0c524c; background: #bce6dd; }
+    .nav-scroll { flex: 1; overflow-y: auto; padding: 12px 12px 24px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.16) transparent; }
+    .nav-section { margin: 4px 0 16px; }
+    .nav-label { padding: 0 12px 7px; color: rgba(255,255,255,.36); font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .nav-item { width: 100%; min-height: 40px; margin-bottom: 3px; padding: 8px 10px; border: 0; border-radius: 11px; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.72); background: transparent; cursor: pointer; text-align: left; transition: .18s ease; }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.07); transform: translateX(1px); }
+    .nav-item.active { color: #fff; background: linear-gradient(90deg,rgba(84,195,177,.25),rgba(84,195,177,.11)); box-shadow: inset 3px 0 #67c8b8; }
+    .nav-icon { width: 25px; height: 25px; flex: 0 0 25px; border-radius: 8px; display: grid; place-items: center; color: rgba(255,255,255,.84); background: rgba(255,255,255,.08); font-size: 10px; font-weight: 900; }
+    .nav-item.active .nav-icon { color: #0f4f4a; background: #a6dfd4; }
+    .nav-text { flex: 1; font-size: 12px; }
+    .nav-count { min-width: 19px; height: 19px; padding: 0 6px; border-radius: 10px; display: grid; place-items: center; color: #fff; background: var(--orange); font-size: 9px; font-weight: 900; }
+    .sidebar-foot { padding: 13px 15px 16px; border-top: 1px solid rgba(255,255,255,.08); }
+    .account-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; background: rgba(255,255,255,.055); }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 11px; display: grid; place-items: center; color: #0a514b; background: #bce6dd; font-size: 11px; font-weight: 900; }
+    .account-copy { min-width: 0; flex: 1; }
+    .account-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .account-copy small { color: rgba(255,255,255,.45); font-size: 9px; }
+    .logout { width: 26px; height: 26px; border: 0; border-radius: 8px; color: rgba(255,255,255,.55); background: rgba(255,255,255,.06); cursor: pointer; }
+
+    .main { min-height: 100vh; width: calc(100% - 252px); margin-left: 252px; }
+    .content { width: min(1460px,100%); margin: 0 auto; padding: 34px 38px 56px; }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; margin-bottom: 23px; }
+    .page-kicker { margin-bottom: 7px; color: var(--brand); font-size: 9px; font-weight: 900; letter-spacing: .16em; }
+    .page-head h1 { margin: 0; font-size: 27px; line-height: 1.2; letter-spacing: -.03em; }
+    .page-head p { max-width: 720px; margin: 9px 0 0; color: var(--muted); line-height: 1.7; font-size: 12px; }
+    .page-actions { display: flex; align-items: center; gap: 9px; padding-top: 4px; }
+
+    .btn { min-height: 38px; padding: 9px 15px; border: 1px solid transparent; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 12px; font-weight: 800; cursor: pointer; transition: .16s ease; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:disabled { opacity: .44; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn.primary { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .btn.primary:hover { background: var(--brand-dark); }
+    .btn.secondary { color: var(--brand); border-color: #cce6e0; background: var(--brand-soft); }
+    .btn.ghost { color: var(--ink); border-color: var(--line-strong); background: #fff; }
+    .btn.danger { color: var(--danger); border-color: #f0c9c9; background: var(--danger-soft); }
+    .btn.small { min-height: 30px; padding: 6px 10px; border-radius: 8px; font-size: 10px; }
+    .btn.link { min-height: auto; padding: 2px; border: 0; color: var(--brand); background: transparent; }
+
+    .card { border: 1px solid rgba(214,227,224,.92); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .grid { display: grid; gap: 18px; }
+    .grid.cols-4 { grid-template-columns: repeat(4,minmax(0,1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .grid.cols-2 { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .metric { position: relative; min-height: 124px; padding: 19px; overflow: hidden; }
+    .metric::after { content: ""; position: absolute; top: -32px; right: -28px; width: 88px; height: 88px; border-radius: 50%; background: var(--brand-soft); }
+    .metric.orange::after { background: var(--orange-soft); }
+    .metric.red::after { background: var(--danger-soft); }
+    .metric.blue::after { background: var(--blue-soft); }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 11px; }
+    .metric-icon { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-size: 10px; font-weight: 900; }
+    .metric.orange .metric-icon { color: var(--orange); background: var(--orange-soft); }
+    .metric.red .metric-icon { color: var(--danger); background: var(--danger-soft); }
+    .metric.blue .metric-icon { color: var(--blue); background: var(--blue-soft); }
+    .metric strong { display: block; margin-top: 16px; font-size: 27px; line-height: 1; letter-spacing: -.03em; }
+    .metric small { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; }
+    .section { margin-top: 20px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+    .section-head h2 { margin: 0; font-size: 16px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+
+    .hero { position: relative; padding: 24px; overflow: hidden; border: 0; color: #fff; background: linear-gradient(120deg,#0b6e67,#185f5b); box-shadow: 0 18px 45px rgba(12,88,81,.18); }
+    .hero::before, .hero::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; }
+    .hero::before { top: -128px; right: -65px; width: 250px; height: 250px; }
+    .hero::after { right: 62px; bottom: -116px; width: 150px; height: 150px; }
+    .hero-content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+    .hero-label { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 12px; background: rgba(255,255,255,.12); font-size: 9px; font-weight: 800; }
+    .hero h2 { margin: 13px 0 6px; font-size: 22px; }
+    .hero p { margin: 0; color: rgba(255,255,255,.65); font-size: 11px; }
+    .hero-meta { display: flex; gap: 28px; }
+    .hero-meta div { min-width: 80px; }
+    .hero-meta strong { display: block; font-size: 22px; }
+    .hero-meta small { color: rgba(255,255,255,.56); font-size: 9px; }
+
+    .split { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(310px,.75fr); gap: 18px; }
+    .panel { padding: 20px; }
+    .panel-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+    .panel-title h3 { margin: 0; font-size: 14px; }
+    .panel-title span { color: var(--muted); font-size: 10px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 11px; }
+    .quick-action { min-height: 96px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: #fff; cursor: pointer; text-align: left; transition: .16s ease; }
+    .quick-action:hover { border-color: #a9d4cc; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .quick-action .q-icon { width: 31px; height: 31px; margin-bottom: 10px; border-radius: 10px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-size: 10px; font-weight: 900; }
+    .quick-action strong { display: block; font-size: 12px; }
+    .quick-action small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .activity-list { display: grid; gap: 10px; }
+    .activity { display: grid; grid-template-columns: 9px 1fr auto; align-items: start; gap: 11px; padding: 10px 0; border-bottom: 1px solid #edf2f1; }
+    .activity:last-child { border-bottom: 0; }
+    .activity-dot { width: 8px; height: 8px; margin-top: 4px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 5px rgba(10,112,105,.08); }
+    .activity-dot.orange { background: var(--orange); box-shadow: 0 0 0 5px rgba(233,134,61,.08); }
+    .activity-dot.red { background: var(--danger); box-shadow: 0 0 0 5px rgba(217,85,85,.08); }
+    .activity strong { display: block; font-size: 11px; }
+    .activity small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .activity time { color: #96a7a5; font-size: 9px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .filters { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .filter { padding: 7px 11px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; cursor: pointer; font-size: 11px; font-weight: 800; }
+    .filter.active { color: var(--brand); background: var(--brand-soft); }
+    .search { width: 300px; height: 38px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 10px; display: flex; align-items: center; gap: 8px; background: #fff; }
+    .search span { color: #8ca09e; }
+    .search input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 11px; }
+    .search input::placeholder { color: #9aabaa; }
+    .table-card { overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 15px; border-bottom: 1px solid var(--line); color: var(--muted); background: #f7faf9; text-align: left; font-size: 9px; font-weight: 900; letter-spacing: .03em; }
+    td { padding: 14px 15px; border-bottom: 1px solid #edf2f1; vertical-align: middle; font-size: 11px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fbfdfd; }
+    .cell-main { color: var(--ink); font-weight: 800; }
+    .cell-sub { margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .table-actions { display: flex; align-items: center; gap: 7px; }
+    .badge { min-height: 23px; padding: 4px 9px; border-radius: 12px; display: inline-flex; align-items: center; color: var(--muted); background: #edf2f1; font-size: 9px; font-weight: 900; }
+    .badge.green { color: var(--success); background: var(--success-soft); }
+    .badge.orange { color: #be6b2b; background: var(--orange-soft); }
+    .badge.red { color: var(--danger); background: var(--danger-soft); }
+    .badge.blue { color: var(--blue); background: var(--blue-soft); }
+    .badge.violet { color: var(--violet); background: var(--violet-soft); }
+    .badge.gray { color: #6d7f7d; background: #edf2f1; }
+    .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 13px 15px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+    .page-dot { min-width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 8px; display: grid; place-items: center; background: #fff; }
+    .page-dot.active { color: #fff; border-color: var(--brand); background: var(--brand); }
+    .empty { padding: 58px 20px; color: var(--muted); text-align: center; }
+    .empty-icon { width: 50px; height: 50px; margin: 0 auto 12px; border-radius: 16px; display: grid; place-items: center; color: var(--brand); background: var(--brand-soft); font-weight: 900; }
+    .empty h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; }
+    .empty p { margin: 0; font-size: 10px; }
+
+    .notice { padding: 13px 15px; border: 1px solid #f0dbb2; border-radius: 12px; color: #77531b; background: #fff7e8; line-height: 1.65; font-size: 10px; }
+    .notice strong { display: block; margin-bottom: 2px; color: #694814; font-size: 11px; }
+    .notice.green { border-color: #c9e5dd; color: #3f7067; background: #edf8f5; }
+    .notice.green strong { color: var(--brand); }
+    .notice.red { border-color: #efcccc; color: #925353; background: var(--danger-soft); }
+    .notice.red strong { color: var(--danger); }
+    .notice.blue { border-color: #ccdcf1; color: #4c6e98; background: var(--blue-soft); }
+    .notice.blue strong { color: var(--blue); }
+    .detail-layout { display: grid; grid-template-columns: minmax(0,1fr) 340px; gap: 18px; align-items: start; }
+    .detail-layout.single { grid-template-columns: minmax(0,960px); }
+    .detail-card { padding: 20px; margin-bottom: 16px; }
+    .detail-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 5px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .detail-title h3 { margin: 0; font-size: 14px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+    .info-row { min-height: 44px; border-bottom: 1px solid #edf2f1; display: flex; align-items: center; justify-content: space-between; gap: 18px; font-size: 11px; }
+    .info-row > span { color: var(--muted); }
+    .info-row > strong { max-width: 66%; text-align: right; }
+    .sticky { position: sticky; top: 24px; }
+    .pipeline { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; padding: 17px; margin-bottom: 16px; }
+    .pipe-step { position: relative; min-height: 75px; padding: 12px 10px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); background: #fbfdfc; }
+    .pipe-step.done { color: var(--brand); border-color: #bfe0d9; background: var(--brand-soft); }
+    .pipe-step.current { color: #b76324; border-color: #efcfb5; background: var(--orange-soft); }
+    .pipe-step.stop { color: var(--danger); border-color: #ebc6c6; background: var(--danger-soft); }
+    .pipe-step b { display: block; margin-bottom: 5px; font-size: 10px; }
+    .pipe-step small { font-size: 9px; line-height: 1.45; }
+    .data-box { min-height: 150px; padding: 15px; border: 1px solid var(--line); border-radius: 12px; color: #315350; background: #f9fbfb; line-height: 1.75; white-space: pre-wrap; font-size: 11px; }
+    .data-empty { height: 150px; display: grid; place-items: center; color: #93a4a2; }
+    .field { display: block; margin-bottom: 14px; }
+    .field > span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 11px; border: 1px solid var(--line-strong); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; font-size: 11px; transition: .15s ease; }
+    .field input, .field select { height: 39px; }
+    .field textarea { min-height: 150px; resize: vertical; line-height: 1.7; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #6abcae; box-shadow: 0 0 0 3px rgba(10,116,108,.08); }
+    .field-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 13px; }
+    .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+    .form-actions .right { display: flex; gap: 8px; }
+    .timeline { padding: 4px 0; }
+    .timeline-item { position: relative; min-height: 60px; display: grid; grid-template-columns: 27px 1fr; gap: 10px; }
+    .timeline-item::after { content: ""; position: absolute; top: 26px; bottom: -2px; left: 13px; width: 2px; background: var(--line); }
+    .timeline-item:last-child::after { display: none; }
+    .timeline-dot { z-index: 1; width: 27px; height: 27px; border: 4px solid #fff; border-radius: 50%; display: grid; place-items: center; color: #879995; background: #edf2f1; box-shadow: 0 0 0 1px var(--line); font-size: 8px; font-weight: 900; }
+    .timeline-item.done .timeline-dot { color: #fff; background: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+    .timeline-item.current .timeline-dot { color: #fff; background: var(--orange); box-shadow: 0 0 0 4px rgba(232,135,62,.12); }
+    .timeline-item.stop .timeline-dot { color: #fff; background: var(--danger); box-shadow: 0 0 0 4px rgba(217,85,85,.1); }
+    .timeline-copy { padding: 3px 0 13px; }
+    .timeline-copy strong { display: block; font-size: 10px; }
+    .timeline-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .file-card { display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfc; }
+    .file-icon { width: 38px; height: 42px; flex: 0 0 38px; border-radius: 8px; display: grid; place-items: center; color: #fff; background: var(--danger); font-size: 9px; font-weight: 900; }
+    .file-copy { min-width: 0; flex: 1; }
+    .file-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .file-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .version-list { display: grid; gap: 10px; }
+    .version-item { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .version-no { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: var(--violet); background: var(--violet-soft); font-size: 10px; font-weight: 900; }
+    .version-copy strong { display: block; font-size: 11px; }
+    .version-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+
+    .modal-layer { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 28px; background: rgba(8,31,29,.48); backdrop-filter: blur(3px); }
+    .modal-layer.open { display: flex; }
+    .modal { width: min(620px,95vw); max-height: 88vh; overflow: hidden; border: 1px solid rgba(255,255,255,.6); border-radius: 19px; background: #fff; box-shadow: var(--shadow); }
+    .modal.wide { width: min(820px,95vw); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 15px; }
+    .modal-close { width: 30px; height: 30px; border: 0; border-radius: 9px; color: var(--muted); background: #f0f4f3; cursor: pointer; }
+    .modal-body { max-height: calc(88vh - 132px); overflow-y: auto; padding: 20px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--line); background: #fbfdfc; }
+    .upload-zone { padding: 28px 20px; border: 1px dashed #a9c9c4; border-radius: 14px; color: var(--muted); background: #f8fbfa; text-align: center; cursor: pointer; }
+    .upload-zone:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .upload-symbol { width: 46px; height: 46px; margin: 0 auto 11px; border-radius: 15px; display: grid; place-items: center; color: var(--brand); background: #dff1ed; font-size: 17px; font-weight: 900; }
+    .upload-zone strong { display: block; color: var(--ink); font-size: 12px; }
+    .upload-zone small { display: block; margin-top: 5px; font-size: 9px; }
+    .preview-paper { width: min(520px,100%); min-height: 440px; margin: 0 auto; padding: 30px 34px; border: 1px solid #dfe7e5; color: #354d4b; background: #fff; box-shadow: 0 10px 35px rgba(23,55,53,.1); }
+    .preview-paper h2 { margin: 18px 0 6px; text-align: center; font-size: 18px; letter-spacing: .14em; }
+    .preview-paper .paper-sub { margin-bottom: 26px; color: var(--muted); text-align: center; font-size: 9px; }
+    .paper-line { display: flex; justify-content: space-between; gap: 20px; padding: 9px 0; border-bottom: 1px solid #edf2f1; font-size: 10px; }
+    .paper-block { margin-top: 18px; padding: 14px; border: 1px solid #e5ecea; background: #fafcfc; line-height: 1.7; font-size: 9px; }
+    .confirm-icon { width: 52px; height: 52px; margin: 0 auto 13px; border-radius: 17px; display: grid; place-items: center; color: var(--danger); background: var(--danger-soft); font-size: 20px; font-weight: 900; }
+    .modal-copy { color: var(--muted); text-align: center; line-height: 1.7; font-size: 11px; }
+    .toast-stack { position: fixed; top: 24px; right: 24px; z-index: 300; display: grid; gap: 9px; }
+    .toast { min-width: 280px; padding: 13px 15px; border: 1px solid #cfe3df; border-radius: 12px; color: #315e58; background: #fff; box-shadow: var(--shadow); animation: toastIn .2s ease; font-size: 11px; font-weight: 700; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-8px); } }
+
+    .login-page { min-height: 100vh; display: none; grid-template-columns: minmax(520px,1.25fr) minmax(440px,.75fr); background: #edf4f2; }
+    .login-page.open { display: grid; }
+    .login-visual { position: relative; overflow: hidden; padding: 70px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: linear-gradient(145deg,#0d4a46,#0a7069 64%,#11877d); }
+    .login-visual::before { content: ""; position: absolute; top: -220px; right: -140px; width: 520px; height: 520px; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; box-shadow: 0 0 0 90px rgba(255,255,255,.025),0 0 0 180px rgba(255,255,255,.02); }
+    .login-brand { position: relative; display: flex; align-items: center; gap: 13px; }
+    .login-brand .brand-mark { width: 46px; height: 46px; flex-basis: 46px; }
+    .login-message { position: relative; max-width: 600px; }
+    .login-message span { display: inline-block; padding: 6px 10px; border-radius: 13px; background: rgba(255,255,255,.11); font-size: 10px; }
+    .login-message h1 { margin: 18px 0 13px; font-size: 39px; line-height: 1.2; letter-spacing: -.04em; }
+    .login-message p { max-width: 530px; margin: 0; color: rgba(255,255,255,.68); line-height: 1.9; font-size: 13px; }
+    .login-flow { position: relative; display: flex; gap: 12px; }
+    .login-flow div { min-width: 120px; padding: 13px; border: 1px solid rgba(255,255,255,.11); border-radius: 12px; background: rgba(255,255,255,.06); }
+    .login-flow strong { display: block; font-size: 11px; }
+    .login-flow small { display: block; margin-top: 4px; color: rgba(255,255,255,.48); font-size: 9px; }
+    .login-panel { padding: 70px 76px; display: flex; align-items: center; justify-content: center; background: #fff; }
+    .login-form { width: 100%; max-width: 400px; }
+    .login-form h2 { margin: 0 0 8px; font-size: 27px; }
+    .login-form > p { margin: 0 0 30px; color: var(--muted); line-height: 1.7; font-size: 11px; }
+    .login-role { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 20px; }
+    .login-role button { padding: 13px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); background: #fff; cursor: pointer; text-align: left; }
+    .login-role button.active { color: var(--brand); border-color: #9fcec5; background: var(--brand-soft); }
+    .login-role strong { display: block; font-size: 11px; }
+    .login-role small { display: block; margin-top: 4px; font-size: 9px; }
+    .login-help { margin-top: 18px; color: var(--muted); text-align: center; font-size: 9px; }
+
+    @media (max-width: 1280px) {
+      .content { padding-left: 26px; padding-right: 26px; }
+      .grid.cols-4 { gap: 12px; }
+      .detail-layout { grid-template-columns: minmax(0,1fr) 310px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginPage" class="login-page">
+    <section class="login-visual">
+      <div class="login-brand">
+        <div class="brand-mark">安</div>
+        <div><strong>安派康</strong><small>检测协作端</small></div>
+      </div>
+      <div class="login-message">
+        <span>DETECTION COLLABORATION</span>
+        <h1>让每一份样本，<br>清晰抵达最终报告。</h1>
+        <p>实验室录入检测数据，数据中心完成报告上传；同一张采血单承载完整协作过程与版本追溯。</p>
+      </div>
+      <div class="login-flow">
+        <div><strong>实验室</strong><small>检测数据 · 异常标记</small></div>
+        <div><strong>数据中心</strong><small>报告上传 · 版本替换</small></div>
+      </div>
+    </section>
+    <section class="login-panel">
+      <form id="loginForm" class="login-form">
+        <div class="page-kicker">欢迎使用</div>
+        <h2>登录检测协作端</h2>
+        <p>账号由总部统一创建。原型中可选择角色，体验不同菜单权限。</p>
+        <div class="login-role">
+          <button type="button" class="active" data-action="login-role" data-role="lab"><strong>实验室账号</strong><small>检测任务处理</small></button>
+          <button type="button" data-action="login-role" data-role="center"><strong>数据中心账号</strong><small>报告任务处理</small></button>
+        </div>
+        <label class="field"><span>登录账号</span><input id="loginAccount" value="lab_demo" autocomplete="username"></label>
+        <label class="field"><span>登录密码</span><input id="loginPassword" type="password" value="12345678" autocomplete="current-password"></label>
+        <button class="btn primary" style="width:100%;margin-top:5px" type="submit">登录系统</button>
+        <div class="login-help">如需重置密码，请联系总部平台管理员。</div>
+      </form>
+    </section>
+  </div>
+
+  <div id="app" class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">安</div>
+        <div><strong>安派康</strong><small>检测协作端</small></div>
+      </div>
+      <div class="role-demo">
+        <span>原型角色视图</span>
+        <div class="role-tabs">
+          <button class="role-tab active" data-action="switch-role" data-role="lab">实验室</button>
+          <button class="role-tab" data-action="switch-role" data-role="center">数据中心</button>
+        </div>
+      </div>
+      <nav id="navScroll" class="nav-scroll" aria-label="主导航"></nav>
+      <div class="sidebar-foot">
+        <div class="account-card">
+          <div id="accountAvatar" class="avatar">实</div>
+          <div class="account-copy"><strong id="accountName">实验室操作员 · 王敏</strong><small id="accountRole">实验室账号</small></div>
+          <button class="logout" data-action="logout" title="退出登录">退</button>
+        </div>
+      </div>
+    </aside>
+    <main class="main"><div id="appContent" class="content"></div></main>
+  </div>
+
+  <div id="modalLayer" class="modal-layer" aria-hidden="true">
+    <div id="modal" class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" data-action="close-modal" aria-label="关闭">×</button></div>
+      <div id="modalBody" class="modal-body"></div>
+      <div id="modalFoot" class="modal-foot"></div>
+    </div>
+  </div>
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const tasks = [
+        {
+          id: 'CX20260826001', tube: 'AP-T260826-0715', package: '肠道菌群健康评估', person: '林晓岚', gender: '女', birthday: '1991-04-18', phone: '138****6521', idNo: '4401**********2426', method: '合作站点采血', station: '天河康乐社区合作站', shippedAt: '2026-08-26 09:18', logistics: '顺丰速运 SF1539082716', status: '已寄出', detectionData: '', report: null, versions: [], anomaly: null,
+          history: [
+            {title:'样本已寄出', detail:'天河康乐社区合作站登记寄出 · 顺丰速运', time:'08-26 09:18'},
+            {title:'采血单已接收', detail:'站点完成受检人及试管编码核对', time:'08-26 08:46'},
+            {title:'采血单创建', detail:'线上订单权益生成', time:'08-24 14:20'}
+          ]
+        },
+        {
+          id: 'CX20260825018', tube: 'AP-T260825-1832', package: '营养代谢综合检测', person: '陈建国', gender: '男', birthday: '1983-11-02', phone: '139****1638', idNo: '4403**********1018', method: '自行采血', station: '—', shippedAt: '2026-08-25 18:55', logistics: '京东物流 JDVA10287731', status: '已寄出', detectionData: '', report: null, versions: [], anomaly: null,
+          history: [
+            {title:'用户标记已寄出', detail:'自行采血 · 已填写冷链物流单号', time:'08-25 18:55'},
+            {title:'采血单创建', detail:'套餐卡密权益生成', time:'08-25 10:16'}
+          ]
+        },
+        {
+          id: 'CX20260825009', tube: 'AP-T260825-0927', package: '心脑血管风险评估', person: '周文静', gender: '女', birthday: '1978-07-12', phone: '136****7810', idNo: '4401**********082X', method: '合作站点采血', station: '越秀东湖社区合作站', shippedAt: '2026-08-25 11:32', logistics: '顺丰速运 SF1538820195', status: '待出报告', detectionData: '样本质控正常。\n总胆固醇：5.12 mmol/L；甘油三酯：1.38 mmol/L；高密度脂蛋白胆固醇：1.47 mmol/L；低密度脂蛋白胆固醇：3.01 mmol/L。\n相关遗传风险位点检测数据已完成，综合风险分层所需数据齐全。', report: null, versions: [], anomaly: null,
+          history: [
+            {title:'检测数据已更新', detail:'实验室操作员王敏 · 已同步数据中心', time:'08-26 10:24'},
+            {title:'检测数据首次保存', detail:'采血单进入待出报告状态', time:'08-26 09:42'},
+            {title:'样本已寄出', detail:'越秀东湖社区合作站登记寄出', time:'08-25 11:32'}
+          ]
+        },
+        {
+          id: 'CX20260824031', tube: 'AP-T260824-1631', package: '女性健康专项检测', person: '李雅琴', gender: '女', birthday: '1988-02-23', phone: '137****3056', idNo: '4414**********1948', method: '合作站点采血', station: '海珠新港社区合作站', shippedAt: '2026-08-24 17:10', logistics: '顺丰速运 SF1538426710', status: '报告完成', detectionData: '样本质控正常。检测数据完整，未见影响结果判读的异常情况。\n专项指标数据已按套餐要求完成检测，建议结合受检人生活方式及既往史进行综合评估。', anomaly: null,
+          report: {name:'李雅琴_女性健康专项检测报告_v1.pdf', version:1, uploadedAt:'2026-08-26 08:35', operator:'数据中心 · 赵宁'},
+          versions: [{name:'李雅琴_女性健康专项检测报告_v1.pdf', version:1, uploadedAt:'2026-08-26 08:35', operator:'数据中心 · 赵宁', note:'首次上传', active:true}],
+          history: [
+            {title:'检测报告已上传', detail:'数据中心 · 赵宁 · 报告 V1', time:'08-26 08:35'},
+            {title:'检测数据已保存', detail:'实验室 · 数据同步至数据中心', time:'08-25 15:20'},
+            {title:'样本已寄出', detail:'海珠新港社区合作站登记寄出', time:'08-24 17:10'}
+          ]
+        },
+        {
+          id: 'CX20260824022', tube: 'AP-T260824-1146', package: '肠道菌群健康评估', person: '黄志强', gender: '男', birthday: '1971-09-06', phone: '135****3927', idNo: '4406**********0615', method: '自行采血', station: '—', shippedAt: '2026-08-24 12:08', logistics: '顺丰速运 SF1538277612', status: '样本异常', detectionData: '', report: null, versions: [], anomaly: {note:'样本量不足，无法完成本次检测分析。包装外观完好，建议客服线下联系用户确认后续处理方式。', image:'样本异常照片_0826.jpg', time:'2026-08-26 09:05', operator:'实验室 · 王敏'},
+          history: [
+            {title:'标记样本异常', detail:'样本量不足 · 已上传异常图片', time:'08-26 09:05'},
+            {title:'用户标记已寄出', detail:'自行采血 · 冷链寄出', time:'08-24 12:08'}
+          ]
+        },
+        {
+          id: 'CX20260823017', tube: 'AP-T260823-1520', package: '免疫功能综合检测', person: '许晓峰', gender: '男', birthday: '1994-05-30', phone: '158****9032', idNo: '4401**********3019', method: '合作站点采血', station: '番禺市桥社区合作站', shippedAt: '2026-08-23 16:16', logistics: '京东物流 JDVA10270655', status: '报告完成', detectionData: '样本质控正常。免疫功能相关检测数据完整，所有检测维度均完成。', anomaly: null,
+          report: {name:'许晓峰_免疫功能综合检测报告_v2.pdf', version:2, uploadedAt:'2026-08-25 16:40', operator:'数据中心 · 赵宁'},
+          versions: [
+            {name:'许晓峰_免疫功能综合检测报告_v1.pdf', version:1, uploadedAt:'2026-08-25 15:08', operator:'数据中心 · 赵宁', note:'首次上传', active:false},
+            {name:'许晓峰_免疫功能综合检测报告_v2.pdf', version:2, uploadedAt:'2026-08-25 16:40', operator:'数据中心 · 赵宁', note:'修正报告页眉中的受检日期', active:true}
+          ],
+          history: [
+            {title:'检测报告已替换', detail:'V1 → V2 · 原文件已保留', time:'08-25 16:40'},
+            {title:'检测报告首次上传', detail:'报告 V1', time:'08-25 15:08'},
+            {title:'检测数据已保存', detail:'实验室 · 数据同步至数据中心', time:'08-25 11:20'},
+            {title:'样本已寄出', detail:'番禺市桥社区合作站登记寄出', time:'08-23 16:16'}
+          ]
+        }
+      ];
+
+      const state = {
+        role: 'lab', page: 'dashboard', loginRole: 'lab', returnPage: 'lab-tasks', selectedTaskId: null,
+        taskFilter: '全部', taskQuery: '', reportQuery: '', pendingReportFile: '', pendingImage: ''
+      };
+
+      const $ = selector => document.querySelector(selector);
+      const app = $('#app');
+      const loginPage = $('#loginPage');
+      const appContent = $('#appContent');
+      const navScroll = $('#navScroll');
+      const modalLayer = $('#modalLayer');
+
+      const escapeHTML = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      const now = () => new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date()).replaceAll('/','-');
+      const statusBadge = status => {
+        const cls = {'已寄出':'orange','待出报告':'blue','报告完成':'green','样本异常':'red'}[status] || 'gray';
+        const label = status === '已寄出' ? '待检测' : status;
+        return `<span class="badge ${cls}">${label}</span>`;
+      };
+      const currentTask = () => tasks.find(task => task.id === state.selectedTaskId) || tasks[0];
+      const counts = () => ({pending:tasks.filter(t=>t.status==='已寄出').length, waiting:tasks.filter(t=>t.status==='待出报告').length, complete:tasks.filter(t=>t.status==='报告完成').length, abnormal:tasks.filter(t=>t.status==='样本异常').length});
+
+      function toast(message) {
+        const node = document.createElement('div');
+        node.className = 'toast';
+        node.textContent = message;
+        $('#toastStack').appendChild(node);
+        setTimeout(() => node.remove(), 2800);
+      }
+
+      function showModal(title, body, foot = '<button class="btn primary" data-action="close-modal">知道了</button>', wide = false) {
+        $('#modalTitle').textContent = title;
+        $('#modalBody').innerHTML = body;
+        $('#modalFoot').innerHTML = foot;
+        $('#modal').classList.toggle('wide', wide);
+        modalLayer.classList.add('open');
+        modalLayer.setAttribute('aria-hidden','false');
+      }
+
+      function closeModal() {
+        modalLayer.classList.remove('open');
+        modalLayer.setAttribute('aria-hidden','true');
+        state.pendingReportFile = '';
+        state.pendingImage = '';
+      }
+
+      function renderSidebar() {
+        const c = counts();
+        const labNav = `
+          <div class="nav-section">
+            <div class="nav-label">协作总览</div>
+            <button class="nav-item" data-page="dashboard"><span class="nav-icon">览</span><span class="nav-text">工作台</span></button>
+          </div>
+          <div class="nav-section">
+            <div class="nav-label">实验室检测</div>
+            <button class="nav-item" data-page="lab-tasks"><span class="nav-icon">检</span><span class="nav-text">检测任务</span>${c.pending?`<span class="nav-count">${c.pending}</span>`:''}</button>
+            <button class="nav-item" data-page="anomalies"><span class="nav-icon">异</span><span class="nav-text">样本异常</span>${c.abnormal?`<span class="nav-count">${c.abnormal}</span>`:''}</button>
+            <button class="nav-item" data-page="lab-records"><span class="nav-icon">录</span><span class="nav-text">检测记录</span></button>
+          </div>`;
+        const centerNav = `
+          <div class="nav-section">
+            <div class="nav-label">协作总览</div>
+            <button class="nav-item" data-page="dashboard"><span class="nav-icon">览</span><span class="nav-text">工作台</span></button>
+          </div>
+          <div class="nav-section">
+            <div class="nav-label">数据中心报告</div>
+            <button class="nav-item" data-page="report-tasks"><span class="nav-icon">待</span><span class="nav-text">待出报告</span>${c.waiting?`<span class="nav-count">${c.waiting}</span>`:''}</button>
+            <button class="nav-item" data-page="reports"><span class="nav-icon">报</span><span class="nav-text">报告管理</span></button>
+            <button class="nav-item" data-page="versions"><span class="nav-icon">版</span><span class="nav-text">版本记录</span></button>
+          </div>`;
+        navScroll.innerHTML = (state.role === 'lab' ? labNav : centerNav) + `
+          <div class="nav-section">
+            <div class="nav-label">个人设置</div>
+            <button class="nav-item" data-page="security"><span class="nav-icon">安</span><span class="nav-text">账号与安全</span></button>
+          </div>`;
+        document.querySelectorAll('.role-tab').forEach(node => node.classList.toggle('active',node.dataset.role===state.role));
+        const parentPage = state.page === 'task-detail' ? state.returnPage : state.page;
+        navScroll.querySelectorAll('.nav-item').forEach(node => node.classList.toggle('active',node.dataset.page===parentPage));
+        $('#accountAvatar').textContent = state.role === 'lab' ? '实' : '数';
+        $('#accountName').textContent = state.role === 'lab' ? '实验室操作员 · 王敏' : '数据中心专员 · 赵宁';
+        $('#accountRole').textContent = state.role === 'lab' ? '实验室账号' : '数据中心账号';
+      }
+
+      function pageHead(kicker,title,description,actions='') {
+        return `<div class="page-head"><div><div class="page-kicker">${kicker}</div><h1>${title}</h1><p>${description}</p></div><div class="page-actions">${actions}</div></div>`;
+      }
+
+      function dashboard() {
+        const c = counts();
+        if (state.role === 'lab') {
+          return `${pageHead('实验室工作台','检测任务总览','采血单在寄出后直接进入检测任务，无需确认收样。请及时录入正常样本数据或标记异常样本。')}
+            <div class="card hero"><div class="hero-content"><div><span class="hero-label">今日检测协作</span><h2>上午好，王敏</h2><p>当前有 ${c.pending} 份样本等待检测处理，${c.waiting} 份检测数据正在等待数据中心出具报告。</p></div><div class="hero-meta"><div><strong>${c.pending}</strong><small>待检测</small></div><div><strong>${c.waiting}</strong><small>待出报告</small></div><div><strong>${c.abnormal}</strong><small>样本异常</small></div></div></div></div>
+            <div class="grid cols-4 section">
+              <div class="card metric orange"><div class="metric-top"><span>待检测样本</span><span class="metric-icon">检</span></div><strong>${c.pending}</strong><small>已寄出，等待录入检测数据</small></div>
+              <div class="card metric blue"><div class="metric-top"><span>待出报告</span><span class="metric-icon">待</span></div><strong>${c.waiting}</strong><small>数据中心已同步可见</small></div>
+              <div class="card metric red"><div class="metric-top"><span>样本异常</span><span class="metric-icon">异</span></div><strong>${c.abnormal}</strong><small>异常流程已终止</small></div>
+              <div class="card metric"><div class="metric-top"><span>报告完成</span><span class="metric-icon">成</span></div><strong>${c.complete}</strong><small>检测数据已冻结</small></div>
+            </div>
+            <div class="section split">
+              <div class="card panel"><div class="panel-title"><h3>待处理</h3><button class="btn link" data-page="lab-tasks">查看全部</button></div>${miniTaskList(tasks.filter(t=>t.status==='已寄出').slice(0,3))}</div>
+              <div class="card panel"><div class="panel-title"><h3>快捷操作</h3><span>高频入口</span></div><div class="quick-grid" style="grid-template-columns:1fr"><button class="quick-action" data-page="lab-tasks"><span class="q-icon">检</span><strong>处理检测任务</strong><small>录入自由文本检测数据</small></button><button class="quick-action" data-action="open-first-anomaly"><span class="q-icon" style="color:var(--danger);background:var(--danger-soft)">异</span><strong>标记样本异常</strong><small>填写备注并上传图片</small></button></div></div>
+            </div>`;
+        }
+        return `${pageHead('数据中心工作台','报告任务总览','查看实验室已经同步的检测数据，在线下制作报告后上传一份 PDF；需要时可直接替换并保留历史版本。')}
+          <div class="card hero" style="background:linear-gradient(120deg,#345f8f,#416fa5)"><div class="hero-content"><div><span class="hero-label">报告协作中心</span><h2>上午好，赵宁</h2><p>当前有 ${c.waiting} 份检测数据等待制作报告，历史报告替换记录均已完整保留。</p></div><div class="hero-meta"><div><strong>${c.waiting}</strong><small>待出报告</small></div><div><strong>${c.complete}</strong><small>报告完成</small></div><div><strong>${tasks.reduce((n,t)=>n+t.versions.length,0)}</strong><small>报告版本</small></div></div></div></div>
+          <div class="grid cols-4 section">
+            <div class="card metric orange"><div class="metric-top"><span>待出报告</span><span class="metric-icon">待</span></div><strong>${c.waiting}</strong><small>实验室检测数据已同步</small></div>
+            <div class="card metric blue"><div class="metric-top"><span>今日已上传</span><span class="metric-icon">传</span></div><strong>1</strong><small>仅支持 PDF 格式</small></div>
+            <div class="card metric"><div class="metric-top"><span>报告完成</span><span class="metric-icon">成</span></div><strong>${c.complete}</strong><small>用户已可查询最新报告</small></div>
+            <div class="card metric" style="--brand-soft:var(--violet-soft)"><div class="metric-top"><span>替换记录</span><span class="metric-icon" style="color:var(--violet);background:var(--violet-soft)">版</span></div><strong>${tasks.filter(t=>t.versions.length>1).length}</strong><small>原文件永久保留</small></div>
+          </div>
+          <div class="section split">
+            <div class="card panel"><div class="panel-title"><h3>待出报告</h3><button class="btn link" data-page="report-tasks">查看全部</button></div>${miniTaskList(tasks.filter(t=>t.status==='待出报告'))}</div>
+            <div class="card panel"><div class="panel-title"><h3>报告规则</h3><span>当前版本</span></div><div class="activity-list"><div class="activity"><i class="activity-dot"></i><div><strong>线下制作报告</strong><small>本系统不自动生成或审核报告</small></div></div><div class="activity"><i class="activity-dot orange"></i><div><strong>每单一份 PDF</strong><small>上传后采血单进入报告完成</small></div></div><div class="activity"><i class="activity-dot"></i><div><strong>支持直接替换</strong><small>用户仅看到最新版本，历史版本永久保留</small></div></div></div></div>
+          </div>`;
+      }
+
+      function miniTaskList(list) {
+        if (!list.length) return '<div class="empty"><div class="empty-icon">✓</div><h3>当前没有待办</h3><p>所有任务均已处理。</p></div>';
+        return `<div class="activity-list">${list.map(task=>`<div class="activity"><i class="activity-dot ${task.status==='已寄出'?'orange':''}"></i><div><strong>${escapeHTML(task.tube)} · ${escapeHTML(task.person)}</strong><small>${escapeHTML(task.package)} · ${escapeHTML(task.shippedAt)}</small></div><button class="btn small ghost" data-action="open-task" data-id="${task.id}">处理</button></div>`).join('')}</div>`;
+      }
+
+      function activityHTML() {
+        return `<div class="activity-list">
+          <div class="activity"><i class="activity-dot"></i><div><strong>李雅琴的检测报告已上传</strong><small>报告 V1 已成为当前有效版本</small></div><time>08:35</time></div>
+          <div class="activity"><i class="activity-dot orange"></i><div><strong>周文静的检测数据已更新</strong><small>实验室修改内容已同步数据中心</small></div><time>10:24</time></div>
+          <div class="activity"><i class="activity-dot red"></i><div><strong>黄志强的样本被标记异常</strong><small>样本量不足，异常流程终止</small></div><time>09:05</time></div>
+        </div>`;
+      }
+
+      function taskTable(list, mode='lab') {
+        if (!list.length) return '<div class="empty"><div class="empty-icon">检</div><h3>没有匹配的采血单</h3><p>请调整筛选条件或搜索关键词。</p></div>';
+        return `<table><thead><tr><th>采血单 / 试管编码</th><th>检测套餐</th><th>受检人</th><th>采血与寄样</th><th>当前状态</th><th>更新时间</th><th>操作</th></tr></thead><tbody>${list.map(task=>`<tr>
+          <td><div class="cell-main">${task.id}</div><div class="cell-sub">${escapeHTML(task.tube)}</div></td>
+          <td><div class="cell-main">${escapeHTML(task.package)}</div><div class="cell-sub">套餐信息来自采血单</div></td>
+          <td><div class="cell-main">${escapeHTML(task.person)}</div><div class="cell-sub">${task.gender} · ${escapeHTML(task.phone)}</div></td>
+          <td><div class="cell-main">${escapeHTML(task.method)}</div><div class="cell-sub">${escapeHTML(task.logistics)}</div></td>
+          <td>${statusBadge(task.status)}</td>
+          <td><div class="cell-main">${task.history[0]?.time || '—'}</div><div class="cell-sub">${escapeHTML(task.history[0]?.title || '')}</div></td>
+          <td><div class="table-actions"><button class="btn small ${mode==='center'&&task.status==='待出报告'?'primary':'ghost'}" data-action="open-task" data-id="${task.id}">${mode==='center'&&task.status==='待出报告'?'上传报告':'查看详情'}</button></div></td>
+        </tr>`).join('')}</tbody></table>`;
+      }
+
+      function labTasks() {
+        const map = {'待检测':'已寄出','待出报告':'待出报告','样本异常':'样本异常','报告完成':'报告完成'};
+        const query = state.taskQuery.toLowerCase();
+        const list = tasks.filter(task => (state.taskFilter==='全部' || task.status===map[state.taskFilter]) && (!query || [task.id,task.tube,task.person,task.package].some(v=>String(v).toLowerCase().includes(query))));
+        const filters = ['全部','待检测','待出报告','样本异常','报告完成'];
+        return `${pageHead('实验室检测','检测任务','已寄出的采血单自动进入这里。正常样本录入检测数据，异常样本填写备注并上传图片。','<button class="btn ghost" data-action="export-demo">导出列表</button>')}
+          <div class="card toolbar"><div class="filters">${filters.map(f=>`<button class="filter ${state.taskFilter===f?'active':''}" data-action="filter-task" data-value="${f}">${f}</button>`).join('')}</div><label class="search"><span>⌕</span><input id="taskSearch" value="${escapeHTML(state.taskQuery)}" placeholder="搜索采血单、试管编码、受检人"></label></div>
+          <div id="taskTableHost" class="card table-card">${taskTable(list,'lab')}<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div></div>`;
+      }
+
+      function anomaliesPage() {
+        const list = tasks.filter(t=>t.status==='样本异常');
+        return `${pageHead('实验室检测','样本异常','异常采血单在此终止，后续退款、补发或重新采血由总部客服线下处理。')}
+          <div class="grid cols-3" style="margin-bottom:18px"><div class="card metric red"><div class="metric-top"><span>异常样本</span><span class="metric-icon">异</span></div><strong>${list.length}</strong><small>采血单流程已结束</small></div><div class="card metric orange"><div class="metric-top"><span>今日新增</span><span class="metric-icon">今</span></div><strong>1</strong><small>总部后台已同步可见</small></div><div class="card metric"><div class="metric-top"><span>异常图片</span><span class="metric-icon">图</span></div><strong>${list.length}</strong><small>异常记录完整留存</small></div></div>
+          <div class="card table-card">${taskTable(list,'lab')}</div>`;
+      }
+
+      function labRecords() {
+        const list = tasks.filter(t=>t.status!=='已寄出');
+        return `${pageHead('实验室检测','检测记录','查看已处理采血单、检测数据修改及异常标记记录；报告完成后的检测数据只读。','<button class="btn ghost" data-action="export-demo">导出记录</button>')}
+          <div class="card toolbar"><div class="filters"><button class="filter active">全部记录</button><button class="filter">数据已同步</button><button class="filter">报告已冻结</button><button class="filter">样本异常</button></div><label class="search"><span>⌕</span><input placeholder="搜索检测记录"></label></div>
+          <div class="card table-card">${taskTable(list,'lab')}<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div></div>`;
+      }
+
+      function reportTasks() {
+        const query = state.reportQuery.toLowerCase();
+        const list = tasks.filter(t=>t.status==='待出报告' && (!query || [t.id,t.tube,t.person,t.package].some(v=>String(v).toLowerCase().includes(query))));
+        return `${pageHead('数据中心报告','待出报告','实验室保存检测数据后立即进入本列表。请查看数据并在线下制作最终 PDF 报告。')}
+          <div class="notice green" style="margin-bottom:14px"><strong>检测数据已同步</strong>报告上传前实验室仍可能修改数据，请以详情页显示的最新更新时间为准。</div>
+          <div class="card toolbar"><div class="filters"><button class="filter active">待上传 ${list.length}</button></div><label class="search"><span>⌕</span><input id="reportSearch" value="${escapeHTML(state.reportQuery)}" placeholder="搜索采血单、试管编码、受检人"></label></div>
+          <div id="reportTableHost" class="card table-card">${taskTable(list,'center')}<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div></div>`;
+      }
+
+      function reportsPage() {
+        const list = tasks.filter(t=>t.status==='报告完成');
+        return `${pageHead('数据中心报告','报告管理','查看当前有效报告并执行替换。用户只看到最新版本，历史文件始终保留。','<button class="btn ghost" data-action="export-demo">导出报告清单</button>')}
+          <div class="card toolbar"><div class="filters"><button class="filter active">全部报告</button><button class="filter">今日上传</button><button class="filter">已替换</button></div><label class="search"><span>⌕</span><input placeholder="搜索报告或受检人"></label></div>
+          <div class="card table-card">${taskTable(list,'center')}<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div></div>`;
+      }
+
+      function versionsPage() {
+        const versions = tasks.flatMap(task=>task.versions.map(version=>({task,version}))).sort((a,b)=>b.version.uploadedAt.localeCompare(a.version.uploadedAt));
+        return `${pageHead('数据中心报告','报告版本记录','报告替换无需审核，但原文件、操作账号、操作时间和替换说明必须完整保留。')}
+          <div class="card panel"><div class="panel-title"><h3>全部版本</h3><span>共 ${versions.length} 个文件版本</span></div><div class="version-list">${versions.map(({task,version})=>`<div class="version-item"><div class="version-no">V${version.version}</div><div class="version-copy"><strong>${escapeHTML(version.name)} ${version.active?'<span class="badge green" style="margin-left:6px">当前有效</span>':''}</strong><small>${task.id} · ${escapeHTML(task.person)} · ${escapeHTML(version.operator)} · ${version.uploadedAt}<br>${escapeHTML(version.note)}</small></div><div class="table-actions"><button class="btn small ghost" data-action="view-version" data-id="${task.id}" data-version="${version.version}">查看</button></div></div>`).join('')}</div></div>`;
+      }
+
+      function securityPage() {
+        return `${pageHead('个人设置','账号与安全','检测协作端账号由总部创建和启停，本页仅提供个人资料查看与密码修改。')}
+          <div class="detail-layout single"><div><div class="card detail-card"><div class="detail-title"><h3>账号信息</h3>${state.role==='lab'?'<span class="badge blue">实验室角色</span>':'<span class="badge violet">数据中心角色</span>'}</div><div class="info-grid"><div class="info-row"><span>登录账号</span><strong>${state.role==='lab'?'lab_demo':'data_demo'}</strong></div><div class="info-row"><span>账号状态</span><strong style="color:var(--success)">正常</strong></div><div class="info-row"><span>姓名</span><strong>${state.role==='lab'?'王敏':'赵宁'}</strong></div><div class="info-row"><span>所属角色</span><strong>${state.role==='lab'?'实验室':'数据中心'}</strong></div><div class="info-row"><span>最近登录</span><strong>2026-08-26 09:01</strong></div><div class="info-row"><span>账号来源</span><strong>总部管理后台</strong></div></div></div>
+          <div class="card detail-card"><div class="detail-title"><h3>修改密码</h3></div><div class="field-grid" style="padding-top:14px"><label class="field"><span>当前密码</span><input id="oldPassword" type="password" placeholder="请输入当前密码"></label><span></span><label class="field"><span>新密码</span><input id="newPassword" type="password" placeholder="至少 8 位字符"></label><label class="field"><span>确认新密码</span><input id="confirmPassword" type="password" placeholder="再次输入新密码"></label></div><div class="form-actions"><small style="color:var(--muted)">建议定期更新密码，避免多人共用账号。</small><button class="btn primary" data-action="save-password">保存新密码</button></div></div></div>
+          </div>`;
+      }
+
+      function pipelineHTML(task) {
+        if (task.status==='样本异常') return `<div class="card pipeline"><div class="pipe-step done"><b>01 样本寄出</b><small>${task.shippedAt}</small></div><div class="pipe-step stop"><b>02 样本异常</b><small>备注与图片已保存</small></div><div class="pipe-step"><b>03 报告处理</b><small>不再进入</small></div><div class="pipe-step"><b>04 流程结束</b><small>总部线下处理</small></div></div>`;
+        const detectionDone = ['待出报告','报告完成'].includes(task.status);
+        const reportDone = task.status==='报告完成';
+        return `<div class="card pipeline"><div class="pipe-step done"><b>01 样本寄出</b><small>${task.shippedAt}</small></div><div class="pipe-step ${detectionDone?'done':'current'}"><b>02 检测数据</b><small>${detectionDone?'已同步数据中心':'等待实验室处理'}</small></div><div class="pipe-step ${reportDone?'done':detectionDone?'current':''}"><b>03 报告上传</b><small>${reportDone?'PDF 已上传':detectionDone?'等待数据中心':'尚未进入'}</small></div><div class="pipe-step ${reportDone?'done':''}"><b>04 报告完成</b><small>${reportDone?'用户可查询下载':'等待完成'}</small></div></div>`;
+      }
+
+      function taskDetail() {
+        const task = currentTask();
+        const backLabel = state.returnPage==='report-tasks'?'返回待出报告':state.returnPage==='reports'?'返回报告管理':state.returnPage==='versions'?'返回版本记录':'返回检测任务';
+        const editable = state.role==='lab' && task.status!=='报告完成' && task.status!=='样本异常';
+        return `${pageHead('采血单详情',`${escapeHTML(task.person)} · ${escapeHTML(task.package)}`,`采血单 ${task.id}　·　试管编码 ${escapeHTML(task.tube)}`,`<button class="btn ghost" data-page="${state.returnPage}">← ${backLabel}</button>`)}
+          ${pipelineHTML(task)}
+          <div class="detail-layout"><div>
+            <div class="card detail-card"><div class="detail-title"><h3>采血单信息</h3>${statusBadge(task.status)}</div><div class="info-grid"><div class="info-row"><span>采血单号</span><strong>${task.id}</strong></div><div class="info-row"><span>试管编码</span><strong>${escapeHTML(task.tube)}</strong></div><div class="info-row"><span>检测套餐</span><strong>${escapeHTML(task.package)}</strong></div><div class="info-row"><span>采血方式</span><strong>${escapeHTML(task.method)}</strong></div><div class="info-row"><span>采血服务点</span><strong>${escapeHTML(task.station)}</strong></div><div class="info-row"><span>寄出时间</span><strong>${task.shippedAt}</strong></div><div class="info-row"><span>物流信息</span><strong>${escapeHTML(task.logistics)}</strong></div><div class="info-row"><span>目标实验室</span><strong>固定实验室</strong></div></div></div>
+            <div class="card detail-card"><div class="detail-title"><h3>受检人信息</h3><span class="badge gray">信息已冻结</span></div><div class="info-grid"><div class="info-row"><span>姓名</span><strong>${escapeHTML(task.person)}</strong></div><div class="info-row"><span>性别</span><strong>${task.gender}</strong></div><div class="info-row"><span>出生日期</span><strong>${task.birthday}</strong></div><div class="info-row"><span>联系电话</span><strong>${escapeHTML(task.phone)}</strong></div><div class="info-row"><span>身份证号</span><strong>${escapeHTML(task.idNo)}</strong></div></div></div>
+            ${detectionPanel(task,editable)}
+            ${task.anomaly ? anomalyPanel(task) : ''}
+            ${task.report ? reportPanel(task) : ''}
+          </div><aside class="sticky">
+            <div class="card detail-card"><div class="detail-title"><h3>处理动作</h3></div>${actionPanel(task)}</div>
+          </aside></div>`;
+      }
+
+      function detectionPanel(task, editable) {
+        if (editable) return `<div class="card detail-card"><div class="detail-title"><h3>检测数据</h3>${task.detectionData?'<span class="badge blue">已同步，可修改</span>':'<span class="badge orange">待录入</span>'}</div><div class="notice green" style="margin:14px 0"><strong>保存即同步</strong>检测数据采用自由文本。保存后数据中心立即可见，上传最终报告前仍可修改。</div><label class="field"><span>检测数据内容 *</span><textarea id="detectionText" placeholder="请输入检测数据、结果说明或分析所需信息……">${escapeHTML(task.detectionData)}</textarea></label><div class="form-actions"><small style="color:var(--muted)">${task.detectionData?'上次更新：2026-08-26 10:24 · 王敏':'当前尚未保存检测数据'}</small><div class="right"><button class="btn danger" data-action="open-anomaly" data-id="${task.id}">标记样本异常</button><button class="btn primary" data-action="save-detection" data-id="${task.id}">${task.detectionData?'保存修改':'保存并同步数据中心'}</button></div></div></div>`;
+        return `<div class="card detail-card"><div class="detail-title"><h3>检测数据</h3>${task.status==='报告完成'?'<span class="badge green">报告上传后已冻结</span>':task.status==='样本异常'?'<span class="badge red">异常终止</span>':'<span class="badge blue">只读</span>'}</div>${task.detectionData?`<div class="data-box" style="margin-top:14px">${escapeHTML(task.detectionData)}</div>`:'<div class="data-box data-empty" style="margin-top:14px">该采血单没有检测数据</div>'}</div>`;
+      }
+
+      function anomalyPanel(task) {
+        return `<div class="card detail-card"><div class="detail-title"><h3>样本异常记录</h3><span class="badge red">流程终止</span></div><div class="notice red" style="margin:14px 0"><strong>${escapeHTML(task.anomaly.note)}</strong>后续处理由总部客服线下联系用户，本端不创建退款、补发或补采流程。</div><div class="file-card"><div class="file-icon" style="background:var(--orange)">IMG</div><div class="file-copy"><strong>${escapeHTML(task.anomaly.image)}</strong><small>${task.anomaly.operator} · ${task.anomaly.time}</small></div><button class="btn small ghost" data-action="view-anomaly-image">查看图片</button></div></div>`;
+      }
+
+      function reportPanel(task) {
+        return `<div class="card detail-card"><div class="detail-title"><h3>当前检测报告</h3><span class="badge green">V${task.report.version} 当前有效</span></div><div class="file-card" style="margin-top:14px"><div class="file-icon">PDF</div><div class="file-copy"><strong>${escapeHTML(task.report.name)}</strong><small>${escapeHTML(task.report.operator)} · ${task.report.uploadedAt}</small></div><div class="table-actions"><button class="btn small ghost" data-action="preview-report" data-id="${task.id}">查看</button>${state.role==='center'?`<button class="btn small secondary" data-action="open-replace-report" data-id="${task.id}">替换</button>`:''}</div></div>${task.versions.length>1?`<div class="notice blue" style="margin-top:12px"><strong>共 ${task.versions.length} 个报告版本</strong>用户仅能查看当前 V${task.report.version}，历史版本保留在版本记录中。</div>`:''}</div>`;
+      }
+
+      function actionPanel(task) {
+        if (state.role==='lab') {
+          if (task.status==='已寄出') return `<div class="notice green"><strong>等待检测处理</strong>可以录入正常检测数据，或将样本标记为异常。</div><button class="btn primary" style="width:100%;margin-top:12px" data-action="focus-data">录入检测数据</button><button class="btn danger" style="width:100%;margin-top:8px" data-action="open-anomaly" data-id="${task.id}">标记样本异常</button>`;
+          if (task.status==='待出报告') return `<div class="notice blue"><strong>数据中心已同步可见</strong>最终 PDF 上传前，你仍可以修改检测数据。</div><button class="btn secondary" style="width:100%;margin-top:12px" data-action="focus-data">修改检测数据</button>`;
+          if (task.status==='报告完成') return `<div class="notice green"><strong>报告已经完成</strong>检测数据已冻结，实验室不能再修改。</div><button class="btn ghost" style="width:100%;margin-top:12px" data-action="preview-report" data-id="${task.id}">查看当前报告</button>`;
+          return `<div class="notice red"><strong>样本异常，流程结束</strong>总部已同步看到异常状态，后续由客服线下处理。</div>`;
+        }
+        if (task.status==='待出报告') return `<div class="notice blue"><strong>等待上传报告</strong>请核对实验室最新检测数据，在线下制作 PDF 后上传。</div><button class="btn primary" style="width:100%;margin-top:12px" data-action="open-upload-report" data-id="${task.id}">上传 PDF 报告</button>`;
+        if (task.status==='报告完成') return `<div class="notice green"><strong>报告已经完成</strong>当前 PDF 已面向用户生效，如文件有误可直接替换。</div><button class="btn ghost" style="width:100%;margin-top:12px" data-action="preview-report" data-id="${task.id}">查看当前报告</button><button class="btn secondary" style="width:100%;margin-top:8px" data-action="open-replace-report" data-id="${task.id}">替换 PDF</button>`;
+        if (task.status==='样本异常') return `<div class="notice red"><strong>样本异常</strong>该采血单不进入报告制作流程。</div>`;
+        return `<div class="notice"><strong>尚未进入数据中心</strong>实验室保存检测数据后，该任务才会进入待出报告列表。</div>`;
+      }
+
+      function render(scroll = true) {
+        renderSidebar();
+        const pages = {dashboard, 'lab-tasks':labTasks, anomalies:anomaliesPage, 'lab-records':labRecords, 'report-tasks':reportTasks, reports:reportsPage, versions:versionsPage, security:securityPage, 'task-detail':taskDetail};
+        appContent.innerHTML = (pages[state.page] || dashboard)();
+        if (scroll) window.scrollTo({top:0,behavior:'smooth'});
+      }
+
+      function go(page) {
+        const allowedLab = ['dashboard','lab-tasks','anomalies','lab-records','security','task-detail'];
+        const allowedCenter = ['dashboard','report-tasks','reports','versions','security','task-detail'];
+        if (!(state.role==='lab'?allowedLab:allowedCenter).includes(page)) page = 'dashboard';
+        state.page = page;
+        render();
+      }
+
+      function openTask(id) {
+        const task = tasks.find(t=>t.id===id);
+        if (!task) return;
+        state.selectedTaskId = id;
+        state.returnPage = state.page;
+        state.page = 'task-detail';
+        render();
+      }
+
+      function saveDetection(id) {
+        const task = tasks.find(t=>t.id===id);
+        const text = $('#detectionText')?.value.trim();
+        if (!task || !text) return toast('请填写检测数据后再保存');
+        const first = !task.detectionData;
+        task.detectionData = text;
+        task.status = '待出报告';
+        task.history.unshift({title:first?'检测数据首次保存':'检测数据已更新', detail:'实验室 · 王敏 · 已同步数据中心', time:now().slice(5)});
+        render(false);
+        toast(first?'检测数据已保存并同步数据中心':'检测数据修改已同步数据中心');
+      }
+
+      function openAnomaly(id) {
+        const task = tasks.find(t=>t.id===id);
+        if (!task || task.status==='报告完成' || task.status==='样本异常') return toast('当前采血单不能标记异常');
+        state.pendingImage='';
+        showModal('标记样本异常',`<div class="notice red" style="margin-bottom:16px"><strong>提交后采血单流程终止</strong>该采血单不会进入数据中心报告流程；退款、补发和重新采血由总部客服线下处理。</div><label class="field"><span>异常备注 *</span><textarea id="anomalyNote" style="min-height:100px" placeholder="请描述样本异常情况和判断依据"></textarea></label><label class="field"><span>异常图片 *</span><input id="anomalyFile" type="file" accept="image/*"></label><button class="btn small secondary" data-action="use-demo-image">使用演示图片</button><div id="imageFileState" style="margin-top:9px;color:var(--muted);font-size:10px">尚未选择图片</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-anomaly" data-id="${id}">确认标记异常</button>`);
+      }
+
+      function confirmAnomaly(id) {
+        const task = tasks.find(t=>t.id===id);
+        const note = $('#anomalyNote')?.value.trim();
+        if (!note) return toast('请填写异常备注');
+        if (!state.pendingImage) return toast('请上传异常图片');
+        task.status='样本异常';
+        task.anomaly={note,image:state.pendingImage,time:now(),operator:'实验室 · 王敏'};
+        task.history.unshift({title:'标记样本异常',detail:note,time:now().slice(5)});
+        closeModal(); render(false); toast('已标记样本异常，总部后台已同步');
+      }
+
+      function openReportUpload(id, replace=false) {
+        const task = tasks.find(t=>t.id===id);
+        if (!task) return;
+        state.pendingReportFile='';
+        showModal(replace?'替换检测报告':'上传检测报告',`<div class="notice ${replace?'blue':'green'}" style="margin-bottom:16px"><strong>${replace?'原报告将保留为历史版本':'上传后检测数据将冻结'}</strong>${replace?'替换不需要审核，新文件立即成为用户可见的当前报告。':'一张采血单仅有一份当前有效报告，只支持 PDF 文件。'}</div><label class="upload-zone" for="reportFile"><div class="upload-symbol">↑</div><strong>点击选择 PDF 报告</strong><small>仅支持 .pdf 文件</small></label><input id="reportFile" type="file" accept="application/pdf,.pdf" hidden><button class="btn small secondary" style="margin-top:10px" data-action="use-demo-pdf" data-person="${escapeHTML(task.person)}">使用演示 PDF</button><div id="reportFileState" style="margin-top:10px;color:var(--muted);font-size:10px">尚未选择文件</div>${replace?'<label class="field" style="margin-top:15px"><span>替换说明 *</span><textarea id="replaceNote" style="min-height:82px" placeholder="请说明替换原因"></textarea></label>':''}`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-report" data-id="${id}" data-replace="${replace?'1':'0'}">${replace?'确认替换':'确认上传'}</button>`);
+      }
+
+      function confirmReport(id, replace) {
+        const task = tasks.find(t=>t.id===id);
+        if (!task || !state.pendingReportFile) return toast('请选择 PDF 报告文件');
+        if (!/\.pdf$/i.test(state.pendingReportFile)) return toast('报告文件必须为 PDF 格式');
+        const note = replace ? $('#replaceNote')?.value.trim() : '首次上传';
+        if (replace && !note) return toast('请填写替换说明');
+        const nextVersion = task.versions.length + 1;
+        task.versions.forEach(v=>v.active=false);
+        const version={name:state.pendingReportFile,version:nextVersion,uploadedAt:now(),operator:'数据中心 · 赵宁',note,active:true};
+        task.versions.push(version);
+        task.report={...version};
+        task.status='报告完成';
+        task.history.unshift({title:replace?'检测报告已替换':'检测报告已上传',detail:`数据中心 · 赵宁 · 报告 V${nextVersion}`,time:now().slice(5)});
+        closeModal(); render(false); toast(replace?'报告替换成功，历史版本已保留':'报告上传成功，用户现可查询下载');
+      }
+
+      function previewReport(id, versionNumber) {
+        const task = tasks.find(t=>t.id===id);
+        if (!task || !task.report) return toast('当前没有可查看的报告');
+        const version = versionNumber ? task.versions.find(v=>v.version===Number(versionNumber)) : task.report;
+        showModal(`报告预览 · V${version.version}`,`<div class="preview-paper"><div style="font-size:10px;font-weight:900;color:var(--brand)">ANPAIKANG HEALTH</div><h2>检测报告</h2><div class="paper-sub">${escapeHTML(task.package)}</div><div class="paper-line"><span>受检人</span><strong>${escapeHTML(task.person)}</strong></div><div class="paper-line"><span>采血单号</span><strong>${task.id}</strong></div><div class="paper-line"><span>试管编码</span><strong>${escapeHTML(task.tube)}</strong></div><div class="paper-line"><span>报告版本</span><strong>V${version.version}</strong></div><div class="paper-block"><strong>检测结果摘要</strong><br>${escapeHTML(task.detectionData || '检测数据见正式 PDF 文件。')}</div><div style="margin-top:45px;text-align:right;color:var(--muted);font-size:9px">安派康检测数据中心<br>${version.uploadedAt}</div></div>`,`<button class="btn ghost" data-action="download-demo">下载 PDF</button><button class="btn primary" data-action="close-modal">关闭预览</button>`,true);
+      }
+
+      document.addEventListener('click', event => {
+        const el = event.target.closest('[data-page],[data-action]');
+        if (!el) return;
+        if (el.dataset.page) return go(el.dataset.page);
+        const action = el.dataset.action;
+        if (action==='switch-role') { state.role=el.dataset.role; state.page='dashboard'; render(); return toast(`已切换为${state.role==='lab'?'实验室':'数据中心'}角色视图`); }
+        if (action==='logout') { app.hidden=true; loginPage.classList.add('open'); return; }
+        if (action==='login-role') { state.loginRole=el.dataset.role; document.querySelectorAll('.login-role button').forEach(n=>n.classList.toggle('active',n.dataset.role===state.loginRole)); $('#loginAccount').value=state.loginRole==='lab'?'lab_demo':'data_demo'; return; }
+        if (action==='close-modal') return closeModal();
+        if (action==='open-task') return openTask(el.dataset.id);
+        if (action==='filter-task') { state.taskFilter=el.dataset.value; return render(false); }
+        if (action==='save-detection') return saveDetection(el.dataset.id);
+        if (action==='open-anomaly') return openAnomaly(el.dataset.id);
+        if (action==='open-first-anomaly') { const task=tasks.find(t=>t.status==='已寄出'); if(task) openTask(task.id); setTimeout(()=>openAnomaly(task.id),100); return; }
+        if (action==='use-demo-image') { state.pendingImage='样本异常照片_演示.jpg'; const host=$('#imageFileState'); if(host) host.textContent=`已选择：${state.pendingImage}`; return; }
+        if (action==='confirm-anomaly') return confirmAnomaly(el.dataset.id);
+        if (action==='open-upload-report') return openReportUpload(el.dataset.id,false);
+        if (action==='open-replace-report') return openReportUpload(el.dataset.id,true);
+        if (action==='use-demo-pdf') { state.pendingReportFile=`${el.dataset.person}_检测报告.pdf`; const host=$('#reportFileState'); if(host) host.textContent=`已选择：${state.pendingReportFile}`; return; }
+        if (action==='confirm-report') return confirmReport(el.dataset.id,el.dataset.replace==='1');
+        if (action==='preview-report') return previewReport(el.dataset.id);
+        if (action==='view-version') return previewReport(el.dataset.id,el.dataset.version);
+        if (action==='view-anomaly-image') return showModal('异常图片预览','<div style="height:360px;border-radius:14px;display:grid;place-items:center;color:#8b6252;background:linear-gradient(145deg,#f5e8df,#e5cfc1)"><div style="text-align:center"><div style="width:76px;height:76px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.6);font-size:24px">样</div><strong>样本异常图片演示</strong><div style="margin-top:5px;font-size:10px">实际页面展示实验室上传的图片</div></div></div>');
+        if (action==='focus-data') { $('#detectionText')?.focus(); return; }
+        if (action==='download-demo') return toast('已开始下载当前 PDF 报告（原型演示）');
+        if (action==='export-demo') return toast('已生成演示导出任务');
+        if (action==='save-password') { const old=$('#oldPassword')?.value,nw=$('#newPassword')?.value,confirm=$('#confirmPassword')?.value; if(!old||!nw||!confirm)return toast('请完整填写密码信息'); if(nw.length<8)return toast('新密码至少需要 8 位字符'); if(nw!==confirm)return toast('两次输入的新密码不一致'); $('#oldPassword').value=$('#newPassword').value=$('#confirmPassword').value=''; return toast('登录密码修改成功'); }
+      });
+
+      document.addEventListener('input', event => {
+        if (event.target.id==='taskSearch') { state.taskQuery=event.target.value; const host=$('#taskTableHost'); if(host){ const map={'待检测':'已寄出','待出报告':'待出报告','样本异常':'样本异常','报告完成':'报告完成'}; const q=state.taskQuery.toLowerCase(); const list=tasks.filter(t=>(state.taskFilter==='全部'||t.status===map[state.taskFilter])&&(!q||[t.id,t.tube,t.person,t.package].some(v=>String(v).toLowerCase().includes(q)))); host.innerHTML=taskTable(list,'lab')+`<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div>`;} }
+        if (event.target.id==='reportSearch') { state.reportQuery=event.target.value; const host=$('#reportTableHost'); if(host){const q=state.reportQuery.toLowerCase();const list=tasks.filter(t=>t.status==='待出报告'&&(!q||[t.id,t.tube,t.person,t.package].some(v=>String(v).toLowerCase().includes(q))));host.innerHTML=taskTable(list,'center')+`<div class="pagination"><span>共 ${list.length} 条</span><span class="page-dot active">1</span></div>`;} }
+        if (event.target.id==='anomalyFile') { const file=event.target.files[0]; state.pendingImage=file?.name||''; const host=$('#imageFileState'); if(host) host.textContent=state.pendingImage?`已选择：${state.pendingImage}`:'尚未选择图片'; }
+        if (event.target.id==='reportFile') { const file=event.target.files[0]; state.pendingReportFile=file?.name||''; const host=$('#reportFileState'); if(host) host.textContent=state.pendingReportFile?`已选择：${state.pendingReportFile}`:'尚未选择文件'; }
+      });
+
+      $('#loginForm').addEventListener('submit', event => {
+        event.preventDefault();
+        if (!$('#loginAccount').value.trim() || !$('#loginPassword').value) return toast('请输入账号和密码');
+        state.role=state.loginRole; state.page='dashboard'; loginPage.classList.remove('open'); app.hidden=false; render(); toast('登录成功');
+      });
+      modalLayer.addEventListener('click', event => { if (event.target===modalLayer) closeModal(); });
+      document.addEventListener('keydown', event => { if (event.key==='Escape') closeModal(); });
+      render(false);
+    })();
+  </script>
+</body>
+</html>
