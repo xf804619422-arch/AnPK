@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安派康 · 检测协作端 Web 原型</title>
+  <title>安派科 · 检测协作端 Web 原型</title>
   <style>
     :root {
       --brand: #0a7069;
@@ -296,7 +296,7 @@
     <section class="login-visual">
       <div class="login-brand">
         <div class="brand-mark">安</div>
-        <div><strong>安派康</strong><small>检测协作端</small></div>
+        <div><strong>安派科</strong><small>检测协作端</small></div>
       </div>
       <div class="login-message">
         <span>DETECTION COLLABORATION</span>
@@ -329,7 +329,7 @@
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">安</div>
-        <div><strong>安派康</strong><small>检测协作端</small></div>
+        <div><strong>安派科</strong><small>检测协作端</small></div>
       </div>
       <div class="role-demo">
         <span>原型角色视图</span>
@@ -745,7 +745,7 @@
         const task = tasks.find(t=>t.id===id);
         if (!task || !task.report) return toast('当前没有可查看的报告');
         const version = versionNumber ? task.versions.find(v=>v.version===Number(versionNumber)) : task.report;
-        showModal(`报告预览 · V${version.version}`,`<div class="preview-paper"><div style="font-size:10px;font-weight:900;color:var(--brand)">ANPAIKANG HEALTH</div><h2>检测报告</h2><div class="paper-sub">${escapeHTML(task.package)}</div><div class="paper-line"><span>受检人</span><strong>${escapeHTML(task.person)}</strong></div><div class="paper-line"><span>采血单号</span><strong>${task.id}</strong></div><div class="paper-line"><span>试管编码</span><strong>${escapeHTML(task.tube)}</strong></div><div class="paper-line"><span>报告版本</span><strong>V${version.version}</strong></div><div class="paper-block"><strong>检测结果摘要</strong><br>${escapeHTML(task.detectionData || '检测数据见正式 PDF 文件。')}</div><div style="margin-top:45px;text-align:right;color:var(--muted);font-size:9px">安派康检测数据中心<br>${version.uploadedAt}</div></div>`,`<button class="btn ghost" data-action="download-demo">下载 PDF</button><button class="btn primary" data-action="close-modal">关闭预览</button>`,true);
+        showModal(`报告预览 · V${version.version}`,`<div class="preview-paper"><div style="font-size:10px;font-weight:900;color:var(--brand)">ANPAIKE HEALTH</div><h2>检测报告</h2><div class="paper-sub">${escapeHTML(task.package)}</div><div class="paper-line"><span>受检人</span><strong>${escapeHTML(task.person)}</strong></div><div class="paper-line"><span>采血单号</span><strong>${task.id}</strong></div><div class="paper-line"><span>试管编码</span><strong>${escapeHTML(task.tube)}</strong></div><div class="paper-line"><span>报告版本</span><strong>V${version.version}</strong></div><div class="paper-block"><strong>检测结果摘要</strong><br>${escapeHTML(task.detectionData || '检测数据见正式 PDF 文件。')}</div><div style="margin-top:45px;text-align:right;color:var(--muted);font-size:9px">安派科检测数据中心<br>${version.uploadedAt}</div></div>`,`<button class="btn ghost" data-action="download-demo">下载 PDF</button><button class="btn primary" data-action="close-modal">关闭预览</button>`,true);
       }
 
       document.addEventListener('click', event => {
