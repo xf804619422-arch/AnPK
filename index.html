@@ -380,6 +380,49 @@
       opacity: 0.55;
     }
 
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 8px;
+      border: 1px solid #efc4b1;
+      border-radius: 999px;
+      color: #a84820;
+      background: #fff3ed;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .card-status::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .prototype-card.deprecated {
+      border-color: #e8d3c7;
+      background: rgba(252, 250, 248, 0.92);
+    }
+
+    .prototype-card.deprecated .mockup {
+      filter: grayscale(.45);
+      opacity: .72;
+    }
+
+    .prototype-card.deprecated .card-description {
+      color: #7e716b;
+    }
+
     .prototype-card h3 {
       margin: 27px 0 8px;
       font-size: 25px;
@@ -826,9 +869,9 @@
     </a>
     <div class="header-meta" aria-label="原型状态">
       <span class="status-dot" aria-hidden="true"></span>
-      <span>原型入口可用</span>
+      <span>原型目录已更新</span>
       <span>·</span>
-      <span>4 个业务终端</span>
+      <span>3 个在用 · 1 个废弃</span>
     </div>
   </header>
 
@@ -908,14 +951,17 @@
           </div>
         </a>
 
-        <a class="prototype-card lab reveal" href="./anpk-detection-collaboration-prototype.html" target="_blank" rel="noopener" aria-label="打开检测协作端原型">
+        <a class="prototype-card lab deprecated reveal" href="./anpk-detection-collaboration-prototype.html" target="_blank" rel="noopener" aria-label="查看已废弃的检测协作端历史原型">
           <div class="card-inner">
             <div class="card-copy">
-              <span class="card-number">04 · LAB WORKFLOW</span>
+              <div class="card-meta">
+                <span class="card-number">04 · LAB WORKFLOW</span>
+                <span class="card-status">已废弃</span>
+              </div>
               <h3>检测协作</h3>
-              <p class="card-subtitle">检测机构作业端</p>
-              <p class="card-description">支持样本签收、检测进度、报告复核及异常协同处理。</p>
-              <span class="card-action">进入原型 <span class="action-arrow" aria-hidden="true">↗</span></span>
+              <p class="card-subtitle">检测机构作业端 · 已停止维护</p>
+              <p class="card-description">该端口已废弃，当前页面仅保留历史原型以供业务回溯。</p>
+              <span class="card-action">查看历史原型 <span class="action-arrow" aria-hidden="true">↗</span></span>
             </div>
             <div class="mockup" aria-hidden="true">
               <div class="mockup-top"><i></i><i></i><i></i></div>

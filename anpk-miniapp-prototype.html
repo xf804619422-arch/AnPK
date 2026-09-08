@@ -430,6 +430,11 @@
     .order-price { font-size: 10px; font-weight: 800; }
     .order-actions { display: flex; justify-content: end; gap: 7px; padding-top: 5px; }
     .order-actions .btn { padding: 7px 10px; font-size: 9px; }
+    .blood-form-no { margin: 7px 0 0; display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border-radius: 10px; color: var(--brand-dark); background: var(--brand-soft); font-size: 8px; }
+    .blood-form-no strong { font-size: 11px; letter-spacing: .04em; }
+    .blood-id-card { padding: 15px; margin-bottom: 10px; text-align: center; border: 1px solid #bcded8; background: linear-gradient(145deg, #e8f6f3, #fff); }
+    .blood-id-card span { display: block; color: var(--muted); font-size: 9px; }
+    .blood-id-card strong { display: block; margin: 7px 0 11px; color: var(--brand-dark); font-size: 20px; letter-spacing: .06em; }
     .cart-list .order-product + .order-product { border-top: 1px solid var(--line); }
     .cart-item-tools { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 6px; }
     .cart-item-tools button { border: 0; padding: 4px 7px; border-radius: 8px; color: var(--danger); background: #fff0f0; font-size: 8px; cursor: pointer; }
@@ -715,7 +720,7 @@
 
       <div class="panel-label">工作人员</div>
       <button class="scene-btn" data-jump="work"><span class="scene-icon">工</span>授权工作台</button>
-      <button class="scene-btn" data-jump="tube-receive"><span class="scene-icon">查</span>查询采血单</button>
+      <button class="scene-btn" data-jump="blood-form-search"><span class="scene-icon">查</span>查询采血单</button>
       <button class="scene-btn" data-jump="staff-blood-detail"><span class="scene-icon">核</span>核验采血单</button>
       <button class="scene-btn" data-jump="pending-ship"><span class="scene-icon">寄</span>登记样本寄出</button>
 
@@ -796,8 +801,7 @@
         { id: 'A202608240018', product: products[0], qty: 1, type: 'pickup', status: '待核销', amount: 699, station: stations[0], code: '583926', date: '2026-08-24 14:26' },
         { id: 'A202608160073', product: products[1], qty: 1, type: 'delivery', status: '待收货', amount: 1099, date: '2026-08-16 10:42', logistics: '顺丰速运 SF1289036412' },
         { id: 'A202607290126', product: products[0], qty: 2, type: 'delivery', status: '已完成', amount: 1398, date: '2026-07-29 09:18', logistics: '顺丰速运 SF1266281803' },
-        { id: 'A202607180043', tradeNo: 'P202607180088', product: products[1], items: [{ product: products[1], qty: 1, unitPrice: 1099, isAddOn: false }], qty: 1, type: 'delivery', status: '已完成', amount: 1099, date: '2026-07-18 16:22', logistics: '顺丰速运 SF1267182043' },
-        { id: 'A202607180044', tradeNo: 'P202607180088', product: products[3], items: [{ product: products[3], qty: 1, unitPrice: 599, isAddOn: true }], qty: 1, isAddOnOrder: true, type: 'delivery', status: '已完成', amount: 599, date: '2026-07-18 16:22', logistics: '顺丰速运 SF1267182044' },
+        { id: 'A202607180043', tradeNo: 'P202607180088', product: products[1], items: [{ product: products[1], qty: 1, unitPrice: 1099, isAddOn: false }, { product: products[3], qty: 1, unitPrice: 599, isAddOn: true }], qty: 2, type: 'delivery', status: '已完成', amount: 1698, date: '2026-07-18 16:22', logistics: '顺丰速运 SF1267182043' },
         { id: 'A202608210056', product: products[3], qty: 1, type: 'pickup', status: '退款处理中', amount: 899, station: stations[1], code: '906421', date: '2026-08-21 16:08' },
         { id: 'A202608050092', product: products[1], qty: 1, type: 'pickup', status: '已退款', amount: 1099, station: stations[0], code: '341982', date: '2026-08-05 11:36' },
         { id: 'A202608190031', product: products[4], qty: 1, type: 'delivery', status: '退款处理中', amount: 1299, date: '2026-08-19 09:52', logistics: '顺丰速运 SF1290316802' }
@@ -810,13 +814,13 @@
       ];
 
       const bloodForms = [
-        { id: 'BC20260818031', product: products[1], person: '陈雨桐', tube: 'T202608180079', mode: 'station', status: '已寄出', station: stations[0], date: '2026-08-18', current: 3 },
-        { id: 'BC20260825011', product: products[3], person: '陈雨桐', tube: 'T202608250118', mode: 'station', status: '已接收', station: stations[0], date: '2026-08-25', current: 2, receivedAt: '2026-08-25 10:18' },
-        { id: 'BC20260824052', product: products[4], person: '陈建国', tube: 'T202608240205', mode: 'station', status: '已接收', station: stations[0], date: '2026-08-24', current: 2, receivedAt: '2026-08-25 09:42' },
-        { id: 'BC20260730088', product: products[0], person: '陈雨桐', tube: 'T202607300144', mode: 'self', status: '报告完成', date: '2026-07-30', current: 4 },
-        { id: 'BC20260810064', product: products[2], person: '陈建国', tube: 'T202608100093', mode: 'station', status: '样本异常', station: stations[2], date: '2026-08-10', current: 4, abnormalReason: '样本出现溶血，无法继续完成检测。', abnormalAt: '2026-08-13 15:42' },
-        { id: 'BC20260822016', product: products[2], person: '陈建国', tube: 'T202608220025', mode: 'station', status: '待采血', station: stations[0], date: '2026-08-22', current: 1 },
-        { id: 'BC20260824077', product: products[0], person: '陈雨桐', tube: 'T202608240166', mode: 'self', status: '待采血', station: null, date: '2026-08-24', current: 1 }
+        { id: 'BC20260818031', product: products[1], person: '陈雨桐', mode: 'station', status: '已寄出', station: stations[0], date: '2026-08-18', current: 3 },
+        { id: 'BC20260825011', product: products[3], person: '陈雨桐', mode: 'station', status: '已接收', station: stations[0], date: '2026-08-25', current: 2, receivedAt: '2026-08-25 10:18' },
+        { id: 'BC20260824052', product: products[4], person: '陈建国', mode: 'station', status: '已接收', station: stations[0], date: '2026-08-24', current: 2, receivedAt: '2026-08-25 09:42' },
+        { id: 'BC20260730088', product: products[0], person: '陈雨桐', mode: 'self', status: '报告完成', date: '2026-07-30', current: 4 },
+        { id: 'BC20260810064', product: products[2], person: '陈建国', mode: 'station', status: '样本异常', station: stations[2], date: '2026-08-10', current: 4, abnormalReason: '样本出现溶血，无法继续完成检测。', abnormalAt: '2026-08-13 15:42' },
+        { id: 'BC20260822016', product: products[2], person: '陈建国', mode: 'station', status: '待采血', station: stations[0], date: '2026-08-22', current: 1 },
+        { id: 'BC20260824077', product: products[0], person: '陈雨桐', mode: 'self', status: '待采血', station: null, date: '2026-08-24', current: 1 }
       ];
 
       const examinees = [
@@ -825,10 +829,10 @@
       ];
 
       const reports = [
-        { id: 'R20260812019', product: products[0], person: '陈雨桐', date: '2026-08-12', sample: 'T202607300144' },
-        { id: 'R20260506007', product: products[1], person: '陈雨桐', date: '2026-05-06', sample: 'T202604210038' },
-        { id: 'R20251218042', product: products[0], person: '陈雨桐', date: '2025-12-18', sample: 'T202512020097' },
-        { id: 'R20260418012', product: products[2], person: '陈建国', date: '2026-04-18', sample: 'T202604020031' }
+        { id: 'R20260812019', product: products[0], person: '陈雨桐', date: '2026-08-12', bloodFormId: 'BC20260730088' },
+        { id: 'R20260506007', product: products[1], person: '陈雨桐', date: '2026-05-06', bloodFormId: 'BC20260421038' },
+        { id: 'R20251218042', product: products[0], person: '陈雨桐', date: '2025-12-18', bloodFormId: 'BC20251202097' },
+        { id: 'R20260418012', product: products[2], person: '陈建国', date: '2026-04-18', bloodFormId: 'BC20260402031' }
       ];
 
       const state = {
@@ -845,7 +849,7 @@
         home: ['首页', 'HOME', '展示检测套餐和高频服务入口，帮助用户快速进入购买、采血、报告与服务站链路。'],
         products: ['全部套餐', 'PRODUCT LIST', '展示平台全部在售套餐，支持按商品名称、介绍或标签实时搜索。首页仅展示 4 款精选商品。'],
         product: ['商品详情', 'PRODUCT DETAIL', '套餐就是商品，差异体现在价格、检测维度和报告内容；所有套餐交付同一种采集盒。'],
-        'order-confirm': ['确认订单', 'ORDER CONFIRM', '确认订单统一展示多商品清单、优惠券抵扣与实付金额；支付后按商品拆分订单，加购商品单独标记。'],
+        'order-confirm': ['确认订单', 'ORDER CONFIRM', '确认订单统一展示主商品、加购商品、优惠券抵扣与实付金额；支付后所有商品合并生成一笔新订单。'],
         coupons: ['优惠券', 'COUPONS', '集中展示用户领取的优惠券；在确认订单中进入时，可选择满足当前商品金额门槛的优惠券抵扣。'],
         'pickup-station-picker': ['选择自提站', 'PICKUP STATION', '从确认订单页进入的专用站点选择页面；选择后自动返回原订单并保留商品、数量和履约信息。'],
         orders: ['我的订单', 'ORDER LIST', '按履约方式展示订单状态；快递确认收货、自提核销后才解锁采血权益。'],
@@ -855,7 +859,7 @@
         'after-sale-detail': ['退款详情', 'REFUND DETAIL', '展示平台审核及退款进度；自提退款成功后核销码失效并释放站点锁定库存。'],
         blood: ['我要采血', 'BLOOD SERVICE', '订单权益或一次性套餐卡密均可创建采血单，每份套餐权益对应一张采血单。'],
         'card-activate': ['套餐卡激活', 'CARD ACTIVATE', '线下获得采集盒的用户通过一次性卡号和密码识别检测套餐。'],
-        'blood-create': ['创建采血单', 'BLOOD FORM', '使用订单创建时可切换具体套餐权益；采血单同时记录来源订单、受检人、试管编码和采血方式。'],
+        'blood-create': ['创建采血单', 'BLOOD FORM', '使用订单创建时可切换具体套餐权益；采血单记录来源订单、受检人和采血方式，编号由系统自动生成。'],
         'blood-station-picker': ['选择采血站', 'BLOOD STATION', '从采血单进入的专用合作站点选择页面；支持地图和搜索，选中后返回原采血单并保留填写进度。'],
         'blood-detail': ['采血单详情', 'BLOOD DETAIL', '自行采血的采血单展示样本接收中心寄送地址；样本寄出后进入待出报告节点。'],
         stations: ['服务站点', 'STATIONS', '同一社区合作站可开通健康服务、采血服务或两项服务，列表按服务类型筛选。'],
@@ -869,8 +873,8 @@
         apply: ['合作站申请', 'PARTNER APPLY', '申请人可选填推荐码；申请提交后由平台线下联系核实并创建站点。'],
         work: ['工作人员工作台', 'STAFF WORKSPACE', '工作人员根据手机号授权显示核销或采血功能，并可生成合作站邀请二维码分享给微信好友。'],
         'scan-verify': ['扫码核销', 'PICKUP VERIFY', '小程序工作人员通过二维码核销；数字码核销由社区合作端处理。'],
-        'tube-receive': ['查询采血单', 'TUBE SEARCH', '工作人员可扫描试管标签或手动输入试管编码，查询本站待采血单并核对完整受检人与样本信息。'],
-        'staff-blood-detail': ['核验采血单', 'TUBE VERIFY', '完整展示用户填写的受检人、套餐、试管编码、采血方式和合作站点信息。'],
+        'blood-form-search': ['查询采血单', 'BLOOD FORM SEARCH', '工作人员输入用户出示的采血单编号，查询本站待采血单并核对完整信息。'],
+        'staff-blood-detail': ['核验采血单', 'BLOOD FORM VERIFY', '完整展示采血单编号、受检人、套餐、采血方式和合作站点信息。'],
         'pending-ship': ['登记样本寄出', 'SAMPLE SHIPMENT', '展示本站所有已接收采血单，工作人员可逐单登记寄出；快递公司和物流单号为选填。']
       };
 
@@ -888,7 +892,7 @@
         return state.orders.filter(order => ['已完成','已核销'].includes(order.status)).flatMap(order => orderItems(order).map((item,index) => {
           const id = `${order.id}:${item.product.id}:${index}`;
           const used = state.entitlementUsage[id] || 0;
-          return { id, order, product:item.product, total:item.qty, used, remaining:Math.max(0,item.qty-used), isAddOnOrder:order.isAddOnOrder || item.isAddOn };
+          return { id, order, product:item.product, total:item.qty, used, remaining:Math.max(0,item.qty-used), isAddOn:item.isAddOn };
         }));
       }
       function currentEntitlement() {
@@ -1121,8 +1125,8 @@
         const itemQty = items.reduce((sum, item) => sum + item.qty, 0);
         const action = o.status === '待核销' ? '查看核销码' : o.status === '待收货' ? '查看物流' : '查看订单';
         return `<div class="card order-card">
-          <div class="order-head"><span>${o.type === 'pickup' ? '到站自提' : '快递配送'} · ${o.date}</span><span style="display:flex;align-items:center;gap:5px">${o.isAddOnOrder ? '<span class="badge blue">加购订单</span>' : ''}<span class="badge ${orderStatusClass(o.status)}">${o.status}</span></span></div>
-          <div class="order-product"><div class="order-thumb">AN</div><div><h4>${items[0].product.name}${items.length > 1 ? ` 等 ${items.length} 款` : ''}</h4><p>${o.isAddOnOrder ? `加购优惠商品 · ${itemQty} 份套餐` : `共 ${itemQty} 份套餐`}</p></div><div class="order-price">${money(o.amount)}</div></div>
+          <div class="order-head"><span>${o.type === 'pickup' ? '到站自提' : '快递配送'} · ${o.date}</span><span style="display:flex;align-items:center;gap:5px">${items.some(item => item.isAddOn) ? '<span class="badge blue">含加购商品</span>' : ''}<span class="badge ${orderStatusClass(o.status)}">${o.status}</span></span></div>
+          <div class="order-product"><div class="order-thumb">AN</div><div><h4>${items[0].product.name}${items.length > 1 ? ` 等 ${items.length} 款` : ''}</h4><p>共 ${itemQty} 份套餐</p></div><div class="order-price">${money(o.amount)}</div></div>
           <div class="order-actions">${refund ? `<button class="btn ghost" data-go="after-sale-detail" data-id="${refund.id}">查看退款</button>` : '<button class="btn ghost" data-action="service">联系客服</button>'}<button class="btn secondary" data-go="order-detail" data-id="${o.id}">${action}</button></div>
         </div>`;
       }
@@ -1133,12 +1137,13 @@
         const isPickup = o.type === 'pickup';
         const refund = afterSaleForOrder(o.id);
         const items = orderItems(o);
+        const shipped = Boolean(o.logistics) && o.status !== '待发货';
         const statusCopy = o.status === '退款处理中' ? isPickup ? '退款申请已提交，订单已暂停核销' : '退款申请已提交，平台正在处理中' : o.status === '已退款' ? isPickup ? '退款已原路退回，核销码已失效' : '退款已原路退回' : isPickup && o.status === '待核销' ? '请在站点营业时间内出示核销二维码或数字码' : isPickup ? '该自提订单已完成核销出库' : ['待发货','待收货'].includes(o.status) ? '订单尚未确认收货，可以申请退款' : '订单履约已完成';
         return `<div class="page">
-          <div class="card status-card"><div class="status-card-top"><div><h4>${o.status}</h4><p>${statusCopy}</p></div><span style="display:grid;justify-items:end;gap:5px">${o.isAddOnOrder ? '<span class="badge blue">加购订单</span>' : ''}<span class="badge ${orderStatusClass(o.status)}">${isPickup ? '自提订单' : '快递订单'}</span></span></div></div>
+          <div class="card status-card"><div class="status-card-top"><div><h4>${o.status}</h4><p>${statusCopy}</p></div><span style="display:grid;justify-items:end;gap:5px">${items.some(item => item.isAddOn) ? '<span class="badge blue">含加购商品</span>' : ''}<span class="badge ${orderStatusClass(o.status)}">${isPickup ? '自提订单' : '快递订单'}</span></span></div></div>
           ${isPickup && o.status === '待核销' ? `<div class="card qr-wrap"><div class="qr" data-code="${o.code}"></div><p class="muted" style="font-size:9px">向健康服务站工作人员出示</p><div class="pickup-code">${o.code}<button class="copy-dot" data-action="copy-code" data-value="${o.code}">复</button></div></div>` : ''}
           ${refund ? `<button class="after-sale-entry" data-go="after-sale-detail" data-id="${refund.id}"><span class="menu-icon">退</span><span><strong>${refund.status}</strong><small>售后单 ${refund.id} · 点击查看平台处理进度</small></span><span class="menu-arrow">›</span></button>` : ''}
-          ${!isPickup ? `<div class="card form-card"><div class="form-title"><span class="form-num">物</span>物流信息</div><div class="timeline"><div class="timeline-item ${o.status === '已完成' ? 'done' : 'current'}"><strong>${o.status === '已完成' ? '已签收' : '运输中'}</strong><span>${o.status === '已完成' ? '本人已确认收货' : '广州天河集散中心已发出 · 今天 09:28'}</span></div><div class="timeline-item done"><strong>已揽收</strong><span>${o.logistics || '顺丰速运'}</span></div></div></div>` : ''}
+          ${!isPickup && o.status !== '待付款' ? `<div class="card form-card"><div class="form-title"><span class="form-num">物</span>物流信息</div><div class="info-row"><span>发货状态</span><strong><span class="badge ${shipped ? 'green' : 'orange'}">${shipped ? '已发货' : '未发货'}</span></strong></div>${shipped ? `<div class="timeline"><div class="timeline-item ${o.status === '已完成' ? 'done' : 'current'}"><strong>${o.status === '已完成' ? '已签收' : '运输中'}</strong><span>${o.status === '已完成' ? '本人已确认收货' : '广州天河集散中心已发出 · 今天 09:28'}</span></div><div class="timeline-item done"><strong>已揽收</strong><span>${o.logistics}</span></div></div>` : `<div class="notice"><strong>等待发货</strong>订单已支付，平台正在安排商品出库。</div>`}</div>` : ''}
           <div class="card form-card"><div class="form-title"><span class="form-num">站</span>${isPickup ? '自提信息' : '收货信息'}</div>
             ${isPickup ? `<div class="info-row"><span>自提站</span><strong>${o.station.name}</strong></div><div class="info-row"><span>营业时间</span><strong>${o.station.hours}</strong></div><div class="info-row"><span>地址</span><strong>${o.station.address}</strong></div>` : `<div class="info-row"><span>收货人</span><strong>陈雨桐 · 138****6208</strong></div><div class="info-row"><span>地址</span><strong>广州市天河区体育西路 88 号 1203</strong></div>`}
           </div>
@@ -1157,7 +1162,9 @@
 
       function afterSaleCard(item) {
         const order = state.orders.find(o => o.id === item.orderId);
-        return `<button class="card status-card" style="width:100%;text-align:left;cursor:pointer" data-go="after-sale-detail" data-id="${item.id}"><div class="status-card-top"><div><h4>${item.type}</h4><p>${order.product.name} × ${order.qty}<br>售后单 ${item.id} · ${item.created}</p></div><span class="badge ${item.status === '退款成功' ? 'green' : 'blue'}">${item.status}</span></div><div class="info-row"><span>退款金额</span><strong class="price">${money(item.amount)}</strong></div></button>`;
+        const items = orderItems(order);
+        const itemQty = items.reduce((sum, orderItem) => sum + orderItem.qty, 0);
+        return `<button class="card status-card" style="width:100%;text-align:left;cursor:pointer" data-go="after-sale-detail" data-id="${item.id}"><div class="status-card-top"><div><h4>${item.type}</h4><p>${items[0].product.name}${items.length > 1 ? ` 等 ${items.length} 款` : ''} · 共 ${itemQty} 份<br>售后单 ${item.id} · ${item.created}</p></div><span class="badge ${item.status === '退款成功' ? 'green' : 'blue'}">${item.status}</span></div><div class="info-row"><span>退款金额</span><strong class="price">${money(item.amount)}</strong></div></button>`;
       }
 
       function afterSaleApplyPage() {
@@ -1165,7 +1172,8 @@
         if (!order) return `<div class="page"><div class="empty"><div class="empty-icon">退</div><h3>暂无可退款订单</h3><p>快递订单确认收货前、自提订单核销前可以提交退款申请。</p><button class="btn primary" data-go="orders">返回订单</button></div></div>`;
         const isPickup = order.type === 'pickup';
         const applyType = isPickup ? '取消订单并退款' : '未收货退款';
-        return `<div class="page"><div class="card form-card"><div class="form-title"><span class="form-num">商</span>退款商品</div><div class="order-product"><div class="order-thumb">AN</div><div><h4>${order.product.name}</h4><p>通用采集盒 × ${order.qty}<br>${isPickup ? '到站自提' : '快递配送'} · 订单 ${order.id}</p></div><div class="order-price">${money(order.amount)}</div></div></div><div class="card form-card"><div class="form-title"><span class="form-num">退</span>申请信息</div><div class="choice-row"><button class="choice-card active"><strong>${applyType}</strong><small>${isPickup ? '尚未核销，无需退回商品' : '尚未确认收货，申请退款'}</small></button><button class="choice-card" disabled><strong>退货退款</strong><small>${isPickup ? '自提商品尚未出库' : '确认收货后不可申请'}</small></button></div><label class="field"><span>申请原因 *</span><select id="refundReason">${isPickup ? '<option>行程变化，无法到站自提</option>' : '<option>配送时间不合适</option><option>包裹长时间未送达</option>'}<option>购买计划有变</option><option>选错套餐</option><option>其他原因</option></select></label><label class="field"><span>补充说明</span><textarea id="refundDescription" placeholder="请补充说明退款原因">${isPickup ? '近期无法前往原自提站领取，希望取消订单。' : '包裹尚未确认收货，希望申请退款。'}</textarea></label><button class="upload-box" data-action="upload-proof"><strong>＋ 添加凭证</strong><span>选填，最多上传 3 张图片</span></button><label class="field"><span>联系电话 *</span><input id="refundPhone" value="13800136208"></label></div><div class="card form-card"><div class="form-title"><span class="form-num">款</span>退款信息</div><div class="refund-amount"><span>预计退款金额</span><strong>${money(order.amount)}</strong></div><div class="info-row"><span>退款方式</span><strong>原支付渠道退回</strong></div><div class="info-row"><span>处理方</span><strong>平台</strong></div></div><div class="notice red"><strong>提交后的订单状态</strong>${isPickup ? '退款申请提交后将立即暂停核销。平台审核通过并完成退款后，核销二维码和数字码失效，同时释放站点锁定库存。' : '退款申请提交后订单将进入售后处理中。平台会根据当前物流状态审核，请在处理完成前暂勿确认收货。'}</div><div class="fixed-actions"><button class="btn ghost" data-action="service">联系客服</button><button class="btn danger" data-action="submit-after-sale" data-id="${order.id}">提交退款申请</button></div></div>`;
+        const items = orderItems(order);
+        return `<div class="page"><div class="card form-card cart-list"><div class="form-title"><span class="form-num">商</span>退款商品</div>${items.map(item => `<div class="order-product"><div class="order-thumb">AN</div><div><h4>${item.product.name}</h4><p>${item.isAddOn ? '加购商品' : '检测套餐'} × ${item.qty}</p></div><div class="order-price">${money(item.unitPrice * item.qty)}</div></div>`).join('')}<div class="info-row"><span>${isPickup ? '到站自提' : '快递配送'}</span><strong>订单 ${order.id}</strong></div></div><div class="card form-card"><div class="form-title"><span class="form-num">退</span>申请信息</div><div class="choice-row"><button class="choice-card active"><strong>${applyType}</strong><small>${isPickup ? '尚未核销，无需退回商品' : '尚未确认收货，申请退款'}</small></button><button class="choice-card" disabled><strong>退货退款</strong><small>${isPickup ? '自提商品尚未出库' : '确认收货后不可申请'}</small></button></div><label class="field"><span>申请原因 *</span><select id="refundReason">${isPickup ? '<option>行程变化，无法到站自提</option>' : '<option>配送时间不合适</option><option>包裹长时间未送达</option>'}<option>购买计划有变</option><option>选错套餐</option><option>其他原因</option></select></label><label class="field"><span>补充说明</span><textarea id="refundDescription" placeholder="请补充说明退款原因">${isPickup ? '近期无法前往原自提站领取，希望取消订单。' : '包裹尚未确认收货，希望申请退款。'}</textarea></label><button class="upload-box" data-action="upload-proof"><strong>＋ 添加凭证</strong><span>选填，最多上传 3 张图片</span></button><label class="field"><span>联系电话 *</span><input id="refundPhone" value="13800136208"></label></div><div class="card form-card"><div class="form-title"><span class="form-num">款</span>退款信息</div><div class="refund-amount"><span>预计退款金额</span><strong>${money(order.amount)}</strong></div><div class="info-row"><span>退款方式</span><strong>原支付渠道退回</strong></div><div class="info-row"><span>处理方</span><strong>平台</strong></div><div class="info-row"><span>退货地址</span><strong>广东省广州市黄埔区科学大道 18 号<br>安派科退货中心</strong></div><div class="info-row"><span>联系电话</span><strong>020-8888 6028</strong></div></div><div class="notice red"><strong>提交后的订单状态</strong>${isPickup ? '退款申请提交后将立即暂停核销。平台审核通过并完成退款后，核销二维码和数字码失效，同时释放站点锁定库存。' : '退款申请提交后订单将进入售后处理中。平台会根据当前物流状态审核，请在处理完成前暂勿确认收货。'}</div><div class="fixed-actions"><button class="btn ghost" data-action="service">联系客服</button><button class="btn danger" data-action="submit-after-sale" data-id="${order.id}">提交退款申请</button></div></div>`;
       }
 
       function afterSaleDetailPage() {
@@ -1189,7 +1197,7 @@
           <div class="entitlement card"><h4>使用线下套餐卡</h4><p>输入随采集盒获得的一次性卡号和密码，识别检测套餐。</p><button class="btn secondary" data-go="card-activate">输入卡密</button></div>
           <div class="section-head"><div><h3>我的采血单</h3><p>查看样本流转与报告进度</p></div></div>
           <div class="tabs-scroll">${filters.map(f => `<button class="filter-chip ${state.bloodFilter === f[0] ? 'active' : ''}" data-action="blood-filter" data-value="${f[0]}">${f[1]}</button>`).join('')}</div>
-          ${list.map(b => `<button class="card status-card" style="width:100%;text-align:left;cursor:pointer" data-go="blood-detail" data-id="${b.id}"><div class="status-card-top"><div><h4>${b.person} · ${b.product.name}</h4><p>试管编码 ${b.tube}<br>${b.mode === 'station' ? '合作站点采血' : '自行采血'} · ${b.date}</p></div><span class="badge ${b.status === '报告完成' ? 'green' : b.status === '样本异常' ? 'red' : b.status === '待采血' ? 'orange' : 'blue'}">${b.status}</span></div></button>`).join('')}
+          ${list.map(b => `<button class="card status-card" style="width:100%;text-align:left;cursor:pointer" data-go="blood-detail" data-id="${b.id}"><div class="status-card-top"><div><h4>${b.person} · ${b.product.name}</h4><p>${b.mode === 'station' ? '合作站点采血' : '自行采血'} · ${b.date}</p><span class="blood-form-no"><span>采血单编号</span><strong>${b.id}</strong></span></div><span class="badge ${b.status === '报告完成' ? 'green' : b.status === '样本异常' ? 'red' : b.status === '待采血' ? 'orange' : 'blue'}">${b.status}</span></div></button>`).join('')}
         </div>`;
       }
 
@@ -1209,7 +1217,7 @@
         return `<div class="page">
           <div class="steps">${[['受检人',1],['样本信息',2],['采血方式',3]].map(([n,i]) => `<div class="step ${step === i ? 'active' : step > i ? 'done' : ''}"><div class="step-dot">${step > i ? '✓' : i}</div><span>${n}</span></div>`).join('')}</div>
           ${step === 1 ? `<div class="card form-card"><div class="form-title"><span class="form-num">1</span>填写受检人信息</div><button class="person-picker" data-action="choose-examinee"><span class="person-avatar">${person.name.slice(0,1)}</span><span><strong>${person.name} · ${person.relation}</strong><small>从受检人列表选择，自动带入已保存资料</small></span><span class="menu-arrow">切换 ›</span></button><label class="field"><span>姓名 *</span><input value="${person.name}" placeholder="请输入真实姓名"></label><div class="inline-fields"><label class="field"><span>性别 *</span><select><option ${person.gender === '女' ? 'selected' : ''}>女</option><option ${person.gender === '男' ? 'selected' : ''}>男</option></select></label><label class="field"><span>出生日期 *</span><input type="date" value="${person.birthday}"></label></div><label class="field"><span>身份证号 *</span><input value="${person.idCard}" placeholder="请输入身份证号"></label><label class="field"><span>联系电话 *</span><input value="${person.phone}" placeholder="请输入手机号"></label><div class="notice green">已从“受检人管理”带入资料，当前采血单内仍可单独修改，不会覆盖已保存信息。</div></div>` : ''}
-          ${step === 2 ? `<div class="card form-card"><div class="form-title"><span class="form-num">2</span>确认套餐与试管</div>${state.bloodSource === 'order' && entitlement ? `<button class="menu-item" data-action="choose-order-entitlement"><span class="menu-icon">套</span><span><strong>${selectedProduct.name}</strong><br><small class="muted">来源订单 ${entitlement.order.id}${entitlement.isAddOnOrder ? ' · 加购订单' : ''} · 剩余 ${entitlement.remaining} 份</small></span><span class="menu-arrow">更换 ›</span></button>` : `<div class="info-row"><span>检测套餐</span><strong>${selectedProduct.name}</strong></div><div class="info-row"><span>套餐来源</span><strong>${state.bloodSource === 'card' ? '线下套餐卡' : '原采血单'}</strong></div>`}<label class="field"><span>试管编码 *</span><input id="tubeCode" value="T202608240188" placeholder="扫描或输入采集盒上的编码"></label><button class="btn secondary full" data-action="scan-tube">模拟扫码录入</button><div class="notice"><strong>编码规则</strong>平台仅记录试管编码，不校验编码来源，也不拦截重复编码。</div></div>` : ''}
+          ${step === 2 ? `<div class="card form-card"><div class="form-title"><span class="form-num">2</span>确认套餐信息</div>${state.bloodSource === 'order' && entitlement ? `<button class="menu-item" data-action="choose-order-entitlement"><span class="menu-icon">套</span><span><strong>${selectedProduct.name}</strong><br><small class="muted">来源订单 ${entitlement.order.id}${entitlement.isAddOn ? ' · 加购商品' : ''} · 剩余 ${entitlement.remaining} 份</small></span><span class="menu-arrow">更换 ›</span></button>` : `<div class="info-row"><span>检测套餐</span><strong>${selectedProduct.name}</strong></div><div class="info-row"><span>套餐来源</span><strong>${state.bloodSource === 'card' ? '线下套餐卡' : '原采血单'}</strong></div>`}<div class="notice green"><strong>采血单编号</strong>提交后由系统自动生成，无需填写。线下采血时，请向工作人员出示采血单编号。</div></div>` : ''}
           ${step === 3 ? `<div class="card form-card"><div class="form-title"><span class="form-num">3</span>选择采血方式</div><div class="choice-row"><button class="choice-card ${state.collectionMode === 'station' ? 'active' : ''}" data-action="collection-mode" data-value="station"><strong>合作站点采血</strong><small>绑定服务点，营业时间内直接到站</small></button><button class="choice-card ${state.collectionMode === 'self' ? 'active' : ''}" data-action="collection-mode" data-value="self"><strong>自行采血</strong><small>按冷链要求自行寄送样本</small></button></div>
             ${state.collectionMode === 'station' ? `<button class="menu-item mt-12" data-action="choose-blood-station"><span class="menu-icon">站</span><span><strong>${bloodStation.name}</strong><br><small class="muted">${bloodStation.distance} · ${bloodStation.hours}</small></span><span class="menu-arrow">更换 ›</span></button><div class="notice green">无需预约日期和时间段，选择后会返回当前采血单，请在营业时间内携带采集盒到站。</div>` : `<div class="notice"><strong>冷链寄送提醒</strong>请按采集说明完成采血并使用符合要求的冷链包装。寄出后必须填写物流单号并确认“已寄出”。</div>`}
           </div>` : ''}
@@ -1223,9 +1231,10 @@
         const steps = b.mode === 'self' ? ['待采血','已寄出','待出报告','报告完成'] : ['待采血','已接收','已寄出','待出报告','报告完成'];
         const statusCopy = b.status === '待采血' ? b.mode === 'station' ? '请携带采集盒前往已绑定的采血服务点' : '请完成自行采血，按冷链要求寄出后登记物流信息' : b.status === '已寄出' ? '样本已寄往实验室，请耐心等待检测' : b.status === '样本异常' ? '实验室已标记样本异常，请联系客服了解后续处理' : '当前流程状态已同步';
         return `<div class="page"><div class="card status-card"><div class="status-card-top"><div><h4>${b.status}</h4><p>${statusCopy}</p></div><span class="badge ${b.status === '样本异常' ? 'red' : 'blue'}">${b.mode === 'station' ? '站点采血' : '自行采血'}</span></div></div>
+          <div class="card blood-id-card"><span>${b.mode === 'self' ? '请将采血单编号和受检人信息准确填写在用户信息表卡片中' : '线下采血请向工作人员出示'}</span><strong>${b.id}</strong><button class="btn secondary" data-action="copy-blood-form-id" data-value="${b.id}">复制采血单编号</button></div>
           <div class="card form-card"><div class="form-title"><span class="form-num">进</span>样本进度</div><div class="timeline">${steps.map((s,i) => `<div class="timeline-item ${i + 1 < b.current ? 'done' : i + 1 === b.current ? `current${b.status === '样本异常' ? ' abnormal' : ''}` : ''}"><strong>${s}</strong><span>${i + 1 < b.current ? '已完成' : i + 1 === b.current ? b.status === '样本异常' ? '标记样本异常' : '当前状态' : '等待处理'}</span></div>`).join('')}</div></div>
-          <div class="card form-card"><div class="form-title"><span class="form-num">单</span>采血单信息</div><div class="info-row"><span>受检人</span><strong>${b.person}</strong></div><div class="info-row"><span>套餐</span><strong>${b.product.name}</strong></div>${b.sourceOrderId ? `<div class="info-row"><span>来源订单</span><strong>${b.sourceOrderId}</strong></div>` : ''}<div class="info-row"><span>试管编码</span><strong>${b.tube}</strong></div><div class="info-row"><span>采血方式</span><strong>${b.mode === 'station' ? '合作站点采血' : '自行采血'}</strong></div>${b.station ? `<div class="info-row"><span>采血服务点</span><strong>${b.station.name}</strong></div>` : ''}${b.logistics ? `<div class="info-row"><span>寄送物流</span><strong>${b.logistics}</strong></div>` : ''}</div>
-          ${b.mode === 'self' ? `<div class="card form-card"><div class="form-title"><span class="form-num">寄</span>样本寄送地址</div><div class="info-row"><span>联系电话</span><strong>020-8888 6028</strong></div><div class="info-row"><span>寄送地址</span><strong>广东省广州市黄埔区科学大道 18 号<br>安派科样本接收中心</strong></div><div class="notice green"><strong>寄件提醒</strong>请使用符合要求的冷链包装，并在外包装注明采血单号和试管编码。</div><button class="btn secondary full" data-action="copy-sample-address">复制寄送信息</button></div>` : ''}
+          <div class="card form-card"><div class="form-title"><span class="form-num">单</span>采血单信息</div><div class="info-row"><span>采血单编号</span><strong>${b.id}</strong></div><div class="info-row"><span>受检人</span><strong>${b.person}</strong></div><div class="info-row"><span>套餐</span><strong>${b.product.name}</strong></div>${b.sourceOrderId ? `<div class="info-row"><span>来源订单</span><strong>${b.sourceOrderId}</strong></div>` : ''}<div class="info-row"><span>采血方式</span><strong>${b.mode === 'station' ? '合作站点采血' : '自行采血'}</strong></div>${b.station ? `<div class="info-row"><span>采血服务点</span><strong>${b.station.name}</strong></div>` : ''}${b.logistics ? `<div class="info-row"><span>寄送物流</span><strong>${b.logistics}</strong></div>` : ''}</div>
+          ${b.mode === 'self' ? `<div class="card form-card"><div class="form-title"><span class="form-num">寄</span>样本寄送地址</div><div class="info-row"><span>联系电话</span><strong>020-8888 6028</strong></div><div class="info-row"><span>寄送地址</span><strong>广东省广州市黄埔区科学大道 18 号<br>安派科样本接收中心</strong></div><div class="notice green"><strong>寄件提醒</strong>请使用符合要求的冷链包装，并在外包装注明采血单编号。</div><button class="btn secondary full" data-action="copy-sample-address">复制寄送信息</button></div>` : ''}
           ${b.status === '待采血' ? b.mode === 'self' ? `<div class="notice"><strong>自行寄送要求</strong>样本必须按冷链要求寄送，并填写物流单号后才能更新为“已寄出”。</div><div class="fixed-actions"><button class="btn secondary" data-action="edit-blood" data-id="${b.id}">修改信息</button><button class="btn primary" data-action="self-ship" data-id="${b.id}">登记寄出</button></div>` : `<div class="fixed-actions"><button class="btn secondary" data-action="edit-blood" data-id="${b.id}">修改信息</button><button class="btn primary" data-go="station-detail" data-id="${b.station?.id || ''}">查看采血站</button></div>` : b.status === '样本异常' ? `<div class="notice red"><strong>样本异常说明</strong>${b.abnormalReason}<br>标记时间：${b.abnormalAt}</div><div class="fixed-actions"><button class="btn primary full" data-action="service">联系客服</button></div>` : b.status === '报告完成' ? `<div class="fixed-actions"><button class="btn primary" data-go="report-query">查询报告</button></div>` : ''}
         </div>`;
       }
@@ -1267,14 +1276,14 @@
         const list = reports.filter(r => r.person === person.name);
         const maskedPhone = person.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
         return `<div class="page"><div class="card status-card"><div class="status-card-top"><div><h4>${person.name}的检测报告</h4><p>已通过手机号 ${maskedPhone} 身份验证</p></div><span class="badge green">${list.length} 份</span></div></div>
-          ${list.length ? list.map(r => `<button class="card report-card" style="width:100%;text-align:left" data-go="report-detail" data-id="${r.id}"><span class="report-card-head"><span class="report-main"><span class="report-file">PDF</span><span><h4>${r.product.name}</h4><p>报告日期 ${r.date}<br>试管编码 ${r.sample}</p></span></span><span>›</span></span></button>`).join('') : '<div class="empty"><div class="empty-icon">报</div><h3>暂无检测报告</h3><p>该受检人目前没有可查看的检测报告。</p></div>'}
-          <div class="notice green">列表展示该受检人的全部历史报告，不需要再次输入试管编码。</div>
+          ${list.length ? list.map(r => `<button class="card report-card" style="width:100%;text-align:left" data-go="report-detail" data-id="${r.id}"><span class="report-card-head"><span class="report-main"><span class="report-file">PDF</span><span><h4>${r.product.name}</h4><p>报告日期 ${r.date}<br>采血单编号 ${r.bloodFormId}</p></span></span><span>›</span></span></button>`).join('') : '<div class="empty"><div class="empty-icon">报</div><h3>暂无检测报告</h3><p>该受检人目前没有可查看的检测报告。</p></div>'}
+          <div class="notice green">列表展示该受检人的全部历史报告，可通过采血单编号核对报告来源。</div>
         </div>`;
       }
 
       function reportDetailPage() {
         const r = reports.find(x => x.id === state.params.id) || reports[0];
-        return `<div class="page edge"><div class="pdf-preview"><div class="pdf-sheet"><div class="pdf-logo">ANPK</div><h2>健康检测报告</h2><div class="pdf-no">报告编号 ${r.id}</div><div class="pdf-table"><div class="pdf-row"><span>受检人</span><span>${r.person}</span></div><div class="pdf-row"><span>检测套餐</span><span>${r.product.name}</span></div><div class="pdf-row"><span>试管编码</span><span>${r.sample}</span></div><div class="pdf-row"><span>报告日期</span><span>${r.date}</span></div></div><div class="pdf-chart"><i style="height:36px"></i><i style="height:58px"></i><i style="height:44px"></i><i style="height:69px"></i><i style="height:51px"></i><i style="height:63px"></i></div><p style="font-size:7px;line-height:1.7;color:#718481">本页面为报告 PDF 的原型预览。实际报告内容由数据中心线下生成并上传，仅供健康管理参考。</p></div></div><div class="fixed-actions"><button class="btn secondary" data-action="share-report">发送给家人</button><button class="btn primary" data-action="download-report">下载 PDF</button></div></div>`;
+        return `<div class="page edge"><div class="pdf-preview"><div class="pdf-sheet"><div class="pdf-logo">ANPK</div><h2>健康检测报告</h2><div class="pdf-no">报告编号 ${r.id}</div><div class="pdf-table"><div class="pdf-row"><span>受检人</span><span>${r.person}</span></div><div class="pdf-row"><span>检测套餐</span><span>${r.product.name}</span></div><div class="pdf-row"><span>采血单编号</span><span>${r.bloodFormId}</span></div><div class="pdf-row"><span>报告日期</span><span>${r.date}</span></div></div><div class="pdf-chart"><i style="height:36px"></i><i style="height:58px"></i><i style="height:44px"></i><i style="height:69px"></i><i style="height:51px"></i><i style="height:63px"></i></div><p style="font-size:7px;line-height:1.7;color:#718481">本页面为报告 PDF 的原型预览。实际报告内容由数据中心线下生成并上传，仅供健康管理参考。</p></div></div><div class="fixed-actions"><button class="btn secondary" data-action="share-report">发送给家人</button><button class="btn primary" data-action="download-report">下载 PDF</button></div></div>`;
       }
 
       function profilePage() {
@@ -1323,16 +1332,16 @@
       }
 
       function applyPage() {
-        return `<div class="page"><div class="card form-card"><div class="form-title"><span class="form-num">1</span>申请人信息</div><label class="field"><span>联系人 *</span><input value="陈雨桐"></label><label class="field"><span>联系电话 *</span><input value="13800136208"></label><label class="field"><span>推荐码（选填）</span><input placeholder="请输入合作站推荐码"></label><label class="field"><span>意向城市 *</span><select><option>广东省 · 广州市</option></select></label></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>合作意向</div><div class="choice-row"><button class="choice-card active"><strong>健康服务</strong><small>承接到站自提订单</small></button><button class="choice-card active"><strong>采血服务</strong><small>提供合作采血服务</small></button></div><label class="field"><span>拟设站点地址 *</span><input value="广州市天河区体育西路 128 号"></label><label class="field"><span>补充说明</span><textarea>已有社区健康服务场地，希望同时申请健康服务与采血服务。</textarea></label></div><button class="btn primary full" data-action="submit-apply">提交合作申请</button></div>`;
+        return `<div class="page"><div class="card form-card"><div class="form-title"><span class="form-num">1</span>申请人信息</div><label class="field"><span>联系人 *</span><input value="陈雨桐"></label><label class="field"><span>联系电话 *</span><input value="13800136208"></label><label class="field"><span>推荐码（选填）</span><input placeholder="请输入合作站推荐码"></label><div class="inline-fields"><label class="field"><span>省级 *</span><select id="applyProvince"><option value="广东省">广东省</option><option value="浙江省">浙江省</option><option value="江苏省">江苏省</option><option value="四川省">四川省</option></select></label><label class="field"><span>城市 *</span><select id="applyCity"><option>广州市</option><option>深圳市</option><option>佛山市</option><option>东莞市</option></select></label></div></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>合作意向</div><div class="choice-row"><button class="choice-card active"><strong>健康服务</strong><small>承接到站自提订单</small></button><button class="choice-card active"><strong>采血服务</strong><small>提供合作采血服务</small></button></div><label class="field"><span>拟设站点地址 *</span><input value="广州市天河区体育西路 128 号"></label><label class="field"><span>补充说明</span><textarea>已有社区健康服务场地，希望同时申请健康服务与采血服务。</textarea></label></div><button class="btn primary full" data-action="submit-apply">提交合作申请</button></div>`;
       }
 
       function workPage() {
         if (!isStaff()) return `<div class="page"><div class="empty"><div class="empty-icon">锁</div><h3>尚未获得工作人员权限</h3><p>社区合作站管理员需要通过您的注册手机号添加授权。</p><button class="btn secondary" data-action="demo-staff">切换为演示工作人员</button></div></div>`;
         return `<div class="page"><div class="work-hero"><span class="role-chip">${roleName(state.role)}</span><h2>天河悦康社区合作站</h2><p>今日营业 · 09:00–20:00</p></div><div class="metric-grid"><div class="metric card"><strong>${canPickup() ? '8' : '—'}</strong><span>今日核销</span></div><div class="metric card"><strong>${canBlood() ? state.bloodForms.filter(x => x.mode === 'station' && x.status === '待采血').length : '—'}</strong><span>待采血</span></div><div class="metric card"><strong>${canBlood() ? state.bloodForms.filter(x => x.mode === 'station' && x.status === '已接收').length : '—'}</strong><span>待寄出</span></div></div>
           ${canPickup() ? `<button class="work-action" data-go="scan-verify"><span class="work-action-icon">扫</span><span><h4>扫描自提核销码</h4><p>核验订单并完成采集盒出库</p></span><span>›</span></button>` : ''}
-          ${canBlood() ? `<button class="work-action orange" data-go="tube-receive"><span class="work-action-icon">管</span><span><h4>接收采血单</h4><p>输入试管编码，核验并接收采血单</p></span><span>›</span></button><button class="work-action" data-go="pending-ship"><span class="work-action-icon">寄</span><span><h4>登记样本寄出</h4><p>查看已接收采血单并登记寄送信息</p></span><span>›</span></button>` : ''}
+          ${canBlood() ? `<button class="work-action orange" data-go="blood-form-search"><span class="work-action-icon">单</span><span><h4>接收采血单</h4><p>输入采血单编号，核验并接收采血单</p></span><span>›</span></button><button class="work-action" data-go="pending-ship"><span class="work-action-icon">寄</span><span><h4>登记样本寄出</h4><p>查看已接收采血单并登记寄送信息</p></span><span>›</span></button>` : ''}
           <button class="work-action" data-action="station-invite"><span class="work-action-icon">邀</span><span><h4>合作站邀请码</h4><p>生成邀请二维码，分享给微信好友</p></span><span>›</span></button>
-          <div class="section-head"><div><h3>最近操作</h3><p>历史记录永久保留操作账号</p></div></div><div class="card form-card"><div class="info-row"><span>14:32</span><strong>${canPickup() ? '核销订单 A202608240012' : '接收试管 T202608240166'}</strong></div><div class="info-row"><span>11:08</span><strong>${canBlood() ? '样本已寄出 T202608230098' : '核销订单 A202608230081'}</strong></div></div>
+<div class="section-head"><div><h3>最近操作</h3><p>历史记录永久保留操作账号</p></div></div><div class="card form-card"><div class="info-row"><span>14:32</span><strong>${canPickup() ? '核销订单 A202608240012' : '接收采血单 BC20260824077'}</strong></div><div class="info-row"><span>11:08</span><strong>${canBlood() ? '样本已寄出 BC20260818031' : '核销订单 A202608230081'}</strong></div><div class="info-row"><span>10:26</span><strong>${canBlood() ? '接收采血单 BC20260825011' : '核销订单 A202608220064'}</strong></div></div>
         </div>`;
       }
 
@@ -1340,8 +1349,8 @@
         return `<div class="page"><div class="scan-box"><div class="scan-frame"></div><div class="scan-label">将用户核销二维码放入框内</div></div><button class="btn primary full" data-action="simulate-scan">模拟识别二维码</button><div class="notice red"><strong>核销规则</strong>一笔订单必须一次性整单核销。核销成功后全部商品出库，用户不能再发起售后。</div><div class="card form-card"><div class="form-title"><span class="form-num">规</span>核销校验</div><div class="info-row"><span>订单状态</span><strong>必须为待核销</strong></div><div class="info-row"><span>订单归属</span><strong>必须为本站</strong></div><div class="info-row"><span>退款状态</span><strong>无退款处理中</strong></div></div></div>`;
       }
 
-      function tubeReceivePage() {
-        return `<div class="page"><div class="verify-hero"><div class="verify-icon" style="background:linear-gradient(145deg,#e47836,#f3a567)">管</div><h2>查询采血单</h2><p>可以扫描试管标签，也可以手动输入编码；仅可调取已绑定至本站且处于“待采血”的采血单。</p></div><div class="card form-card"><label class="field"><span>试管编码</span><input id="staffTube" value="T202608220025" placeholder="扫描或输入试管编码"></label><div class="order-actions"><button class="btn secondary" data-action="scan-staff-tube">扫描试管编码</button><button class="btn primary" data-action="search-tube">查询采血单</button></div></div><div class="notice green"><strong>合作站点流程</strong>待采血 → 已接收 → 已寄出。快递公司和物流单号为选填项。</div></div>`;
+      function bloodFormSearchPage() {
+        return `<div class="page"><div class="verify-hero"><div class="verify-icon" style="background:linear-gradient(145deg,#e47836,#f3a567)">单</div><h2>查询采血单</h2><p>请输入用户出示的采血单编号，仅可调取已绑定至本站且处于“待采血”的采血单。</p></div><div class="card form-card"><label class="field"><span>采血单编号</span><input id="staffBloodFormNo" value="BC20260822016" placeholder="请输入采血单编号"></label><button class="btn primary full" data-action="search-blood-form">查询采血单</button></div><div class="notice green"><strong>合作站点流程</strong>待采血 → 已接收 → 已寄出。快递公司和物流单号为选填项。</div></div>`;
       }
 
       function staffExamineeForBloodForm(form) {
@@ -1350,15 +1359,15 @@
 
       function staffBloodDetailPage() {
         const form = state.bloodForms.find(item => item.id === state.params.id) || state.bloodForms.find(item => item.mode === 'station' && item.status === '待采血' && item.station?.id === stations[0].id);
-        if (!form) return `<div class="page"><div class="empty"><div class="empty-icon">管</div><h3>未找到采血单</h3><p>请返回后重新输入试管编码查询。</p><button class="btn primary" data-go="tube-receive">重新查询</button></div></div>`;
+        if (!form) return `<div class="page"><div class="empty"><div class="empty-icon">单</div><h3>未找到采血单</h3><p>请返回后重新输入采血单编号查询。</p><button class="btn primary" data-go="blood-form-search">重新查询</button></div></div>`;
         const person = staffExamineeForBloodForm(form);
         const canReceive = form.status === '待采血' && form.mode === 'station' && form.station?.id === stations[0].id;
-        return `<div class="page"><div class="card status-card"><div class="status-card-top"><div><h4>${form.status}</h4><p>采血单 ${form.id}<br>创建日期 ${form.date}</p></div><span class="badge ${canReceive ? 'orange' : form.status === '已接收' ? 'blue' : 'green'}">${canReceive ? '等待本站接收' : '已完成核验'}</span></div></div><div class="card form-card"><div class="form-title"><span class="form-num">1</span>受检人信息</div><div class="info-row"><span>姓名</span><strong>${person.name}</strong></div><div class="info-row"><span>性别</span><strong>${person.gender}</strong></div><div class="info-row"><span>出生日期</span><strong>${person.birthday}</strong></div><div class="info-row"><span>身份证号</span><strong>${person.idCard}</strong></div><div class="info-row"><span>联系电话</span><strong>${person.phone}</strong></div></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>套餐与样本信息</div><div class="info-row"><span>检测套餐</span><strong>${form.product.name}</strong></div><div class="info-row"><span>试管编码</span><strong>${form.tube}</strong></div></div><div class="card form-card"><div class="form-title"><span class="form-num">3</span>采血方式</div><div class="info-row"><span>采血方式</span><strong>${form.mode === 'station' ? '合作站点采血' : '自行采血'}</strong></div><div class="info-row"><span>采血服务点</span><strong>${form.station?.name || '未选择'}</strong></div></div>${canReceive ? '<div class="notice green"><strong>接收前核对</strong>请确认受检人、套餐、试管编码和采血服务点信息与现场一致，接收后采血单将进入“已接收”。</div>' : ''}<div class="fixed-actions"><button class="btn ghost" data-action="back">返回</button>${canReceive ? `<button class="btn orange" data-action="confirm-receive-tube" data-id="${form.id}">确认接收</button>` : ''}</div></div>`;
+        return `<div class="page"><div class="card blood-id-card"><span>当前核验采血单编号</span><strong>${form.id}</strong></div><div class="card status-card"><div class="status-card-top"><div><h4>${form.status}</h4><p>创建日期 ${form.date}</p></div><span class="badge ${canReceive ? 'orange' : form.status === '已接收' ? 'blue' : 'green'}">${canReceive ? '等待本站接收' : '已完成核验'}</span></div></div><div class="card form-card"><div class="form-title"><span class="form-num">1</span>受检人信息</div><div class="info-row"><span>姓名</span><strong>${person.name}</strong></div><div class="info-row"><span>性别</span><strong>${person.gender}</strong></div><div class="info-row"><span>出生日期</span><strong>${person.birthday}</strong></div><div class="info-row"><span>身份证号</span><strong>${person.idCard}</strong></div><div class="info-row"><span>联系电话</span><strong>${person.phone}</strong></div></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>套餐信息</div><div class="info-row"><span>检测套餐</span><strong>${form.product.name}</strong></div><div class="info-row"><span>采血单编号</span><strong>${form.id}</strong></div></div><div class="card form-card"><div class="form-title"><span class="form-num">3</span>采血方式</div><div class="info-row"><span>采血方式</span><strong>${form.mode === 'station' ? '合作站点采血' : '自行采血'}</strong></div><div class="info-row"><span>采血服务点</span><strong>${form.station?.name || '未选择'}</strong></div></div>${canReceive ? '<div class="notice green"><strong>接收前核对</strong>请确认采血单编号、受检人、套餐和采血服务点信息与现场一致，接收后采血单将进入“已接收”。</div>' : ''}<div class="fixed-actions"><button class="btn ghost" data-action="back">返回</button>${canReceive ? `<button class="btn orange" data-action="confirm-receive-blood-form" data-id="${form.id}">确认接收</button>` : ''}</div></div>`;
       }
 
       function pendingShipPage() {
         const list = state.bloodForms.filter(item => item.mode === 'station' && item.status === '已接收' && item.station?.id === stations[0].id);
-        return `<div class="page"><div class="notice green"><strong>待寄出样本</strong>以下采血单已由本站接收。完成线下采血和样本封装后，可逐单登记寄出；快递公司和物流单号为选填。</div><div class="section-head"><div><h3>已接收采血单</h3><p>共 ${list.length} 张 · 按接收时间倒序</p></div></div>${list.length ? list.map(form => `<div class="card status-card"><div class="status-card-top"><div><h4>${form.person} · ${form.product.name}</h4><p>试管编码 ${form.tube}<br>接收时间 ${form.receivedAt || '刚刚'}</p></div><span class="badge blue">已接收</span></div><div class="info-row"><span>采血服务点</span><strong>${form.station.name}</strong></div><div class="order-actions"><button class="btn ghost" data-go="staff-blood-detail" data-id="${form.id}">查看详情</button><button class="btn primary" data-action="ship-sample" data-id="${form.id}">登记寄出</button></div></div>`).join('') : '<div class="empty"><div class="empty-icon">寄</div><h3>暂无待寄出样本</h3><p>已接收的采血单会显示在这里。</p><button class="btn secondary" data-go="tube-receive">查询采血单</button></div>'}</div>`;
+        return `<div class="page"><div class="notice green"><strong>待寄出样本</strong>以下采血单已由本站接收。完成线下采血和样本封装后，可逐单登记寄出；快递公司和物流单号为选填。</div><div class="section-head"><div><h3>已接收采血单</h3><p>共 ${list.length} 张 · 按接收时间倒序</p></div></div>${list.length ? list.map(form => `<div class="card status-card"><div class="status-card-top"><div><h4>${form.person} · ${form.product.name}</h4><p>采血单编号 ${form.id}<br>接收时间 ${form.receivedAt || '刚刚'}</p></div><span class="badge blue">已接收</span></div><div class="info-row"><span>采血服务点</span><strong>${form.station.name}</strong></div><div class="order-actions"><button class="btn ghost" data-go="staff-blood-detail" data-id="${form.id}">查看详情</button><button class="btn primary" data-action="ship-sample" data-id="${form.id}">登记寄出</button></div></div>`).join('') : '<div class="empty"><div class="empty-icon">寄</div><h3>暂无待寄出样本</h3><p>已接收的采血单会显示在这里。</p><button class="btn secondary" data-go="blood-form-search">查询采血单</button></div>'}</div>`;
       }
 
       function renderPage() {
@@ -1368,7 +1377,7 @@
           'blood-create': bloodCreatePage, 'blood-station-picker': bloodStationPickerPage, 'blood-detail': bloodDetailPage, stations: stationsPage,
           'station-detail': stationDetailPage, 'report-query': reportQueryPage, 'report-list': reportListPage,
           'report-detail': reportDetailPage, profile: profilePage, examinees: examineesPage, coupons: couponsPage, addresses: addressesPage, apply: applyPage,
-          work: workPage, 'scan-verify': scanVerifyPage, 'tube-receive': tubeReceivePage, 'staff-blood-detail': staffBloodDetailPage, 'pending-ship': pendingShipPage
+          work: workPage, 'scan-verify': scanVerifyPage, 'blood-form-search': bloodFormSearchPage, 'staff-blood-detail': staffBloodDetailPage, 'pending-ship': pendingShipPage
         };
         return (pages[state.page] || homePage)();
       }
@@ -1425,7 +1434,7 @@
 
       function payModal() {
         const coupon = selectedCoupon();
-        modal(`<div class="modal-icon">¥</div><h3>确认支付 ${money(cartPayable())}</h3><p>支付成功后将按商品拆分为 ${state.cartItems.length} 笔订单，加购商品会单独标记为“加购订单”。</p><div class="info-row"><span>商品数量</span><strong>${cartQuantity()} 份套餐</strong></div><div class="info-row"><span>拆分订单</span><strong>${state.cartItems.length} 笔</strong></div><div class="info-row"><span>优惠券</span><strong>${coupon ? `-${money(coupon.amount)}` : '未使用'}</strong></div><div class="info-row"><span>履约方式</span><strong>${state.fulfillment === 'pickup' ? '到站自提' : '快递配送'}</strong></div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">暂不支付</button><button class="btn primary" data-action="confirm-pay">确认支付</button></div>`);
+        modal(`<div class="modal-icon">¥</div><h3>确认支付 ${money(cartPayable())}</h3><p>支付成功后，主商品与加购商品将合并生成一笔新订单。</p><div class="info-row"><span>商品数量</span><strong>${cartQuantity()} 份套餐</strong></div><div class="info-row"><span>订单商品</span><strong>${state.cartItems.length} 款</strong></div><div class="info-row"><span>生成订单</span><strong>1 笔</strong></div><div class="info-row"><span>优惠券</span><strong>${coupon ? `-${money(coupon.amount)}` : '未使用'}</strong></div><div class="info-row"><span>履约方式</span><strong>${state.fulfillment === 'pickup' ? '到站自提' : '快递配送'}</strong></div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">暂不支付</button><button class="btn primary" data-action="confirm-pay">确认支付</button></div>`);
       }
 
       function addOnModal() {
@@ -1439,7 +1448,7 @@
 
       function entitlementModal() {
         const available = orderEntitlements().filter(item => item.remaining > 0);
-        modal(`<div class="modal-icon">套</div><h3>选择检测套餐</h3><p>请选择本次采血单使用的订单套餐权益。</p><div class="addon-list">${available.map(item => `<button class="addon-item ${state.selectedEntitlementId === item.id ? 'selected' : ''}" data-action="select-order-entitlement" data-id="${item.id}"><span class="addon-thumb">AN</span><span><h4>${item.product.name}</h4><p>订单 ${item.order.id} · 剩余 ${item.remaining} 份${item.isAddOnOrder ? ' · 加购订单' : ''}</p></span><span class="check-dot">✓</span></button>`).join('')}</div>${available.length ? '' : '<div class="empty" style="padding:14px"><h3>暂无可用套餐</h3><p>请先完成订单履约。</p></div>'}<div class="modal-actions"><button class="btn ghost full" data-action="close-modal">取消</button></div>`);
+        modal(`<div class="modal-icon">套</div><h3>选择检测套餐</h3><p>请选择本次采血单使用的订单套餐权益。</p><div class="addon-list">${available.map(item => `<button class="addon-item ${state.selectedEntitlementId === item.id ? 'selected' : ''}" data-action="select-order-entitlement" data-id="${item.id}"><span class="addon-thumb">AN</span><span><h4>${item.product.name}</h4><p>订单 ${item.order.id} · 剩余 ${item.remaining} 份${item.isAddOn ? ' · 加购商品' : ''}</p></span><span class="check-dot">✓</span></button>`).join('')}</div>${available.length ? '' : '<div class="empty" style="padding:14px"><h3>暂无可用套餐</h3><p>请先完成订单履约。</p></div>'}<div class="modal-actions"><button class="btn ghost full" data-action="close-modal">取消</button></div>`);
       }
 
       function stationInviteModal() {
@@ -1454,7 +1463,7 @@
       }
 
       function shipSampleModal(form) {
-        modal(`<div class="modal-icon">寄</div><h3>登记样本寄出</h3><p>确认样本已完成封装并交寄后更新采血单状态。</p><div class="info-row"><span>受检人</span><strong>${form.person}</strong></div><div class="info-row"><span>试管编码</span><strong>${form.tube}</strong></div><div class="info-row"><span>检测套餐</span><strong>${form.product.name}</strong></div><label class="field"><span>快递公司（选填）</span><select id="staffCourier"><option value="">暂不填写</option><option>顺丰速运</option><option>京东物流</option><option>其他快递</option></select></label><label class="field"><span>物流单号（选填）</span><input id="staffLogistics" placeholder="请输入物流单号"></label><div class="notice"><strong>状态变更</strong>确认后采血单将从“已接收”变为“已寄出”，并同步至实验室。</div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-staff-ship" data-id="${form.id}">确认已寄出</button></div>`);
+        modal(`<div class="modal-icon">寄</div><h3>登记样本寄出</h3><p>确认样本已完成封装并交寄后更新采血单状态。</p><div class="info-row"><span>采血单编号</span><strong>${form.id}</strong></div><div class="info-row"><span>受检人</span><strong>${form.person}</strong></div><div class="info-row"><span>检测套餐</span><strong>${form.product.name}</strong></div><label class="field"><span>快递公司（选填）</span><select id="staffCourier"><option value="">暂不填写</option><option>顺丰速运</option><option>京东物流</option><option>其他快递</option></select></label><label class="field"><span>物流单号（选填）</span><input id="staffLogistics" placeholder="请输入物流单号"></label><div class="notice"><strong>状态变更</strong>确认后采血单将从“已接收”变为“已寄出”，并同步至实验室。</div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-staff-ship" data-id="${form.id}">确认已寄出</button></div>`);
       }
 
       function examineeModal(person = null) {
@@ -1469,7 +1478,7 @@
           if (el.dataset.role) return setRole(el.dataset.role);
           if (el.dataset.tab) return goTab(el.dataset.tab);
           if (el.dataset.jump) {
-            if (['work','scan-verify','tube-receive'].includes(el.dataset.jump) && !isStaff()) state.role = 'both';
+            if (['work','scan-verify','blood-form-search'].includes(el.dataset.jump) && !isStaff()) state.role = 'both';
             if (el.dataset.jump === 'examinees') state.selectionContext = null;
             if (el.dataset.jump === 'blood-create') { const entitlement=currentEntitlement(); state.bloodSource='order'; state.selectedEntitlementId=entitlement?.id || ''; state.createStep=1; }
             return goto(el.dataset.jump, {}, false);
@@ -1498,12 +1507,13 @@
           if (action === 'select-pickup-station') { const s = stations.find(x => x.id === el.dataset.id); if (!s || s.status === '暂停营业' || s.stock === 0) return toast('该站点当前不可承接新的自提订单'); state.selectedStation = s; state.fulfillment = 'pickup'; goBack(); return toast(`已选择 ${s.name}`); }
           if (action === 'locate-pickup') return toast('已更新当前位置，并按距离重新排序');
           if (action === 'pay') return payModal();
-          if (action === 'confirm-pay') { const usedCoupon = selectedCoupon(); const discount = usedCoupon?.amount || 0; const tradeSeed = String(Date.now()).slice(-5); const tradeNo = `P20260826${tradeSeed}`; const newOrders = state.cartItems.map((item,index) => { const amount = Math.max(0, item.unitPrice * item.qty - (index === 0 ? discount : 0)); return { id:`A20260826${tradeSeed}${String(index + 1).padStart(2,'0')}`, tradeNo, product:item.product, items:[{ ...item }], qty:item.qty, isAddOnOrder:item.isAddOn, type:state.fulfillment === 'pickup' ? 'pickup' : 'delivery', status:state.fulfillment === 'pickup' ? '待核销' : '待发货', amount, coupon:index === 0 && usedCoupon ? { id:usedCoupon.id, title:usedCoupon.title, amount:usedCoupon.amount } : null, station:state.selectedStation, code:String(731508 + index * 137).slice(-6), date:'2026-08-26 16:08' }; }); if (usedCoupon) { const coupon = state.coupons.find(item => item.id === usedCoupon.id); coupon.status = '已使用'; } state.selectedCouponId=''; state.orderFilter='all'; closeModal(); state.orders.unshift(...newOrders); toast(`支付成功，已拆分为 ${newOrders.length} 笔订单`); return goto('orders'); }
+          if (action === 'confirm-pay') { const usedCoupon = selectedCoupon(); const discount = usedCoupon?.amount || 0; const tradeSeed = String(Date.now()).slice(-5); const tradeNo = `P20260826${tradeSeed}`; const newOrder = { id:`A20260826${tradeSeed}`, tradeNo, product:state.cartItems[0].product, items:state.cartItems.map(item => ({ ...item })), qty:cartQuantity(), type:state.fulfillment === 'pickup' ? 'pickup' : 'delivery', status:state.fulfillment === 'pickup' ? '待核销' : '待发货', amount:Math.max(0, cartSubtotal() - discount), coupon:usedCoupon ? { id:usedCoupon.id, title:usedCoupon.title, amount:usedCoupon.amount } : null, station:state.selectedStation, code:'731508', date:'2026-08-26 16:08' }; if (usedCoupon) { const coupon = state.coupons.find(item => item.id === usedCoupon.id); coupon.status = '已使用'; } state.selectedCouponId=''; state.orderFilter='all'; closeModal(); state.orders.unshift(newOrder); toast(`支付成功，已生成 1 笔包含 ${state.cartItems.length} 款商品的订单`); return goto('orders'); }
           if (action === 'order-filter') { state.orderFilter = el.dataset.value; return render(); }
           if (action === 'after-sale-filter') { state.afterSaleFilter = el.dataset.value; return render(); }
           if (action === 'blood-filter') { state.bloodFilter = el.dataset.value; return render(); }
           if (action === 'station-filter') { state.stationFilter = el.dataset.value; return render(); }
           if (action === 'copy-code') { if (navigator.clipboard) navigator.clipboard.writeText(el.dataset.value).catch(()=>{}); return toast(`已复制核销码 ${el.dataset.value}`); }
+          if (action === 'copy-blood-form-id') { if (navigator.clipboard) navigator.clipboard.writeText(el.dataset.value).catch(()=>{}); return toast(`已复制采血单编号 ${el.dataset.value}`); }
           if (action === 'copy-sample-address') { const text='020-8888 6028｜广东省广州市黄埔区科学大道 18 号 安派科样本接收中心'; if (navigator.clipboard) navigator.clipboard.writeText(text).catch(()=>{}); return toast('寄送信息已复制'); }
           if (action === 'refund' || action === 'apply-after-sale') { const o = state.orders.find(x => x.id === el.dataset.id); if (!o || !canApplyAfterSale(o)) return toast('该订单当前不满足退款申请条件'); return goto('after-sale-apply', { id:o.id }); }
           if (action === 'upload-proof') return toast('已唤起图片选择器（原型模拟）');
@@ -1546,9 +1556,8 @@
           if (action === 'delete-examinee') return modal(`<div class="modal-icon" style="background:var(--danger)">删</div><h3>删除受检人</h3><p>删除后将无法在新建采血单时快速选择，已创建的采血单不受影响。</p><div class="modal-actions"><button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-delete-examinee" data-id="${el.dataset.id}">确认删除</button></div>`);
           if (action === 'confirm-delete-examinee') { state.examinees = state.examinees.filter(x => x.id !== el.dataset.id); if (!state.examinees.some(x => x.isDefault) && state.examinees[0]) state.examinees[0].isDefault = true; if (!state.examinees.some(x => x.id === state.selectedExamineeId)) state.selectedExamineeId = state.examinees[0]?.id || ''; if (!state.examinees.some(x => x.id === state.selectedReportExamineeId)) state.selectedReportExamineeId = state.examinees[0]?.id || ''; closeModal(); render(); return toast('受检人已删除'); }
           if (action === 'collection-mode') { state.collectionMode = el.dataset.value; return render(); }
-          if (action === 'step-next') { if (state.createStep < 3) { if (state.createStep === 1 && state.bloodSource === 'order' && !currentEntitlement()) return toast('请先选择可用的订单套餐'); state.createStep++; return render(); } const chosenPerson = state.examinees.find(x => x.id === state.selectedExamineeId) || state.examinees[0]; const entitlement = state.bloodSource === 'order' ? currentEntitlement() : null; if (state.bloodSource === 'order' && (!entitlement || entitlement.remaining < 1)) return toast('所选套餐权益已不可用，请重新选择'); const product = entitlement?.product || state.product; const form = { id:`BC20260902${String(Date.now()).slice(-3)}`, product, source:state.bloodSource, sourceOrderId:entitlement?.order.id || '', person:chosenPerson.name, tube:'T202609020188', mode:state.collectionMode, status:'待采血', station:state.collectionMode === 'station' ? state.selectedBloodStation : null, date:'2026-09-02', current:1 }; if (entitlement) state.entitlementUsage[entitlement.id]=(state.entitlementUsage[entitlement.id] || 0) + 1; state.bloodForms.unshift(form); state.createStep=1; toast(entitlement ? '采血单已创建，套餐权益已核销' : '采血单已创建'); return goto('blood-detail',{id:form.id}); }
+          if (action === 'step-next') { if (state.createStep < 3) { if (state.createStep === 1 && state.bloodSource === 'order' && !currentEntitlement()) return toast('请先选择可用的订单套餐'); state.createStep++; return render(); } const chosenPerson = state.examinees.find(x => x.id === state.selectedExamineeId) || state.examinees[0]; const entitlement = state.bloodSource === 'order' ? currentEntitlement() : null; if (state.bloodSource === 'order' && (!entitlement || entitlement.remaining < 1)) return toast('所选套餐权益已不可用，请重新选择'); const product = entitlement?.product || state.product; const form = { id:`BC20260907${String(Date.now()).slice(-3)}`, product, source:state.bloodSource, sourceOrderId:entitlement?.order.id || '', person:chosenPerson.name, mode:state.collectionMode, status:'待采血', station:state.collectionMode === 'station' ? state.selectedBloodStation : null, date:'2026-09-07', current:1 }; if (entitlement) state.entitlementUsage[entitlement.id]=(state.entitlementUsage[entitlement.id] || 0) + 1; state.bloodForms.unshift(form); state.createStep=1; toast(entitlement ? '采血单已创建，套餐权益已核销' : '采血单已创建'); return goto('blood-detail',{id:form.id}); }
           if (action === 'step-prev') { state.createStep = Math.max(1,state.createStep-1); return render(); }
-          if (action === 'scan-tube') return toast('已模拟扫描并录入试管编码');
           if (action === 'choose-blood-station') { state.selectionContext=null; state.bloodStationSearch=''; return goto('blood-station-picker'); }
           if (action === 'select-blood-station') { const s = stations.find(x => x.id === el.dataset.id); if (!s || s.status === '暂停营业') return toast('该站点当前暂停接收新的采血服务'); state.selectedBloodStation = s; goBack(); return toast(`已选择 ${s.name}`); }
           if (action === 'locate-blood-station') return toast('已更新当前位置，并按距离重新排序');
@@ -1565,9 +1574,8 @@
           if (action === 'confirm-verify') { const o=state.orders.find(x=>x.id===el.dataset.id); if (!o || o.status !== '待核销' || afterSaleForOrder(o.id)) { closeModal(); return toast('订单存在退款申请或状态已变化，当前不可核销'); } o.status='已核销'; closeModal(); toast('核销成功，采集盒已整单出库'); return goTab('work'); }
           if (action === 'self-ship') return modal(`<div class="modal-icon" style="background:var(--orange)">寄</div><h3>登记自行寄出</h3><p>请确认已完成自行采血，并按冷链要求将样本寄往实验室。</p><label class="field"><span>快递公司 *</span><select id="selfCourier"><option>顺丰速运</option><option>京东物流</option><option>其他快递</option></select></label><label class="field"><span>物流单号 *</span><input id="selfLogistics" value="SF1296208108" placeholder="请输入物流单号"></label><div class="notice"><strong>状态变更</strong>确认后采血单将从“待采血”直接变为“已寄出”，不会经过“已接收”。</div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-self-ship" data-id="${el.dataset.id}">确认已寄出</button></div>`);
           if (action === 'confirm-self-ship') { const logistics = $('#selfLogistics').value.trim(); if (!logistics) return toast('请填写物流单号'); const b = state.bloodForms.find(x => x.id === el.dataset.id); if (b) { b.status='已寄出'; b.current=2; b.logistics=`${$('#selfCourier').value} ${logistics}`; } closeModal(); render(); return toast('已更新为“已寄出”并同步实验室'); }
-          if (action === 'scan-staff-tube') { const input = $('#staffTube'); if (input) input.value = 'T202608220025'; return toast('已扫码识别并填入试管编码'); }
-          if (action === 'search-tube') { const tube = $('#staffTube').value.trim(); if (!tube) return toast('请输入试管编码'); const b = state.bloodForms.find(x => x.tube === tube && x.status === '待采血' && x.mode === 'station' && x.station?.id === stations[0].id); if (!b) return toast('未找到绑定至本站的待采血单'); return goto('staff-blood-detail', { id:b.id }); }
-          if (action === 'confirm-receive-tube') { const b=state.bloodForms.find(x=>x.id===el.dataset.id); if (!b || b.status !== '待采血' || b.mode !== 'station' || b.station?.id !== stations[0].id) return toast('采血单状态已变化，当前不可接收'); b.status='已接收'; b.current=2; b.receivedAt='2026-08-26 10:24'; return modal(`<div class="modal-icon">✓</div><h3>采血单已接收</h3><p>该采血单已进入待寄出列表。完成线下采血和样本封装后，请登记样本寄出。</p><div class="info-row"><span>试管编码</span><strong>${b.tube}</strong></div><div class="info-row"><span>受检人</span><strong>${b.person}</strong></div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">稍后处理</button><button class="btn primary" data-action="go-pending-ship">前往登记寄出</button></div>`); }
+          if (action === 'search-blood-form') { const formNo = $('#staffBloodFormNo').value.trim(); if (!formNo) return toast('请输入采血单编号'); const b = state.bloodForms.find(x => x.id.toLowerCase() === formNo.toLowerCase() && x.status === '待采血' && x.mode === 'station' && x.station?.id === stations[0].id); if (!b) return toast('未找到绑定至本站的待采血单'); return goto('staff-blood-detail', { id:b.id }); }
+          if (action === 'confirm-receive-blood-form') { const b=state.bloodForms.find(x=>x.id===el.dataset.id); if (!b || b.status !== '待采血' || b.mode !== 'station' || b.station?.id !== stations[0].id) return toast('采血单状态已变化，当前不可接收'); b.status='已接收'; b.current=2; b.receivedAt='2026-09-07 10:24'; return modal(`<div class="modal-icon">✓</div><h3>采血单已接收</h3><p>该采血单已进入待寄出列表。完成线下采血和样本封装后，请登记样本寄出。</p><div class="info-row"><span>采血单编号</span><strong>${b.id}</strong></div><div class="info-row"><span>受检人</span><strong>${b.person}</strong></div><div class="modal-actions"><button class="btn ghost" data-action="close-modal">稍后处理</button><button class="btn primary" data-action="go-pending-ship">前往登记寄出</button></div>`); }
           if (action === 'go-pending-ship') { closeModal(); return goto('pending-ship'); }
           if (action === 'ship-sample') { const b=state.bloodForms.find(x=>x.id===el.dataset.id); if (!b || b.status !== '已接收') return toast('采血单状态已变化，当前不可登记寄出'); return shipSampleModal(b); }
           if (action === 'confirm-staff-ship') { const b=state.bloodForms.find(x=>x.id===el.dataset.id); if (!b || b.status !== '已接收') { closeModal(); return toast('采血单状态已变化，当前不可登记寄出'); } const courier = $('#staffCourier').value; const logisticsNo = $('#staffLogistics').value.trim(); b.status='已寄出'; b.current=3; b.shippedAt='2026-08-26 10:38'; if (courier || logisticsNo) b.logistics=[courier,logisticsNo].filter(Boolean).join(' '); closeModal(); render(); return toast('样本已标记为寄出并同步实验室'); }
@@ -1579,6 +1587,19 @@
           if (action === 'edit-blood') { const form=state.bloodForms.find(item => item.id === el.dataset.id); if (form) state.product=form.product; state.bloodSource='edit'; state.createStep=1; return goto('blood-create'); }
           if (action === 'all-products') { state.productSearch=''; return goto('products'); }
           if (action === 'close-modal') return closeModal();
+        });
+
+        document.addEventListener('change', event => {
+          if (event.target.id === 'applyProvince') {
+            const provinceCities = {
+              '广东省': ['广州市', '深圳市', '佛山市', '东莞市'],
+              '浙江省': ['杭州市', '宁波市', '温州市', '嘉兴市'],
+              '江苏省': ['南京市', '苏州市', '无锡市', '常州市'],
+              '四川省': ['成都市', '绵阳市', '德阳市', '乐山市']
+            };
+            const citySelect = $('#applyCity');
+            if (citySelect) citySelect.innerHTML = (provinceCities[event.target.value] || []).map(city => `<option>${city}</option>`).join('');
+          }
         });
 
         document.addEventListener('input', event => {
