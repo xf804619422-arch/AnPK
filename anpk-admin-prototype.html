@@ -509,7 +509,7 @@
           {id:'APKC-260726-0042',password:'6X2H8C',product:'女性健康关爱套餐',batch:'PC2026072601',status:'已使用',used:'2026-08-21 10:17',blood:'CX20260821006'}
         ],
         bloodForms: [
-          {id:'CX20260818021',person:'林小禾',gender:'女',birth:'1988-05-16',idNo:'4401********2148',phone:'139****5008',product:'女性健康关爱套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260816018',status:'样本异常',time:'2026-08-18 10:02',note:'样本出现明显溶血，无法继续检测',image:'异常样本照片 2 张'},
+          {id:'CX20260818021',person:'林小禾',gender:'女',birth:'1988-05-16',idNo:'4401********2148',phone:'139****5008',product:'女性健康关爱套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260816018',status:'样本异常',time:'2026-08-18 10:02',note:'样本出现明显溶血，无法继续检测',abnormalDescription:'样本出现明显溶血，无法继续检测',abnormalAt:'2026-08-25 16:42'},
           {id:'CX20260825031',person:'周文涛',gender:'男',birth:'1979-11-02',idNo:'3301********4310',phone:'137****1678',product:'基础健康检测套餐',method:'自行采血',station:'—',source:'套餐卡 APKC-260820-0002',status:'待出报告',time:'2026-08-25 18:08',note:'检测数据已录入',image:'—'},
           {id:'CX20260824016',person:'宋雅琴',gender:'女',birth:'1992-07-21',idNo:'4403********6826',phone:'135****7121',product:'心脑血管深度检测套餐',method:'合作站点采血',station:'西湖文新社区合作站',source:'订单 DD20260822013',status:'已寄出',time:'2026-08-24 14:35',note:'顺丰 SF1489217300',image:'—'},
           {id:'CX20260823009',person:'罗振宇',gender:'男',birth:'1985-03-08',idNo:'5101********0032',phone:'188****3381',product:'基础健康检测套餐',method:'合作站点采血',station:'天河悦康社区合作站',source:'订单 DD20260823011',status:'报告完成',time:'2026-08-23 15:24',note:'报告已上传',image:'—'},
@@ -538,7 +538,7 @@
           {id:'ROLE003',name:'省级运营',code:'PROVINCE_OPERATOR',scope:'省级运营',permissions:['dashboard.view','provinces.view','cities.view','applications.view','stations.view','products.view','orders.view','pickup.view','healthStats.view','healthStats.downlines','bloodStats.view','blood.view','anomalies.view','reports.view','users.view'],status:'启用',updated:'2026-08-20 11:18'},
           {id:'ROLE004',name:'城市合伙人',code:'CITY_PARTNER',scope:'城市运营',permissions:['dashboard.view','cities.view','stations.view','healthStats.view','healthStats.downlines','bloodStats.view','users.view'],status:'启用',updated:'2026-08-18 14:06'},
           {id:'ROLE005',name:'总部只读',code:'HQ_READONLY',scope:'全国',permissions:['dashboard.view','provinces.view','cities.view','applications.view','stations.view','products.view','orders.view','pickup.view','refunds.view','batches.view','cards.view','healthStats.view','bloodStats.view','blood.view','anomalies.view','reports.view','users.view','regions.view'],status:'启用',updated:'2026-08-16 10:42'},
-          {id:'ROLE006',name:'报告运营',code:'REPORT_OPERATOR',scope:'全国',permissions:['blood.view','reports.view','reports.upload','reports.batchUpload','reports.replace','reports.download','reports.versions'],status:'启用',updated:'2026-08-26 08:46'}
+          {id:'ROLE006',name:'报告运营',code:'REPORT_OPERATOR',scope:'全国',permissions:['blood.view','blood.markAbnormal','reports.view','reports.upload','reports.batchUpload','reports.replace','reports.download','reports.versions'],status:'启用',updated:'2026-08-26 08:46'}
         ],
         logs: [
           {time:'2026-08-26 09:22',operator:'总部超级管理员',module:'社区合作站',action:'查看站点资料',detail:'天河悦康社区合作站'},
@@ -606,7 +606,7 @@
           {id:'bloodStats',label:'采血服务站',buttons:[['view','查看'],['export','导出']]}
         ]},
         {id:'testing',label:'采血检测',menus:[
-          {id:'blood',label:'采血单管理',buttons:[['view','查看'],['export','导出']]},
+          {id:'blood',label:'采血单管理',buttons:[['view','查看'],['export','导出'],['markAbnormal','标记异常']]},
           {id:'anomalies',label:'样本异常',buttons:[['view','查看'],['follow','登记跟进']]},
           {id:'reports',label:'检测报告',buttons:[['view','查看'],['upload','上传报告'],['batchUpload','批量上传报告'],['replace','替换报告'],['download','下载'],['versions','版本记录'],['export','导出']]}
         ]},
@@ -797,7 +797,7 @@
 
       function bloodPage(filter='all'){
         const q=state.bloodQuery.toLowerCase(),statusFilter=state.listFilters.blood; let list=state.bloodForms.filter(x=>(x.id+x.person+x.phone+x.product+x.source).toLowerCase().includes(q)); if(filter==='anomaly')list=list.filter(x=>x.status==='样本异常');else if(statusFilter!=='all')list=list.filter(x=>x.status===statusFilter);
-        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td>${esc(x.source)}</td><td><div class="cell-main">${esc(x.person)} · ${esc(x.gender)}</div><div class="cell-sub">${esc(x.phone)}</div></td><td>${esc(x.product)}</td><td><div class="cell-main">${esc(x.method)}</div><div class="cell-sub">${esc(x.station)}</div></td><td>${badge(x.status)}</td><td><button class="btn small ghost" data-action="view-blood" data-id="${x.id}">${x.status==='样本异常'?'查看异常':'查看详情'}</button></td></tr>`).join('');
+        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td>${esc(x.source)}</td><td><div class="cell-main">${esc(x.person)} · ${esc(x.gender)}</div><div class="cell-sub">${esc(x.phone)}</div></td><td>${esc(x.product)}</td><td><div class="cell-main">${esc(x.method)}</div><div class="cell-sub">${esc(x.station)}</div></td><td>${badge(x.status)}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-blood" data-id="${x.id}">${x.status==='样本异常'?'查看异常':'查看详情'}</button>${filter!=='anomaly'&&x.status==='待出报告'?`<button class="btn small danger" data-action="mark-blood-abnormal" data-id="${x.id}">标记异常</button>`:''}</div></td></tr>`).join('');
         const title=filter==='anomaly'?'样本异常':'采血单管理', desc=filter==='anomaly'?'集中查看实验室标记的异常样本，通过采血单追溯订单和联系方式，后续由客服线下处理。':'采血单连接套餐权益、受检人、样本流转、检测数据与最终报告，是全链路追溯的核心对象。';
         return `${pageHead('BLOOD TESTING',title,desc,`<button class="btn ghost" data-action="export">导出采血单</button>`)}
         ${filter==='anomaly'?`<div class="notice red" style="margin-bottom:14px"><strong>异常流程边界</strong>后台只负责查看和追溯，不创建线上补采、补发或异常售后流程。</div>`:''}
@@ -812,7 +812,7 @@
         return `${pageHead('BLOOD FORM DETAIL',x.id,`${x.product} · ${x.method}`,`<button class="btn ghost" data-page="${abnormal?'anomalies':'blood'}">← 返回列表</button>${abnormal?'<button class="btn primary" data-action="contact-user">登记已联系</button>':''}`)}
         <div class="detail-layout"><div>
           <div class="card detail-card"><div class="detail-title"><h3>受检人与采血信息</h3>${badge(x.status)}</div><div class="field-grid"><div><div class="info-row"><span>姓名</span><strong>${esc(x.person)}</strong></div><div class="info-row"><span>性别</span><strong>${esc(x.gender)}</strong></div><div class="info-row"><span>出生日期</span><strong>${x.birth}</strong></div><div class="info-row"><span>身份证号</span><strong>${x.idNo}</strong></div></div><div><div class="info-row"><span>联系电话</span><strong>${x.phone}</strong></div><div class="info-row"><span>采血方式</span><strong>${esc(x.method)}</strong></div><div class="info-row"><span>采血服务点</span><strong>${esc(x.station)}</strong></div><div class="info-row"><span>权益来源</span><strong>${esc(x.source)}</strong></div></div></div></div>
-          ${abnormal?`<div class="card detail-card"><div class="detail-title"><h3>样本异常记录</h3><span class="badge red">流程终止</span></div><div class="notice red"><strong>${esc(x.note)}</strong>实验室已上传 ${esc(x.image)}。原采血单保留为异常终态，后续退款、补发或重新采血由客服线下协商。</div><div class="info-row"><span>异常来源</span><strong>实验室检测结果同步</strong></div><div class="info-row"><span>标记时间</span><strong>2026-08-25 16:42</strong></div><div class="info-row"><span>关联订单</span><strong>${esc(x.source)}</strong></div></div>`:`<div class="card detail-card"><div class="detail-title"><h3>检测与报告信息</h3></div><div class="info-row"><span>检测数据</span><strong>${x.status==='待出报告'||x.status==='报告完成'?'已由实验室填写':'等待实验室处理'}</strong></div><div class="info-row"><span>报告状态</span><strong>${x.status==='报告完成'?'PDF 已上传':'尚未上传'}</strong></div><div class="info-row"><span>数据冻结</span><strong>${x.status==='报告完成'?'已冻结':'报告上传前可修改'}</strong></div></div>`}
+          ${abnormal?`<div class="card detail-card"><div class="detail-title"><h3>样本异常记录</h3><span class="badge red">流程终止</span></div><div class="info-row"><span>异常说明</span><strong>${esc(x.abnormalDescription||x.note)}</strong></div><div class="info-row"><span>标记时间</span><strong>${esc(x.abnormalAt||'—')}</strong></div><div class="info-row"><span>异常来源</span><strong>管理后台标记</strong></div><div class="info-row"><span>关联订单</span><strong>${esc(x.source)}</strong></div><div class="notice red" style="margin-top:14px"><strong>异常流程终止</strong>原采血单保留为异常终态，后续退款、补发或重新采血由客服线下协商。</div></div>`:`<div class="card detail-card"><div class="detail-title"><h3>检测与报告信息</h3></div><div class="info-row"><span>检测数据</span><strong>${x.status==='待出报告'||x.status==='报告完成'?'已由实验室填写':'等待实验室处理'}</strong></div><div class="info-row"><span>报告状态</span><strong>${x.status==='报告完成'?'PDF 已上传':'尚未上传'}</strong></div><div class="info-row"><span>数据冻结</span><strong>${x.status==='报告完成'?'已冻结':'报告上传前可修改'}</strong></div></div>`}
         </div><aside class="card detail-card sticky"><div class="detail-title"><h3>全流程进度</h3></div><div class="timeline">${steps.map((s,i)=>`<div class="timeline-item ${i<completed?'done':i===completed?'current':''}"><span class="timeline-dot">${i<completed?'✓':i+1}</span><span class="timeline-copy"><strong>${s}</strong><small>${i<completed?'已完成':i===completed?'当前节点':'等待处理'}</small></span></div>`).join('')}</div></aside></div>`;
       }
 
@@ -958,6 +958,12 @@
       }
 
       function updateCouponSelectionCount(){const count=document.querySelectorAll('[data-coupon-user-id]:checked').length,host=$('#couponSelectedCount');if(host)host.textContent=`已选择 ${count} 位用户`;}
+
+      function bloodAbnormalModal(id){
+        const x=state.bloodForms.find(item=>item.id===id);
+        if(!x||x.status!=='待出报告')return toast('只有待出报告的采血单可以标记异常');
+        showModal('标记样本异常',`<div class="notice red" style="margin-bottom:14px"><strong>异常后流程终止</strong>提交后采血单将进入“样本异常”列表，不能继续上传检测报告。</div><div class="info-row"><span>采血单</span><strong>${esc(x.id)}</strong></div><div class="info-row"><span>受检人</span><strong>${esc(x.person)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>检测套餐</span><strong>${esc(x.product)}</strong></div><label class="field" style="margin-top:14px"><span>异常说明 *</span><textarea id="bloodAbnormalDescription" placeholder="请描述样本异常情况及判断依据">样本质量不符合检测要求，无法继续出具报告</textarea></label>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="confirm-blood-abnormal" data-id="${esc(id)}">确认标记异常</button>`);
+      }
 
       function reportUploadModal(bloodId,reportId=''){
         const report=state.reports.find(item=>item.id===reportId),blood=state.bloodForms.find(item=>item.id===bloodId),replacing=Boolean(report);
@@ -1136,6 +1142,14 @@
         if(a==='show-card'){ const x=state.cards.find(c=>c.id===el.dataset.id); return showModal('查看套餐卡密',`<div class="notice green"><strong>请妥善保管</strong>系统不记录该卡密的线下发放去向。</div><div class="info-row" style="margin-top:12px"><span>卡号</span><strong>${x.id}</strong></div><div class="info-row"><span>密码</span><strong style="font-size:18px;letter-spacing:.15em;color:var(--brand)">${x.password}</strong></div><div class="info-row"><span>关联套餐</span><strong>${esc(x.product)}</strong></div>`); }
         if(a==='jump-blood'){ const x=state.bloodForms.find(b=>b.id===el.dataset.id); if(x){state.selectedBlood=x.id;return go('blood-detail');} return toast('已定位关联采血单'); }
         if(a==='view-blood'){ state.selectedBlood=el.dataset.id; return go('blood-detail'); }
+        if(a==='mark-blood-abnormal')return bloodAbnormalModal(el.dataset.id);
+        if(a==='confirm-blood-abnormal'){
+          const x=state.bloodForms.find(item=>item.id===el.dataset.id),description=$('#bloodAbnormalDescription')?.value.trim();
+          if(!x||x.status!=='待出报告')return toast('当前采血单状态已变更，不能标记异常');
+          if(!description)return toast('请填写异常说明');
+          x.status='样本异常';x.abnormalDescription=description;x.abnormalAt=now();x.note=description;
+          addLog('采血单管理','标记样本异常',x.id);closeModal();state.page='anomalies';state.selectedBlood=x.id;render(false);return toast('已标记异常并转入样本异常列表');
+        }
         if(a==='contact-user'){ addLog('样本异常','登记客服联系',state.selectedBlood); return toast('已登记：客服完成首次联系'); }
         if(a==='open-report-upload')return reportUploadModal(el.dataset.blood);
         if(a==='replace-report')return reportUploadModal(el.dataset.blood,el.dataset.id);
