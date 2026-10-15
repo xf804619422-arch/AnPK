@@ -332,6 +332,7 @@
     .form-card { padding: 15px; margin-bottom: 12px; }
     .form-title { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; font-size: 12px; font-weight: 800; }
     .form-num { width: 23px; height: 23px; border-radius: 8px; display: grid; place-items: center; color: #fff; background: var(--brand); font-size: 9px; }
+    .form-hint { margin-left: auto; border: 0; background: transparent; color: var(--brand); font-size: 9px; font-weight: 800; cursor: pointer; padding: 2px 4px; }
     .field { display: block; margin: 11px 0; }
     .field > span { display: block; margin-bottom: 6px; color: #526865; font-size: 9px; font-weight: 700; }
     .field input, .field select, .field textarea {
@@ -503,6 +504,8 @@
     .notice.green { color: var(--brand-dark); background: var(--brand-soft); border-color: #cce7e1; }
     .notice.red { color: #a64848; background: #fff0f0; border-color: #f1d2d2; }
     .notice strong { display: block; font-size: 10px; margin-bottom: 2px; }
+    .service-contact { margin-top: 14px; padding: 12px 13px; border-radius: 14px; background: #f2f7f5; color: #516763; font-size: 9px; text-align: center; line-height: 1.6; }
+    .service-contact strong { color: var(--brand); font-weight: 800; }
 
     .map {
       height: 178px; margin: -14px -14px 13px; position: relative; overflow: hidden;
@@ -637,6 +640,12 @@
     .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
     .role-btn { border: 1px solid var(--line); border-radius: 12px; padding: 9px 8px; background: #fff; cursor: pointer; text-align: center; font-size: 9px; color: var(--muted); }
     .role-btn.active { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); font-weight: 800; }
+    .simulate-label { display: none; }
+    .simulate-grid { display: none; grid-template-columns: 1fr; gap: 7px; }
+    .simulate-btn { border: 1px solid var(--line); border-radius: 12px; padding: 9px 8px; background: #fff; cursor: pointer; text-align: center; font-size: 9px; color: var(--muted); }
+    .simulate-btn.approve { color: var(--brand); border-color: var(--brand); background: var(--brand-soft); }
+    .simulate-btn.reject { color: var(--danger); border-color: #f1d2d2; background: #fff0f0; }
+    .simulate-btn.build { color: #b56b17; border-color: #f3e4bc; background: #fff8e8; }
     .prototype-note { margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--line); color: #829491; font-size: 9px; line-height: 1.65; }
 
     .modal-layer { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(11,42,39,.42); backdrop-filter: blur(4px); }
@@ -653,6 +662,12 @@
     .modal > p { margin: 0 0 15px; text-align: center; color: var(--muted); font-size: 9px; line-height: 1.65; }
     .modal-actions { display: flex; gap: 8px; margin-top: 15px; }
     .modal-actions .btn { flex: 1; }
+    .guide-section { margin-bottom: 16px; text-align: left; }
+    .guide-section:last-of-type { margin-bottom: 4px; }
+    .guide-title { margin: 0 0 10px; font-size: 13px; font-weight: 800; color: var(--ink); }
+    .guide-block { margin-bottom: 12px; }
+    .guide-block strong { display: block; margin-bottom: 4px; font-size: 10px; color: var(--brand); }
+    .guide-block p { margin: 0; font-size: 9px; line-height: 1.7; color: #516763; }
     .toast { position: fixed; left: 50%; bottom: 36px; z-index: 120; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 10px 15px; border-radius: 12px; background: rgba(18,48,45,.94); color: #fff; font-size: 10px; box-shadow: 0 10px 28px rgba(8,43,39,.25); transition: .22s ease; }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -758,6 +773,12 @@
         <button class="role-btn" data-role="blood">采血人员</button>
         <button class="role-btn" data-role="both">双重权限</button>
       </div>
+      <div class="inspector-label simulate-label" id="simulateLabel">模拟审核流程</div>
+      <div class="simulate-grid" id="simulatePanel">
+        <button class="simulate-btn approve" data-action="simulate-approve">审核通过</button>
+        <button class="simulate-btn reject" data-action="simulate-reject">审核驳回</button>
+        <button class="simulate-btn build" data-action="simulate-build">创建站点</button>
+      </div>
       <div class="prototype-note">工作人员入口由手机号授权关系决定。普通用户不会看到工作台；双重授权时可同时处理自提核销与采血服务。</div>
     </aside>
   </div>
@@ -842,7 +863,8 @@
         orderFilter: 'all', afterSaleFilter: 'all', stationFilter: 'all', bloodFilter: 'all', collectionMode: 'station', selectionContext: null, pickupStationSearch: '', bloodStationSearch: '', productSearch: '',
         createStep: 1, bloodSource: 'order', selectedEntitlementId: 'A202607290126:p1:0', entitlementUsage: { 'A202607290126:p1:0': 1 }, smsSent: false, reportVerified: false, cardValidated: false,
         orders: JSON.parse(JSON.stringify(orders)), afterSales: JSON.parse(JSON.stringify(afterSales)), bloodForms: JSON.parse(JSON.stringify(bloodForms)),
-        examinees: JSON.parse(JSON.stringify(examinees)), selectedExamineeId: 'e1', selectedReportExamineeId: 'e1', selectedBloodStation: stations[2]
+        examinees: JSON.parse(JSON.stringify(examinees)), selectedExamineeId: 'e1', selectedReportExamineeId: 'e1', selectedBloodStation: stations[2],
+        applicationStatus: 'none', applicationName: '', applicationRejectReason: '', applicationServices: { health: true, blood: true }, applicationAddress: '广州市天河区体育西路 128 号', applicationNote: '已有社区健康服务场地，希望同时申请健康服务与采血服务。'
       };
 
       const pageMeta = {
@@ -870,7 +892,7 @@
         profile: ['我的', 'PROFILE', '聚合订单、采血单、报告、受检人、优惠券、地址与合作申请，并按授权关系展示工作人员入口。'],
         examinees: ['受检人管理', 'EXAMINEES', '预先维护常用受检人资料；创建采血单时可直接选择并自动带入姓名、性别、出生日期、身份证号和联系电话。'],
         addresses: ['收货地址', 'ADDRESSES', '快递订单使用用户维护的收货地址，到站自提不需要收货地址。'],
-        apply: ['合作站申请', 'PARTNER APPLY', '申请人可选填推荐码；申请提交后由平台线下联系核实并创建站点。'],
+        apply: ['合作站申请', 'PARTNER APPLY', '填写商户名称与意向服务；提交后进入平台审核，通过后建站，驳回时返回原因。'],
         work: ['工作人员工作台', 'STAFF WORKSPACE', '工作人员根据手机号授权显示核销或采血功能，并可生成合作站邀请二维码分享给微信好友。'],
         'scan-verify': ['扫码核销', 'PICKUP VERIFY', '小程序工作人员通过二维码核销；数字码核销由社区合作端处理。'],
         'blood-form-search': ['查询采血单', 'BLOOD FORM SEARCH', '工作人员输入用户出示的采血单编号，查询本站待采血单并核对完整信息。'],
@@ -1331,8 +1353,35 @@
         </div>`;
       }
 
+      function applicationServiceText() {
+        return [state.applicationServices.health ? '健康服务' : '', state.applicationServices.blood ? '采血服务' : ''].filter(Boolean).join(' + ') || '未选择';
+      }
+
+      function applicationInfoCard() {
+        return `<div class="card form-card"><div class="info-row"><span>商户名称</span><strong>${state.applicationName}</strong></div><div class="info-row"><span>服务类型</span><strong>${applicationServiceText()}</strong></div><div class="info-row"><span>拟设地址</span><strong>${state.applicationAddress}</strong></div><div class="info-row"><span>联系人</span><strong>陈雨桐 · 13800136208</strong></div><div class="info-row"><span>补充说明</span><strong>${state.applicationNote}</strong></div></div>`;
+      }
+
+      function serviceContact() {
+        return `<div class="service-contact">如有疑问，请联系客服：<strong>400-800-6688</strong></div>`;
+      }
+
+      function serviceGuideModal() {
+        modal(`<div class="guide-section"><div class="guide-title">成为健康服务站</div><div class="guide-block"><strong>你需要做什么</strong><p>承接周边用户的到站自提订单，提供健康产品咨询与介绍，协助用户完成下单、自提及售后对接，成为周边用户的健康服务入口。</p></div><div class="guide-block"><strong>能得到什么</strong><p>拓宽现有门店/驿站业务范围，新增引流入口<br>订单服务收益 + 推广奖励，多劳多得<br>官方品牌授权、宣传物料与运营指导支持<br>无需设备采购、无需压货、无需投入</p></div><div class="guide-block"><strong>适合谁</strong><p>有固定经营场地（门店、驿站、药店、社区服务点等），认可大健康服务方向，愿意深耕周边社区客群。</p></div></div><div class="guide-section"><div class="guide-title">成为采血服务点</div><div class="guide-block"><strong>你需要做什么</strong><p>为已完成下单的用户提供规范采血服务，协助样本采集、暂存与寄送流转，按统一流程操作。</p></div><div class="guide-block"><strong>能得到什么</strong><p>按次结算的采血服务收益，客源由平台持续对接<br>官方统一操作培训与服务规范指引<br>灵活合作，不影响现有主营业务</p></div><div class="guide-block"><strong>适合谁</strong><p>具备正规采血操作条件的场所与人员（如诊所、门诊部、社区卫生服务站、体检机构等），由具备相应资质的人员按规范操作。</p></div></div><div class="modal-actions"><button class="btn primary full" data-action="close-modal">我知道了</button></div>`);
+      }
+
       function applyPage() {
-        return `<div class="page"><div class="card form-card"><div class="form-title"><span class="form-num">1</span>申请人信息</div><label class="field"><span>联系人 *</span><input value="陈雨桐"></label><label class="field"><span>联系电话 *</span><input value="13800136208"></label><label class="field"><span>推荐码（选填）</span><input placeholder="请输入合作站推荐码"></label><div class="inline-fields"><label class="field"><span>省级 *</span><select id="applyProvince"><option value="广东省">广东省</option><option value="浙江省">浙江省</option><option value="江苏省">江苏省</option><option value="四川省">四川省</option></select></label><label class="field"><span>城市 *</span><select id="applyCity"><option>广州市</option><option>深圳市</option><option>佛山市</option><option>东莞市</option></select></label></div></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>合作意向</div><div class="choice-row"><button class="choice-card active"><strong>健康服务</strong><small>承接到站自提订单</small></button><button class="choice-card active"><strong>采血服务</strong><small>提供合作采血服务</small></button></div><label class="field"><span>拟设站点地址 *</span><input value="广州市天河区体育西路 128 号"></label><label class="field"><span>补充说明</span><textarea>已有社区健康服务场地，希望同时申请健康服务与采血服务。</textarea></label></div><button class="btn primary full" data-action="submit-apply">提交合作申请</button></div>`;
+        if (state.applicationStatus === 'rejected') {
+          return `<div class="page"><div class="card status-card"><div class="status-card-top"><div><h4>合作站申请未通过</h4><p>${state.applicationName}</p></div><span class="badge red">审核驳回</span></div></div><div class="notice red"><strong>驳回原因</strong>${state.applicationRejectReason}</div>${applicationInfoCard()}<button class="btn primary full" data-action="apply-again">修改后重新申请</button>${serviceContact()}</div>`;
+        }
+        if (state.applicationStatus !== 'none') {
+          const step = state.applicationStatus === 'pending' ? 1 : state.applicationStatus === 'approved' ? 2 : 3;
+          const title = state.applicationStatus === 'pending' ? '合作站申请已提交' : state.applicationStatus === 'approved' ? '审核已通过' : '合作站已创建';
+          const badge = state.applicationStatus === 'pending' ? '<span class="badge orange">待审核</span>' : state.applicationStatus === 'approved' ? '<span class="badge green">审核通过</span>' : '<span class="badge green">已创建站点</span>';
+          const notice = state.applicationStatus === 'pending' ? '<div class="notice green"><strong>平台审核中</strong>审核通过后总部将为您创建合作站；未通过将返回原因。</div>' : state.applicationStatus === 'approved' ? '<div class="notice green"><strong>等待创建站点</strong>总部将根据申请信息创建合作站及社区合作端登录账号。</div>' : '<div class="notice green"><strong>站点已开通</strong>请通过预留手机号联系总部获取社区合作端登录账号。</div>';
+          const steps = `<div class="steps">${[['待审核',1],['审核通过',2],['已建站',3]].map(([n,i]) => `<div class="step ${step === i ? 'active' : step > i ? 'done' : ''}"><div class="step-dot">${step > i ? '✓' : i}</div><span>${n}</span></div>`).join('')}</div>`;
+          return `<div class="page"><div class="card status-card"><div class="status-card-top"><div><h4>${title}</h4><p>${state.applicationName}</p></div>${badge}</div></div>${steps}${notice}${applicationInfoCard()}${serviceContact()}</div>`;
+        }
+        return `<div class="page"><div class="card form-card"><div class="form-title"><span class="form-num">1</span>申请人信息</div><label class="field"><span>联系人 *</span><input value="陈雨桐"></label><label class="field"><span>联系电话 *</span><input value="13800136208"></label><label class="field"><span>推荐码（选填）</span><input placeholder="请输入合作站推荐码"></label><div class="inline-fields"><label class="field"><span>省级 *</span><select id="applyProvince"><option value="广东省">广东省</option><option value="浙江省">浙江省</option><option value="江苏省">江苏省</option><option value="四川省">四川省</option></select></label><label class="field"><span>城市 *</span><select id="applyCity"><option>广州市</option><option>深圳市</option><option>佛山市</option><option>东莞市</option></select></label></div></div><div class="card form-card"><div class="form-title"><span class="form-num">2</span>合作意向<button class="form-hint" data-action="show-service-guide">说明</button></div><label class="field"><span>商户名称 *</span><input id="applyStationName" placeholder="请填写商户名称"></label><div class="choice-row"><button class="choice-card ${state.applicationServices.health ? 'active' : ''}" data-action="toggle-apply-service" data-service="health"><strong>健康服务</strong><small>承接到站自提订单</small></button><button class="choice-card ${state.applicationServices.blood ? 'active' : ''}" data-action="toggle-apply-service" data-service="blood"><strong>采血服务</strong><small>提供合作采血服务</small></button></div>${state.applicationServices.health ? `<div class="field"><span>营业执照 *</span><button class="upload-box" data-action="upload-proof"><strong>＋ 上传营业执照</strong><span>请上传清晰的营业执照照片</span></button></div><div class="field"><span>门头照片 *</span><button class="upload-box" data-action="upload-proof"><strong>＋ 上传门头照片</strong><span>门头照片需与商户名称一致</span></button></div>` : ''}<label class="field"><span>拟设站点地址 *</span><input id="applyStationAddress" value="广州市天河区体育西路 128 号"></label><label class="field"><span>补充说明</span><textarea id="applyNote">已有社区健康服务场地，希望同时申请健康服务与采血服务。</textarea></label></div><button class="btn primary full" data-action="submit-apply">提交合作申请</button></div>`;
       }
 
       function workPage() {
@@ -1398,6 +1447,9 @@
         $('#inspectCopy').textContent = meta[2];
         $$('.scene-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.jump === state.page));
         $$('.role-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.role === state.role));
+        const isApply = state.page === 'apply';
+        $('#simulateLabel').style.display = isApply ? 'block' : 'none';
+        $('#simulatePanel').style.display = isApply ? 'grid' : 'none';
       }
 
       function renderQrCodes() {
@@ -1565,8 +1617,13 @@
           if (action === 'verify-report') { if (!state.smsSent) return toast('请先获取短信验证码'); state.reportVerified=true; return goto('report-list'); }
           if (action === 'download-report') return toast('PDF 报告下载任务已开始');
           if (action === 'share-report') return toast('已唤起微信转发面板（原型模拟）');
-          if (action === 'submit-apply') return modal(`<div class="modal-icon">✓</div><h3>申请提交成功</h3><p>总部工作人员将在 1–3 个工作日内通过预留手机号与您联系。</p><div class="modal-actions"><button class="btn primary full" data-action="apply-done">我知道了</button></div>`);
-          if (action === 'apply-done') { closeModal(); return goTab('profile'); }
+          if (action === 'submit-apply') { const stationName = $('#applyStationName')?.value.trim(); if (!stationName) return toast('请填写商户名称'); const services = { health: state.applicationServices.health, blood: state.applicationServices.blood }; if (!services.health && !services.blood) return toast('请至少选择一项服务'); state.applicationName = stationName; state.applicationAddress = $('#applyStationAddress')?.value.trim() || ''; state.applicationNote = $('#applyNote')?.value.trim() || ''; state.applicationServices = services; state.applicationStatus = 'pending'; render(); return toast('申请已提交，等待平台审核'); }
+          if (action === 'toggle-apply-service') { const key = el.dataset.service; if (key === 'health' || key === 'blood') state.applicationServices[key] = !state.applicationServices[key]; return render(); }
+          if (action === 'show-service-guide') return serviceGuideModal();
+          if (action === 'simulate-approve') { if (state.applicationStatus !== 'pending') return toast('当前状态不可审核通过'); state.applicationStatus = 'approved'; render(); return toast('已模拟：审核通过'); }
+          if (action === 'simulate-reject') { if (state.applicationStatus !== 'pending') return toast('当前状态不可驳回'); state.applicationStatus = 'rejected'; state.applicationRejectReason = '经营资质证明不完整，请补充相关材料后重新提交。'; render(); return toast('已模拟：审核驳回'); }
+          if (action === 'simulate-build') { if (state.applicationStatus !== 'approved') return toast('当前状态不可创建站点'); state.applicationStatus = 'built'; render(); return toast('已模拟：创建站点完成'); }
+          if (action === 'apply-again') { state.applicationStatus = 'none'; state.applicationName = ''; state.applicationRejectReason = ''; state.applicationServices = { health: true, blood: true }; render(); return toast('已重置，可重新填写申请'); }
           if (action === 'demo-staff') return setRole('both');
           if (action === 'station-invite') return stationInviteModal();
           if (action === 'share-station-invite') return toast('已唤起微信好友分享面板（原型模拟）');

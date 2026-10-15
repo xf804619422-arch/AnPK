@@ -238,6 +238,13 @@
     .upload-input { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
     .detail-preview { min-height: 142px; display: flex; align-items: center; flex-wrap: wrap; gap: 9px; padding: 12px; border: 1px dashed #a9ccc5; border-radius: 12px; background: #f7fbfa; }
     .detail-thumb { width: 72px; height: 82px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; color: var(--brand); background: #eaf5f2; font-size: 9px; font-weight: 900; }
+    .proof-thumb { display: inline-block; width: 46px; height: 32px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); background: #fff; vertical-align: middle; }
+    .proof-thumb svg { width: 100%; height: 100%; display: block; }
+    .proof-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 14px; }
+    .proof-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
+    .proof-preview { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+    .proof-preview svg { width: 100%; height: auto; display: block; }
+    .proof-empty { color: var(--muted); font-size: 12px; }
     .detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .upload-add { width: 72px; height: 82px; display: grid; place-items: center; border: 1px dashed #a9ccc5; border-radius: 10px; color: var(--brand); background: #fff; cursor: pointer; font-size: 20px; font-weight: 900; }
     .settings-wide { grid-column: 1 / -1; }
@@ -436,9 +443,10 @@
           {id:'CP-HZ',name:'杭州城市合伙人',province:'浙江省',city:'杭州市',leader:'王蕾',phone:'158****4430',stations:17,status:'启用'}
         ],
         applications: [
-          {id:'SQ20260826001',name:'天河长兴社区服务中心',applicant:'林晓燕',phone:'139****6789',city:'广东省 / 广州市',service:'健康服务 + 采血服务',time:'2026-08-26 09:12',status:'待联系'},
-          {id:'SQ20260825006',name:'悦康邻里服务中心',applicant:'高志平',phone:'135****2336',city:'浙江省 / 杭州市',service:'健康服务',time:'2026-08-25 15:36',status:'待联系'},
-          {id:'SQ20260824012',name:'锦江康养服务站',applicant:'吴倩',phone:'188****0911',city:'四川省 / 成都市',service:'采血服务',time:'2026-08-24 11:08',status:'已建站'}
+          {id:'SQ20260826001',name:'天河长兴社区服务中心',applicant:'林晓燕',phone:'139****6789',city:'广东省 / 广州市',service:'健康服务 + 采血服务',time:'2026-08-26 09:12',status:'待审核',businessLicense:'已上传',storefrontPhoto:'已上传'},
+          {id:'SQ20260825006',name:'悦康邻里服务中心',applicant:'高志平',phone:'135****2336',city:'浙江省 / 杭州市',service:'健康服务',time:'2026-08-25 15:36',status:'审核通过',businessLicense:'已上传',storefrontPhoto:'已上传'},
+          {id:'SQ20260823008',name:'南沙湾社区健康服务站',applicant:'许嘉',phone:'186****5521',city:'广东省 / 广州市',service:'健康服务',time:'2026-08-23 14:20',status:'审核驳回',rejectReason:'经营资质证明不完整，请补充医疗机构执业许可后重新提交。',businessLicense:'已上传',storefrontPhoto:'已上传'},
+          {id:'SQ20260824012',name:'锦江康养服务站',applicant:'吴倩',phone:'188****0911',city:'四川省 / 成都市',service:'采血服务',time:'2026-08-24 11:08',status:'已建站',businessLicense:null,storefrontPhoto:null}
         ],
         stations: [
           {id:'ST202608001',name:'天河悦康社区合作站',city:'广东省 / 广州市',address:'天河区长兴街道乐意居花苑 12 号',contact:'黄店长 138****2048',health:true,blood:true,status:'启用',admin:'THYK20260715',workers:6,inventory:328,created:'2026-07-15'},
@@ -576,7 +584,7 @@
       const esc = value => String(value ?? '').replace(/[&<>'"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));
       const money = n => '¥' + Number(n).toLocaleString('zh-CN');
       const now = () => new Date().toLocaleString('zh-CN', {hour12:false}).replaceAll('/','-');
-      const badgeClass = status => ({'启用':'green','上架':'green','进行中':'green','已建站':'green','已完成':'green','报告完成':'green','已核销':'green','已使用':'purple','已发货':'blue','已寄出':'blue','未开始':'blue','待出报告':'purple','待核销':'orange','待发货':'orange','待联系':'orange','待接收':'orange','退款申请':'red','样本异常':'red','停用':'red','已过期':'red','已作废':'red','未使用':'outline'}[status] || '');
+      const badgeClass = status => ({'启用':'green','上架':'green','进行中':'green','已建站':'green','已完成':'green','报告完成':'green','已核销':'green','已使用':'purple','已发货':'blue','已寄出':'blue','未开始':'blue','待出报告':'purple','待核销':'orange','待发货':'orange','待审核':'orange','审核通过':'blue','审核驳回':'red','待接收':'orange','退款申请':'red','样本异常':'red','停用':'red','已过期':'red','已作废':'red','未使用':'outline'}[status] || '');
       const badge = status => `<span class="badge ${badgeClass(status)}">${esc(status)}</span>`;
       const orderItems = order => Array.isArray(order.items)&&order.items.length?order.items:[{name:order.product,kind:'main',qty:order.qty,unitPrice:order.qty?order.originalAmount/order.qty:order.originalAmount}];
       const orderTotalQty = order => orderItems(order).reduce((total,item)=>total+Number(item.qty||0),0);
@@ -588,7 +596,7 @@
         {id:'organization',label:'组织与站点',menus:[
           {id:'provinces',label:'省级运营',buttons:[['view','查看'],['create','新建'],['edit','编辑'],['toggle','启用/停用']]},
           {id:'cities',label:'城市合伙人',buttons:[['view','查看'],['create','新建'],['edit','编辑'],['toggle','启用/停用']]},
-          {id:'applications',label:'入驻申请',buttons:[['view','查看'],['export','导出'],['createStation','创建站点']]},
+          {id:'applications',label:'入驻申请',buttons:[['view','查看'],['audit','审核'],['createStation','创建站点'],['export','导出']]},
           {id:'stations',label:'社区合作站',buttons:[['view','查看'],['create','创建'],['edit','编辑资料'],['service','服务配置'],['inventory','库存管理'],['reset','重置密码']]}
         ]},
         {id:'trade',label:'交易业务',menus:[
@@ -646,7 +654,7 @@
           <div class="card panel"><div class="panel-title"><h3>总部业务待办</h3><span>按紧急程度排序</span></div><div class="task-list">
             <button class="task" data-page="orders-delivery"><span class="task-dot"></span><span class="task-copy"><strong>快递订单待发货</strong><small>完成物流登记后同步用户</small></span><b>${state.orders.filter(x=>x.status==='待发货').length}</b></button>
             <button class="task" data-page="refunds"><span class="task-dot red"></span><span class="task-copy"><strong>退款申请待处理</strong><small>退款期间站点暂停核销</small></span><b>${state.orders.filter(x=>x.status==='退款申请').length}</b></button>
-            <button class="task" data-page="applications"><span class="task-dot blue"></span><span class="task-copy"><strong>合作站申请待联系</strong><small>线下核实后由总部建站</small></span><b>${state.applications.filter(x=>x.status==='待联系').length}</b></button>
+            <button class="task" data-page="applications"><span class="task-dot blue"></span><span class="task-copy"><strong>合作站申请待审核</strong><small>审核通过后由总部建站</small></span><b>${state.applications.filter(x=>x.status==='待审核').length}</b></button>
             <button class="task" data-page="anomalies"><span class="task-dot red"></span><span class="task-copy"><strong>样本异常待跟进</strong><small>客服线下联系用户处理</small></span><b>${state.bloodForms.filter(x=>x.status==='样本异常').length}</b></button>
           </div></div>
         </section>`;
@@ -660,12 +668,36 @@
         <div class="card table-card"><table><thead><tr><th>运营主体</th><th>区域归属</th><th>负责人</th><th>业务范围</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(data.length)}</div>`;
       }
 
+      function proofSvg(type, name) {
+        const n = esc(name || '');
+        if (type === 'license') {
+          return `<svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="118" height="82" rx="8" fill="#ffffff" stroke="#d8e6e3"/><rect x="1" y="1" width="118" height="22" rx="8" fill="#0a746c"/><rect x="1" y="12" width="118" height="11" fill="#0a746c"/><text x="60" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="sans-serif">营业执照</text><text x="60" y="45" text-anchor="middle" fill="#183331" font-size="11" font-family="sans-serif">${n}</text><rect x="22" y="58" width="76" height="5" rx="2.5" fill="#e3ecea"/><rect x="22" y="68" width="56" height="5" rx="2.5" fill="#e3ecea"/></svg>`;
+        }
+        return `<svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="84" rx="8" fill="#eaf3f1"/><rect x="14" y="20" width="92" height="24" rx="6" fill="#0a746c"/><text x="60" y="36" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="sans-serif">${n}</text><rect x="20" y="52" width="20" height="20" rx="3" fill="#d99a56"/><rect x="50" y="52" width="20" height="20" rx="3" fill="#d99a56"/><rect x="80" y="52" width="20" height="20" rx="3" fill="#d99a56"/><rect x="26" y="60" width="8" height="4" fill="#ffffff" opacity=".55"/><rect x="56" y="60" width="8" height="4" fill="#ffffff" opacity=".55"/><rect x="86" y="60" width="8" height="4" fill="#ffffff" opacity=".55"/></svg>`;
+      }
+
+      function proofThumb(type, name) {
+        return `<span class="proof-thumb">${proofSvg(type, name)}</span>`;
+      }
+
+      function proofGallery(x) {
+        const license = x.businessLicense ? `<div class="proof-preview">${proofSvg('license', x.name)}</div>` : '<div class="proof-empty">-</div>';
+        const storefront = x.storefrontPhoto ? `<div class="proof-preview">${proofSvg('storefront', x.name)}</div>` : '<div class="proof-empty">-</div>';
+        return `<div class="proof-gallery"><div class="proof-item"><span class="proof-label">营业执照</span>${license}</div><div class="proof-item"><span class="proof-label">门头照片</span>${storefront}</div></div>`;
+      }
+
       function applicationsPage(){
         const filter=state.listFilters.applications,list=filter==='all'?state.applications:state.applications.filter(item=>item.status===filter);
-        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td><div class="cell-main">${esc(x.name)}</div><div class="cell-sub">申请人：${esc(x.applicant)} · ${esc(x.phone)}</div></td><td>${esc(x.city)}</td><td>${esc(x.service)}</td><td>${badge(x.status)}</td><td><div class="table-actions"><button class="btn small ghost" data-action="view-application" data-id="${x.id}">查看</button>${x.status==='待联系'?`<button class="btn small primary" data-action="convert-application" data-id="${x.id}">创建站点</button>`:''}</div></td></tr>`).join('');
-        return `${pageHead('STATION APPLICATIONS','入驻申请','小程序申请仅作为合作线索。总部完成线下联系与核实后，正式创建社区合作站和独立管理员账号。',`<button class="btn ghost" data-action="export">导出申请</button>`)}
-        <div class="card toolbar"><div class="filters">${listTab('applications','all','全部申请')}${listTab('applications','待联系','待联系')}${listTab('applications','已建站','已建站')}</div><div class="search"><span>⌕</span><input placeholder="搜索站点、申请人、手机号"></div></div>
-        <div class="card table-card"><table><thead><tr><th>申请编号</th><th>拟合作站</th><th>归属地区</th><th>申请服务</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(list.length)}</div>`;
+        const rowActions=x=>{
+          const view=`<button class="btn small ghost" data-action="view-application" data-id="${x.id}">查看</button>`;
+          if(x.status==='待审核')return view+`<button class="btn small primary" data-action="review-application" data-id="${x.id}">审核</button>`;
+          if(x.status==='审核通过')return view+`<button class="btn small primary" data-action="convert-application" data-id="${x.id}">创建站点</button>`;
+          return view;
+        };
+        const rows=list.map(x=>`<tr><td><div class="cell-main">${x.id}</div><div class="cell-sub">${x.time}</div></td><td><div class="cell-main">${esc(x.name)}</div><div class="cell-sub">申请人：${esc(x.applicant)} · ${esc(x.phone)}</div></td><td>${esc(x.city)}</td><td>${esc(x.service)}</td><td>${x.businessLicense ? proofThumb('license', x.name) : '-'}</td><td>${x.storefrontPhoto ? proofThumb('storefront', x.name) : '-'}</td><td>${badge(x.status)}</td><td><div class="table-actions">${rowActions(x)}</div></td></tr>`).join('');
+        return `${pageHead('STATION APPLICATIONS','入驻申请','小程序提交申请后进入审核，审核通过即可创建合作站；审核驳回时填写原因并返回给申请人修改后重新提交。',`<button class="btn ghost" data-action="export">导出申请</button>`)}
+        <div class="card toolbar"><div class="filters">${listTab('applications','all','全部申请')}${listTab('applications','待审核','待审核')}${listTab('applications','审核通过','审核通过')}${listTab('applications','审核驳回','审核驳回')}${listTab('applications','已建站','已建站')}</div><div class="search"><span>⌕</span><input placeholder="搜索站点、申请人、手机号"></div></div>
+        <div class="card table-card"><table><thead><tr><th>申请编号</th><th>拟合作站</th><th>归属地区</th><th>申请服务</th><th>营业执照</th><th>门头照片</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>${pagination(list.length)}</div>`;
       }
 
       function stationsPage(){
@@ -912,7 +944,7 @@
       };
 
       function activeNav(){ if(state.page==='station-detail')return 'stations'; if(state.page==='order-detail'){const x=state.orders.find(o=>o.id===state.selectedOrder);return x?.type==='快递配送'?'orders-delivery':'orders-pickup';} if(state.page==='blood-detail'){const x=state.bloodForms.find(b=>b.id===state.selectedBlood);return x?.status==='样本异常'?'anomalies':'blood';} return state.page; }
-      function updateNav(){ document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===activeNav())); $('#applicationCount').textContent=state.applications.filter(x=>x.status==='待联系').length; $('#shippingCount').textContent=state.orders.filter(x=>x.status==='待发货').length; $('#refundCount').textContent=state.orders.filter(x=>x.status==='退款申请').length; $('#anomalyCount').textContent=state.bloodForms.filter(x=>x.status==='样本异常').length; }
+      function updateNav(){ document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===activeNav())); $('#applicationCount').textContent=state.applications.filter(x=>x.status==='待审核').length; $('#shippingCount').textContent=state.orders.filter(x=>x.status==='待发货').length; $('#refundCount').textContent=state.orders.filter(x=>x.status==='退款申请').length; $('#anomalyCount').textContent=state.bloodForms.filter(x=>x.status==='样本异常').length; }
       function render(scroll=true){ pageRoot.innerHTML=(renderers[state.page]||dashboardPage)(); updateNav(); if(scroll)window.scrollTo({top:0,behavior:'smooth'}); }
       function go(page){ state.page=page; render(); }
       function toast(message){ const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2300); }
@@ -932,6 +964,10 @@
       function createOperatorModal(type){
         const isP=type==='province',availableProvinces=state.regionProvinces.filter(province=>province.status==='启用'&&(isP?!state.provinces.some(item=>item.province===province.name):state.provinces.some(item=>item.province===province.name&&item.status==='启用'))),provinceId=availableProvinces[0]?.id||'',provinceOptions=availableProvinces.map(province=>`<option value="${province.id}">${esc(province.name)}</option>`).join(''),cityOptions=provinceId?regionCityOptions(provinceId,'',true):'';
         showModal(`新建${isP?'省级运营':'城市合伙人'}`,`<label class="field"><span>主体名称 *</span><input id="opName" value="${isP?'福建省运营中心':'佛山城市合伙人'}"></label>${isP?`<label class="field"><span>所属省份 *</span><select id="opArea">${provinceOptions||'<option value="">暂无可分配省份</option>'}</select></label>`:`<div class="field-grid"><label class="field"><span>所属省份 *</span><select id="opRegionProvince">${provinceOptions||'<option value="">暂无已启用省级运营的省份</option>'}</select></label><label class="field"><span>所属城市 *</span><select id="opArea">${cityOptions||'<option value="">暂无可分配城市</option>'}</select></label></div>`}<div class="field-grid"><label class="field"><span>负责人 *</span><input id="opLeader" value="陈嘉宁"></label><label class="field"><span>联系电话 *</span><input id="opPhone" value="13812345678"></label></div><div class="notice green"><strong>区域来源与唯一归属</strong>区域只能从“行政区划管理”的启用数据中选择；同一${isP?'省份':'地级市'}只能存在一个运营主体。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn primary" data-action="confirm-create-operator" data-type="${type}">创建并开通账号</button>`);
+      }
+      function reviewApplicationModal(id){
+        const x=state.applications.find(v=>v.id===id); if(!x)return;
+        showModal('审核入驻申请',`<div class="info-row"><span>申请编号</span><strong>${x.id}</strong></div><div class="info-row"><span>拟合作站</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>申请人</span><strong>${esc(x.applicant)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>归属地区</span><strong>${esc(x.city)}</strong></div><div class="info-row"><span>申请服务</span><strong>${esc(x.service)}</strong></div><div class="info-row"><span>申请时间</span><strong>${x.time}</strong></div>${proofGallery(x)}<label class="field" style="margin-top:14px"><span>驳回原因</span><textarea id="applicationRejectReason" placeholder="审核驳回时必填，将返回给申请人"></textarea></label><div class="notice green" style="margin-top:14px"><strong>审核结果同步</strong>审核通过后进入建站环节；驳回后原因将返回小程序，申请人可修改后重新提交。</div>`,`<button class="btn ghost" data-action="close-modal">取消</button><button class="btn danger" data-action="reject-application" data-id="${x.id}">审核驳回</button><button class="btn primary" data-action="approve-application" data-id="${x.id}">审核通过</button>`);
       }
       function createStationModal(appId=''){
         const app=state.applications.find(x=>x.id===appId);
@@ -1090,7 +1126,10 @@
         if(a==='confirm-create-operator'){ const type=el.dataset.type,name=$('#opName').value.trim(),leader=$('#opLeader').value.trim(),phone=$('#opPhone').value.trim();if(!name||!leader||!phone)return toast('请完整填写必填信息');if(type==='province'){const region=state.regionProvinces.find(item=>item.id===$('#opArea').value);if(!region)return toast('请选择可分配的省份');state.provinces.push({id:'OP-'+Date.now().toString().slice(-4),name,province:region.name,leader,phone:phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2'),cities:state.regionCities.filter(city=>city.provinceId===region.id&&city.status==='启用').length,stations:0,status:'启用'});}else{const province=state.regionProvinces.find(item=>item.id===$('#opRegionProvince').value),city=state.regionCities.find(item=>item.id===$('#opArea').value);if(!province||!city)return toast('请选择可分配的省份和城市');state.cities.push({id:'CP-'+Date.now().toString().slice(-4),name,province:province.name,city:city.name,leader,phone:phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2'),stations:0,status:'启用'});}addLog('区域组织','创建运营主体',name);closeModal();render(false);return toast('运营主体和登录账号已创建'); }
         if(a==='view-operator'){ const list=el.dataset.type==='province'?state.provinces:state.cities,x=list.find(v=>v.id===el.dataset.id); return showModal('运营主体详情',`<div class="info-row"><span>主体名称</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>区域归属</span><strong>${esc(x.province+(x.city?' / '+x.city:''))}</strong></div><div class="info-row"><span>负责人</span><strong>${esc(x.leader)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>数据权限</span><strong>${x.city?'仅本城市':'仅本省'}</strong></div>`); }
         if(a==='toggle-operator'){ const list=el.dataset.type==='province'?state.provinces:state.cities,x=list.find(v=>v.id===el.dataset.id); x.status=x.status==='启用'?'停用':'启用'; addLog('区域组织',x.status+'运营主体',x.name); render(false); return toast(`已${x.status}${x.name}`); }
-        if(a==='view-application'){ const x=state.applications.find(v=>v.id===el.dataset.id); return showModal('入驻申请详情',`<div class="info-row"><span>申请编号</span><strong>${x.id}</strong></div><div class="info-row"><span>拟合作站</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>申请人</span><strong>${esc(x.applicant)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>归属地区</span><strong>${esc(x.city)}</strong></div><div class="info-row"><span>申请服务</span><strong>${esc(x.service)}</strong></div><div class="info-row"><span>申请时间</span><strong>${x.time}</strong></div><div class="notice" style="margin-top:14px"><strong>线下核实后建站</strong>该页面仅记录申请线索，不做线上自动审核开通。</div>`,x.status==='待联系'?`<button class="btn ghost" data-action="close-modal">关闭</button><button class="btn primary" data-action="convert-application" data-id="${x.id}">创建合作站</button>`:''); }
+        if(a==='view-application'){ const x=state.applications.find(v=>v.id===el.dataset.id); const foot=x.status==='待审核'?`<button class="btn ghost" data-action="close-modal">关闭</button><button class="btn primary" data-action="review-application" data-id="${x.id}">审核</button>`:x.status==='审核通过'?`<button class="btn ghost" data-action="close-modal">关闭</button><button class="btn primary" data-action="convert-application" data-id="${x.id}">创建合作站</button>`:`<button class="btn ghost" data-action="close-modal">关闭</button>`; return showModal('入驻申请详情',`<div class="info-row"><span>申请编号</span><strong>${x.id}</strong></div><div class="info-row"><span>拟合作站</span><strong>${esc(x.name)}</strong></div><div class="info-row"><span>申请人</span><strong>${esc(x.applicant)} · ${esc(x.phone)}</strong></div><div class="info-row"><span>归属地区</span><strong>${esc(x.city)}</strong></div><div class="info-row"><span>申请服务</span><strong>${esc(x.service)}</strong></div><div class="info-row"><span>申请时间</span><strong>${x.time}</strong></div>${proofGallery(x)}<div class="info-row"><span>当前状态</span><strong>${badge(x.status)}</strong></div>${x.status==='审核驳回'?`<div class="notice red" style="margin-top:14px"><strong>驳回原因</strong>${esc(x.rejectReason)}</div>`:''}<div class="notice" style="margin-top:14px"><strong>审核流程</strong>小程序提交申请后由总部审核；通过后创建合作站，驳回时填写原因并返回给申请人修改后重新提交。</div>`,foot); }
+        if(a==='review-application')return reviewApplicationModal(el.dataset.id);
+        if(a==='approve-application'){ const x=state.applications.find(v=>v.id===el.dataset.id); if(!x)return; x.status='审核通过'; delete x.rejectReason; addLog('入驻申请','审核通过',x.name); closeModal(); render(false); return toast('审核已通过，可创建合作站'); }
+        if(a==='reject-application'){ const reason=$('#applicationRejectReason').value.trim(); if(!reason)return toast('请填写驳回原因'); const x=state.applications.find(v=>v.id===el.dataset.id); x.status='审核驳回'; x.rejectReason=reason; addLog('入驻申请','审核驳回',`${x.name} · ${reason}`); closeModal(); render(false); return toast('已驳回，原因将返回小程序'); }
         if(a==='convert-application'){ closeModal(); return createStationModal(el.dataset.id); }
         if(a==='open-create-station')return createStationModal();
         if(a==='confirm-create-station'){ const name=$('#stationName').value.trim(),health=$('#serviceHealth').checked,blood=$('#serviceBlood').checked,admin=$('#stationLoginAccount').value.trim(),password=$('#stationLoginPassword').value.trim(),provinceRegion=state.regionProvinces.find(item=>item.id===$('#stationProvince').value),cityRegion=state.regionCities.find(item=>item.id===$('#stationCity').value);if(!name)return toast('请填写站点名称');if(!provinceRegion||!cityRegion||cityRegion.provinceId!==provinceRegion.id)return toast('请选择有效的省市区域');if(!health&&!blood)return toast('至少开通一项服务');if(!admin||!password)return toast('请填写社区合作端登录账号和密码');if(password.length<6)return toast('初始登录密码不能少于 6 位');if(state.stations.some(station=>station.admin===admin))return toast('登录账号已存在，请更换账号');const id='ST'+Date.now().toString().slice(-9);state.stations.unshift({id,name,city:provinceRegion.name+' / '+cityRegion.name,address:$('#stationAddress').value,contact:$('#stationContact').value+' '+$('#stationPhone').value.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2'),health,blood,status:'启用',admin,password,workers:0,inventory:health?0:null,created:'2026-08-26'});const app=state.applications.find(x=>x.id===el.dataset.app);if(app)app.status='已建站';addLog('社区合作站','创建合作站',`${name} · ${provinceRegion.name} / ${cityRegion.name} · 登录账号 ${admin}`);closeModal();state.selectedStation=id;go('station-detail');return toast('合作站与登录账号已创建'); }
